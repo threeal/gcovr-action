@@ -1,6 +1,10 @@
 name: Gcovr Action
 description: Generate code coverage report for C++ project using gcovr
 author: Alfi Maulana
+inputs:
+  root:
+    description: 'The root directory of your source files'
+    required: false
 branding:
   color: green
   icon: terminal
@@ -13,4 +17,6 @@ runs:
           echo "gcovr could not be found, installing..."
           pip install gcovr
         fi
-        gcovr
+        root=${{ inputs.root }}
+        gcovr \
+          ${root:+ --root "$root"}
