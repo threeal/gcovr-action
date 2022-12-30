@@ -13,4 +13,4 @@ runs:
           echo "gcovr could not be found, installing..."
           pip install gcovr
         fi
-        gcovr --version
+        gcovr
