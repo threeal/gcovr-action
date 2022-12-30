@@ -1,0 +1,11 @@
+name: Gcovr Action
+description: Generate code coverage report for C++ project using gcovr
+author: Alfi Maulana
+branding:
+  color: green
+  icon: terminal
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: echo 'test'
