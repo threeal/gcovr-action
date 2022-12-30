@@ -17,3 +17,21 @@ jobs:
 
       - name: Use this action
         uses: ./
+
+  root-input:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3.2.0
+
+      - name: Build and test example project
+        working-directory: test
+        run:  |
+          cmake . -B build
+          cmake --build build
+          ctest --test-dir build
+
+      - name: Use this action
+        uses: ./
+        with:
+          root: test
