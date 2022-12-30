@@ -2,5 +2,12 @@
 #include <is_odd.hpp>
 
 int main() {
-  return (is_even(2) && is_odd(3)) ? 0 : 1;
+  bool success = true;
+#ifdef TEST_EVEN
+  success &= is_even(4);
+#endif
+#ifdef TEST_ODD
+  success &= is_odd(5);
+#endif
+  return success ? 0 : 1;
 }
