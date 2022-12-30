@@ -1,0 +1,16 @@
+name: Gcovr Action
+description: Generate code coverage report for C++ project using gcovr
+author: Alfi Maulana
+branding:
+  color: green
+  icon: terminal
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        if ! command -v gcovr &> /dev/null; then
+          echo "gcovr could not be found, installing..."
+          pip install gcovr
+        fi
+        gcovr
