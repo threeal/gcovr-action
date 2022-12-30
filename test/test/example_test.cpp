@@ -1,5 +1,5 @@
-#include <example.hpp>
+#include <is_odd.hpp>
 
 int main() {
-  return example::is_odd(3) ? 0 : 1;
+  return is_odd(3) ? 0 : 1;
 }
