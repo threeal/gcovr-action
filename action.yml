@@ -8,4 +8,9 @@ runs:
   using: composite
   steps:
     - shell: bash
-      run: echo 'test'
+      run: |
+        if ! command -v gcovr &> /dev/null; then
+          echo "gcovr could not be found, installing..."
+          pip install gcovr
+        fi
+        gcovr --version
