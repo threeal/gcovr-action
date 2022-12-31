@@ -31,17 +31,26 @@ runs:
           pip install gcovr
         fi
 
-    - name: Generate code coverage report using gcovr
+    - name: Process inputs
       shell: bash
       run: |
-        root="${{ inputs.root }}"
-        gcov_exec="${{ inputs.gcov-executable }}"
-        exclude="${{ inputs.exclude }}"
-        fail_ul="${{ inputs.fail-under-line }}"
-        coveralls_out="${{ inputs.coveralls-out }}"
-        gcovr \
-          ${root:+ --root "$root"} \
-          ${gcov_exec:+ --gcov-executable "$gcov_exec"} \
-          ${exclude:+ --exclude "$exclude"} \
-          ${fail_ul:+ --fail-under-line "$fail_ul"} \
-          ${coveralls_out:+ --coveralls "$coveralls_out"}
+        if [ -n '${{ inputs.root }}' ]; then
+          ARGS="$ARGS --root '${{ inputs.root }}'"
+        fi
+        if [ -n '${{ inputs.gcov-executable }}' ]; then
+          ARGS="$ARGS --gcov-executable '${{ inputs.gcov-executable }}'"
+        fi
+        if [ -n '${{ inputs.exclude }}' ]; then
+          ARGS="$ARGS --exclude '${{ inputs.exclude }}'"
+        fi
+        if [ -n '${{ inputs.fail-under-line }}' ]; then
+          ARGS="$ARGS --fail-under-line '${{ inputs.fail-under-line }}'"
+        fi
+        if [ -n '${{ inputs.coveralls-out }}' ]; then
+          ARGS="$ARGS --coveralls '${{ inputs.coveralls-out }}'"
+        fi
+        echo "GCOVR_ARGS=$ARGS" >> $GITHUB_ENV
+
+    - name: Generate code coverage report using gcovr
+      shell: bash
+      run: gcovr ${{ env.GCOVR_ARGS }}
