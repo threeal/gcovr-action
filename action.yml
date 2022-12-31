@@ -5,6 +5,9 @@ inputs:
   root:
     description: 'The root directory of your source files'
     required: false
+  gcov-executable:
+    description: 'Use a particular gcov executable'
+    required: false
   exclude:
     description: 'Exclude source files that match this filter'
     required: false
@@ -29,9 +32,11 @@ runs:
       shell: bash
       run: |
         root=${{ inputs.root }}
+        gcov_exec=${{ inputs.gcov-executable }}
         exclude=${{ inputs.exclude }}
         fail_ul=${{ inputs.fail-under-line }}
         gcovr \
           ${root:+ --root "$root"} \
+          ${gcov_exec:+ --gcov-executable "$gcov_exec"} \
           ${exclude:+ --exclude "$exclude"} \
           ${fail_ul:+ --fail-under-line "$fail_ul"}
