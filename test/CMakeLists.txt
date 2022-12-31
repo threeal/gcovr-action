@@ -6,11 +6,8 @@ option(TEST_ODD "test is_odd function" ON)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -fPIC -O0")
 
-add_library(lib INTERFACE)
-target_include_directories(lib INTERFACE include)
-
 add_executable(main main.cpp)
-target_link_libraries(main PRIVATE lib)
+target_include_directories(main PRIVATE include)
 if(TEST_EVEN)
   target_compile_definitions(main PRIVATE TEST_EVEN)
 endif()
