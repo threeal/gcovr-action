@@ -42,6 +42,11 @@ jobs:
       - name: Check if previous step is failing
         run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
 
+      - name: Use this action from build root but without fail threshold
+        uses: ./
+        with:
+          root: test/build
+
       - name: Use this action from project root
         uses: ./
         with:
@@ -70,6 +75,11 @@ jobs:
 
       - name: Check if previous step is failing
         run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
+
+      - name: Use this action without exclusion but with lower fail threshold
+        uses: ./
+        with:
+          fail-under-line: 50
 
       - name: Use this action with exclusion
         uses: ./
