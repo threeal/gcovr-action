@@ -31,7 +31,18 @@ jobs:
           cmake --build build
           ctest --test-dir build
 
-      - name: Use this action
+      - name: Use this action from build root
+        id: failed_action
+        continue-on-error: true
+        uses: ./
+        with:
+          root: test/build
+          fail-under-line: 100
+
+      - name: Check if previous step is failing
+        run: ${{ steps.failed_action.outcome == 'failure' && true || false }}
+
+      - name: Use this action from project root
         uses: ./
         with:
           root: test
