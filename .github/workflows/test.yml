@@ -18,7 +18,7 @@ jobs:
       - name: Use this action
         uses: ./
 
-  root-input:
+  use-action-from-different-root:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -35,8 +35,9 @@ jobs:
         uses: ./
         with:
           root: test
+          fail-under-line: 100
 
-  exclude-input:
+  use-action-with-exclusion:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -53,3 +54,4 @@ jobs:
         uses: ./
         with:
           exclude: test/include/*
+          fail-under-line: 100
