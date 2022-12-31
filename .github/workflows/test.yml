@@ -18,7 +18,7 @@ jobs:
       - name: Use this action
         uses: ./
 
-  root-input:
+  use-action-from-different-root:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,12 +31,29 @@ jobs:
           cmake --build build
           ctest --test-dir build
 
-      - name: Use this action
+      - name: Use this action from build root
+        id: failed_step
+        continue-on-error: true
+        uses: ./
+        with:
+          root: test/build
+          fail-under-line: 100
+
+      - name: Check if previous step is failing
+        run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
+
+      - name: Use this action from build root but without fail threshold
+        uses: ./
+        with:
+          root: test/build
+
+      - name: Use this action from project root
         uses: ./
         with:
           root: test
+          fail-under-line: 100
 
-  exclude-input:
+  use-action-with-exclusion:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -49,7 +66,23 @@ jobs:
           cmake --build build
           ctest --test-dir build
 
-      - name: Use this action
+      - name: Use this action without exclusion
+        id: failed_step
+        continue-on-error: true
+        uses: ./
+        with:
+          fail-under-line: 100
+
+      - name: Check if previous step is failing
+        run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
+
+      - name: Use this action without exclusion but with lower fail threshold
+        uses: ./
+        with:
+          fail-under-line: 50
+
+      - name: Use this action with exclusion
         uses: ./
         with:
           exclude: test/include/*
+          fail-under-line: 100

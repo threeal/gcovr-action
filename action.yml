@@ -8,6 +8,9 @@ inputs:
   exclude:
     description: 'Exclude source files that match this filter'
     required: false
+  fail-under-line:
+    description: 'Exit with a status of 2 if the total line coverage is less than this value'
+    required: false
 branding:
   color: green
   icon: terminal
@@ -22,6 +25,8 @@ runs:
         fi
         root=${{ inputs.root }}
         exclude=${{ inputs.exclude }}
+        fail_ul=${{ inputs.fail-under-line }}
         gcovr \
           ${root:+ --root "$root"} \
-          ${exclude:+ --exclude "$exclude"}
+          ${exclude:+ --exclude "$exclude"} \
+          ${fail_ul:+ --fail-under-line "$fail_ul"}
