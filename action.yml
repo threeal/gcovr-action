@@ -17,12 +17,17 @@ branding:
 runs:
   using: composite
   steps:
-    - shell: bash
+    - name: Check if gcovr is installed
+      shell: bash
       run: |
         if ! command -v gcovr &> /dev/null; then
           echo "gcovr could not be found, installing..."
           pip install gcovr
         fi
+
+    - name: Generate code coverage report using gcovr
+      shell: bash
+      run: |
         root=${{ inputs.root }}
         exclude=${{ inputs.exclude }}
         fail_ul=${{ inputs.fail-under-line }}
