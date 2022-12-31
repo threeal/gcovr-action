@@ -35,3 +35,21 @@ jobs:
         uses: ./
         with:
           root: test
+
+  exclude-input:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3.2.0
+
+      - name: Build and test example project
+        working-directory: test
+        run:  |
+          cmake . -B build -DTEST_EVEN=OFF -DTEST_ODD=OFF
+          cmake --build build
+          ctest --test-dir build
+
+      - name: Use this action
+        uses: ./
+        with:
+          exclude: test/include/*
