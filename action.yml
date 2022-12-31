@@ -14,6 +14,9 @@ inputs:
   fail-under-line:
     description: 'Exit with a status of 2 if the total line coverage is less than this value'
     required: false
+  coveralls-out:
+    description: 'Output of generated Coveralls API coverage report'
+    required: false
 branding:
   color: green
   icon: terminal
@@ -35,8 +38,10 @@ runs:
         gcov_exec="${{ inputs.gcov-executable }}"
         exclude="${{ inputs.exclude }}"
         fail_ul="${{ inputs.fail-under-line }}"
+        coveralls_out="${{ inputs.coveralls-out }}"
         gcovr \
           ${root:+ --root "$root"} \
           ${gcov_exec:+ --gcov-executable "$gcov_exec"} \
           ${exclude:+ --exclude "$exclude"} \
-          ${fail_ul:+ --fail-under-line "$fail_ul"}
+          ${fail_ul:+ --fail-under-line "$fail_ul"} \
+          ${coveralls_out:+ --coveralls "$coveralls_out"}
