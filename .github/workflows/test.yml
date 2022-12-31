@@ -18,6 +18,26 @@ jobs:
       - name: Use this action
         uses: ./
 
+  use-action-llvm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3.2.0
+
+      - name: Install LLVM
+        run: sudo apt install -y llvm
+
+      - name: Build and test example project
+        run:  |
+          cmake test -B build -DCMAKE_CXX_COMPILER=clang++
+          cmake --build build
+          ctest --test-dir build
+
+      - name: Use this action
+        uses: ./
+        with:
+          gcov-executable: llvm-cov gcov
+
   use-action-from-different-root:
     runs-on: ubuntu-latest
     steps:
