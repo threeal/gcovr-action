@@ -50,7 +50,17 @@ jobs:
           cmake --build build
           ctest --test-dir build
 
-      - name: Use this action
+      - name: Use this action without exclusion
+        id: failed_action
+        continue-on-error: true
+        uses: ./
+        with:
+          fail-under-line: 100
+
+      - name: Check if previous step is failing
+        run: ${{ steps.failed_action.outcome == 'failure' && true || false }}
+
+      - name: Use this action with exclusion
         uses: ./
         with:
           exclude: test/include/*
