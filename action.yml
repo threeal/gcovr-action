@@ -5,6 +5,9 @@ inputs:
   root:
     description: 'The root directory of your source files'
     required: false
+  exclude:
+    description: 'Exclude source files that match this filter'
+    required: false
 branding:
   color: green
   icon: terminal
@@ -18,5 +21,7 @@ runs:
           pip install gcovr
         fi
         root=${{ inputs.root }}
+        exclude=${{ inputs.exclude }}
         gcovr \
-          ${root:+ --root "$root"}
+          ${root:+ --root "$root"} \
+          ${exclude:+ --exclude "$exclude"}
