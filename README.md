@@ -38,13 +38,28 @@ jobs:
         uses: actions/checkout@v3.2.0
 
       - name: Build and test project
-        run:  |
-          cmake test -B build
+        run: |
+          cmake . -B build
           cmake --build build
           ctest --test-dir build
 
       - name: Generate code coverage report
         uses: threeal/gcovr-action@latest
+```
+
+### Using LLVM
+
+```yaml
+- name: Build and test project
+  run: |
+    cmake . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+    cmake --build build
+    ctest --test-dir build
+
+- name: Generate code coverage report
+  uses: threeal/gcovr-action@latest
+  with:
+    gcov-executable: llvm-cov gcov
 ```
 
 ## License
