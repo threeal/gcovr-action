@@ -10,6 +10,20 @@ Generate code coverage report for C++ project on [GitHub Actions](https://github
 
 For more information, see [action.yml](./action.yml) and the [GitHub Actions guide](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions).
 
+### Inputs
+
+> Note: all inputs are optional
+
+| Name | Value Type | Description |
+| --- | --- | --- |
+| `root` | Path | The root directory of your source files. Defaults to current directory. File names are reported relative to this root. |
+| `gcov-executable` | Executable name with optional arguments | Use a particular gcov executable. Must match the compiler you are using, e.g. `llvm-cov gcov` for [LLVM](https://llvm.org/). See [this](https://docs.coveralls.io/api-introduction). |
+| `exclude` | Regular expression | Exclude source files that match this filter. |
+| `fail-under-line` | 0 - 100 | Fail if the total line coverage is less than this value. |
+| `coveralls-out` | Path | Output file of generated Coveralls API coverage report. |
+| `coveralls-send` | `true` or `false` | Send Coveralls API coverage report to it's endpoint (default: `false`). |
+| `coveralls-repo-token` | Token | Coveralls repo token, required for sending Coveralls API coverage report successfully. See [this](https://docs.coveralls.io/api-introduction).
+
 ### Standard Example
 
 ```yaml
