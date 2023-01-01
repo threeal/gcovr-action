@@ -126,3 +126,19 @@ jobs:
 
       - name: Check if Coveralls report exist
         run: cat coveralls.json
+
+      - name: Use this action to generate and send Coveralls report
+        uses: ./
+        with:
+          coveralls-send: true
+          coveralls-repo-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+      - name: Use this action to generate and send Coveralls report on specified output
+        uses: ./
+        with:
+          coveralls-out: coveralls-2.json
+          coveralls-send: true
+          coveralls-repo-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+
+      - name: Check if Coveralls report exist
+        run: cat coveralls-2.json
