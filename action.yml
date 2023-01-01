@@ -66,6 +66,6 @@ runs:
       run: gcovr ${{ env.GCOVR_ARGS }}
 
     - name: Send code coverage report to Coveralls
-      if: ${{ env.COVERALLS_OUT == 'true' }}
+      if: ${{ inputs.coveralls-send == 'true' }}
       shell: bash
       run: curl -v -F json_file=@${{ env.COVERALLS_OUT }} https://coveralls.io/api/v1/jobs
