@@ -21,7 +21,7 @@ inputs:
     description: Send Coveralls API coverage report into it's endpoint (true/false)
     required: false
     default: false
-  github-token:
+  coveralls-repo-token:
     description: Required for sending Coveralls API coverage report successfully
     required: false
 branding:
@@ -67,7 +67,7 @@ runs:
     - name: Generate code coverage report using gcovr
       shell: bash
       env:
-        COVERALLS_REPO_TOKEN: ${{ inputs.github-token }}
+        COVERALLS_REPO_TOKEN: ${{ inputs.coveralls-repo-token }}
       run: gcovr ${{ env.GCOVR_ARGS }}
 
     - name: Send code coverage report to Coveralls
