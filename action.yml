@@ -17,6 +17,10 @@ inputs:
   coveralls-out:
     description: 'Output of generated Coveralls API coverage report'
     required: false
+  coveralls-send:
+    description: Send Coveralls API coverage report into it's endpoint (true/false)
+    required: false
+    default: false
 branding:
   color: green
   icon: terminal
@@ -47,10 +51,21 @@ runs:
           ARGS="$ARGS --fail-under-line '${{ inputs.fail-under-line }}'"
         fi
         if [ -n '${{ inputs.coveralls-out }}' ]; then
-          ARGS="$ARGS --coveralls '${{ inputs.coveralls-out }}'"
+          COVERALLS_OUT='${{ inputs.coveralls-out }}'
+        elif [ '${{ inputs.coveralls-send }}' = 'true' ]; then
+          COVERALLS_OUT='/tmp/coveralls.json'
+        fi
+        if [ -n "$COVERALLS_OUT" ]; then
+          ARGS="$ARGS --coveralls $COVERALLS_OUT"
         fi
         echo "GCOVR_ARGS=$ARGS" >> $GITHUB_ENV
+        echo "COVERALLS_OUT=$COVERALLS_OUT" >> $GITHUB_ENV
 
     - name: Generate code coverage report using gcovr
       shell: bash
       run: gcovr ${{ env.GCOVR_ARGS }}
+
+    - name: Send code coverage report to Coveralls
+      if: ${{ env.COVERALLS_OUT == 'true' }}
+      shell: bash
+      run: curl -v -F json_file=@${{ env.COVERALLS_OUT }} https://coveralls.io/api/v1/jobs
