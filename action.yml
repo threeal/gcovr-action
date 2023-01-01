@@ -15,10 +15,10 @@ inputs:
     description: 'Exit with a status of 2 if the total line coverage is less than this value'
     required: false
   coveralls-out:
-    description: 'Output of generated Coveralls API coverage report'
+    description: Output file of generated Coveralls API coverage report
     required: false
   coveralls-send:
-    description: Send Coveralls API coverage report into it's endpoint (true/false)
+    description: Send Coveralls API coverage report to it's endpoint (true/false)
     required: false
     default: false
   coveralls-repo-token:
