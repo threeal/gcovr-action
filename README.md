@@ -12,7 +12,7 @@ For more information, see [action.yml](./action.yml) and the [GitHub Actions gui
 
 ### Inputs
 
-> Note: all inputs are optional
+> Note: All inputs are optional.
 
 | Name | Value Type | Description |
 | --- | --- | --- |
@@ -65,7 +65,7 @@ jobs:
 ### Send to Coveralls
 
 ```yaml
-- name: Generate code coverage report
+- name: Generate and send code coverage report to Coveralls
   uses: threeal/gcovr-action@latest
   with:
     coveralls-send: true
