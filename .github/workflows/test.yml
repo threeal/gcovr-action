@@ -129,11 +129,15 @@ jobs:
 
       - name: Use this action to generate and send Coveralls report
         uses: ./
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         with:
           coveralls-send: true
 
       - name: Use this action to generate and send Coveralls report on specified output
         uses: ./
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
         with:
           coveralls-send: true
           coveralls-out: coveralls-2.json
