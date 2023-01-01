@@ -1,18 +1,21 @@
 name: Gcovr Action
 description: Generate code coverage report for C++ project using gcovr
 author: Alfi Maulana
+branding:
+  color: green
+  icon: check-circle
 inputs:
   root:
-    description: 'The root directory of your source files'
+    description: The root directory of your source files
     required: false
   gcov-executable:
-    description: 'Use a particular gcov executable'
+    description: Use a particular gcov executable
     required: false
   exclude:
-    description: 'Exclude source files that match this filter'
+    description: Exclude source files that match this filter
     required: false
   fail-under-line:
-    description: 'Exit with a status of 2 if the total line coverage is less than this value'
+    description: Fail if the total line coverage is less than this value
     required: false
   coveralls-out:
     description: Output file of generated Coveralls API coverage report
@@ -24,9 +27,6 @@ inputs:
   coveralls-repo-token:
     description: Required for sending Coveralls API coverage report successfully
     required: false
-branding:
-  color: green
-  icon: terminal
 runs:
   using: composite
   steps:
