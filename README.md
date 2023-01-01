@@ -62,6 +62,16 @@ jobs:
     gcov-executable: llvm-cov gcov
 ```
 
+### Send to Coveralls
+
+```yaml
+- name: Generate code coverage report
+  uses: threeal/gcovr-action@latest
+  with:
+    coveralls-send: true
+    coveralls-repo-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+```
+
 ## License
 
 This project is maintained by [Alfi Maulana](https://github.com/threeal) and licensed under the [MIT License](./LICENSE).
