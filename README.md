@@ -22,7 +22,7 @@ For more information, see [action.yml](./action.yml) and the [GitHub Actions gui
 | `fail-under-line` | 0 - 100 | Fail if the total line coverage is less than this value. |
 | `coveralls-out` | Path | Output file of generated Coveralls API coverage report. |
 | `coveralls-send` | `true` or `false` | Send Coveralls API coverage report to it's endpoint (default: `false`). |
-| `coveralls-repo-token` | Token | Coveralls repo token, required for sending Coveralls API coverage report successfully. See [this](https://docs.coveralls.io/api-introduction).
+| `github-token` | Token | GitHub token of this project. Must be set to `${{ secrets.GITHUB_TOKEN }}`. Required for sending Coveralls API coverage report successfully. |
 
 ### Standard Example
 
@@ -69,7 +69,7 @@ jobs:
   uses: threeal/gcovr-action@latest
   with:
     coveralls-send: true
-    coveralls-repo-token: ${{ secrets.COVERALLS_REPO_TOKEN }}
+    github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ## License
