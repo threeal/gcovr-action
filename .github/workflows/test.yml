@@ -4,7 +4,11 @@ on:
   push:
 jobs:
   use-action:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows, ubuntu, macos]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.3.0
