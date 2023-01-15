@@ -36,13 +36,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3.3.0
 
-      - name: Build and test example project
-        run:  |
-          cmake test -B build -DCMAKE_CXX_COMPILER=clang++
-          cmake --build build
-          ctest --test-dir build
+      - name: Configure and build the example project
+        uses: threeal/cmake-action@v1.0.0
+        with:
+          source-dir: test
+          generator: Ninja
+          c-compiler: clang
+          cxx-compiler: clang++
 
-      - name: Use this action
+      - name: Test the example project
+        run: ctest --test-dir build
+
+      - name: Use this action with specified gcov executable
         uses: ./
         with:
           gcov-executable: llvm-cov gcov
