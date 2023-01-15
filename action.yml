@@ -35,7 +35,7 @@ runs:
       run: |
         if ! command -v gcovr &> /dev/null; then
           echo "gcovr could not be found, installing..."
-          pip install gcovr
+          pip3 install gcovr
         fi
 
     - name: Process inputs
