@@ -4,7 +4,7 @@ project(test)
 option(TEST_EVEN "test is_even function" ON)
 option(TEST_ODD "test is_odd function" ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -fPIC -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage -O0")
 
 add_executable(main main.cpp)
 target_include_directories(main PRIVATE include)
