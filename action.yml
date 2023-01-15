@@ -64,6 +64,15 @@ runs:
         echo "GCOVR_ARGS=$ARGS" >> $GITHUB_ENV
         echo "COVERALLS_OUT=$COVERALLS_OUT" >> $GITHUB_ENV
 
+    - name: Check if LLVM coverage is installed
+      if: contains(inputs.gcov-executable, 'llvm-cov')
+      shell: bash
+      run: |
+        if ! command -v llvm-cov &> /dev/null; then
+          echo "llvm-cov could not be found, installing..."
+          sudo apt-get install -y llvm
+        fi
+
     - name: Generate code coverage report using gcovr
       shell: bash
       env:
