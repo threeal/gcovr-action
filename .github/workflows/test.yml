@@ -13,11 +13,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3.3.0
 
-      - name: Build and test example project
-        run:  |
-          cmake test -B build
-          cmake --build build
-          ctest --test-dir build
+      - name: Configure and build the example project
+        uses: threeal/cmake-action@v1.0.0
+        with:
+          source-dir: test
+          generator: Ninja
+          cxx-compiler: g++
+
+      - name: Test the example project
+        run: ctest --test-dir build
 
       - name: Use this action
         uses: ./
