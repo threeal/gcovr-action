@@ -50,7 +50,7 @@ jobs:
       - name: Use this action with specified gcov executable
         uses: ./
         with:
-          gcov-executable: llvm-cov gcov
+          gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   use-action-from-different-root:
     runs-on: ubuntu-latest
