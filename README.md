@@ -8,11 +8,9 @@ Generate code coverage reports for a C++ project on [GitHub Actions](https://git
 
 ## Usage
 
-For more information, see [action.yml](./action.yml) and the [GitHub Actions guide](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions).
+For more information, see [action.yml](./action.yml) and [GitHub Actions guide](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions).
 
 ### Inputs
-
-> Note: All inputs are optional.
 
 | Name | Value Type | Description |
 | --- | --- | --- |
@@ -24,7 +22,9 @@ For more information, see [action.yml](./action.yml) and the [GitHub Actions gui
 | `coveralls-send` | `true` or `false` | Send Coveralls API coverage report to it's endpoint (default: `false`). |
 | `github-token` | Token | GitHub token of this project. Must be set to `${{ secrets.GITHUB_TOKEN }}`. Required for sending Coveralls API coverage report successfully. |
 
-### Standard Example
+> Note: All inputs are optional.
+
+### Examples
 
 ```yaml
 name: test
@@ -47,7 +47,9 @@ jobs:
         uses: threeal/gcovr-action@latest
 ```
 
-### Using LLVM
+> Note: You can replace `@latest` with any version you like.
+
+#### Using LLVM
 
 ```yaml
 - name: Build and test project
@@ -62,7 +64,7 @@ jobs:
     gcov-executable: llvm-cov gcov
 ```
 
-### Send to Coveralls
+#### Send to Coveralls
 
 ```yaml
 - name: Generate and send code coverage report to Coveralls
