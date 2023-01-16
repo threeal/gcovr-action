@@ -1,5 +1,5 @@
 name: Gcovr Action
-description: Generate code coverage report for C++ project using gcovr
+description: Generate code coverage reports for a C++ project using gcovr
 author: Alfi Maulana
 branding:
   color: green
