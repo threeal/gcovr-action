@@ -6,7 +6,7 @@ branding:
   icon: check-circle
 inputs:
   root:
-    description: The root directory of your source files
+    description: Root directory of your source files
     required: false
   gcov-executable:
     description: Use a particular gcov executable
@@ -18,10 +18,10 @@ inputs:
     description: Fail if the total line coverage is less than this value
     required: false
   coveralls-out:
-    description: Output file of generated Coveralls API coverage report
+    description: Output file of the generated Coveralls API coverage report
     required: false
   coveralls-send:
-    description: Send Coveralls API coverage report to it's endpoint (true/false)
+    description: Send the generated Coveralls API coverage report to it's endpoint (true/false)
     required: false
     default: false
   github-token:

@@ -14,13 +14,13 @@ For more information, see [action.yml](./action.yml) and [GitHub Actions guide](
 
 | Name | Value Type | Description |
 | --- | --- | --- |
-| `root` | Path | The root directory of your source files. Defaults to current directory. File names are reported relative to this root. |
+| `root` | Path | Root directory of your source files. Defaults to current directory. File names are reported relative to this directory. |
 | `gcov-executable` | Executable name with optional arguments | Use a particular gcov executable. Must match the compiler you are using, e.g. `llvm-cov gcov` for [LLVM](https://llvm.org/). See [this](https://docs.coveralls.io/api-introduction). |
 | `exclude` | Regular expression | Exclude source files that match this filter. |
 | `fail-under-line` | 0 - 100 | Fail if the total line coverage is less than this value. |
-| `coveralls-out` | Path | Output file of generated Coveralls API coverage report. |
-| `coveralls-send` | `true` or `false` | Send Coveralls API coverage report to it's endpoint (default: `false`). |
-| `github-token` | Token | GitHub token of this project. Must be set to `${{ secrets.GITHUB_TOKEN }}`. Required for sending Coveralls API coverage report successfully. |
+| `coveralls-out` | Path | Output file of the generated [Coveralls API](https://docs.coveralls.io/api-introduction) coverage report. |
+| `coveralls-send` | `true` or `false` | Send the generated Coveralls API coverage report to it's endpoint. Defaults to `false`. |
+| `github-token` | Token | GitHub token of your project. Must be set to `${{ secrets.GITHUB_TOKEN }}`. Required for sending Coveralls API coverage report successfully. |
 
 > Note: All inputs are optional.
 
