@@ -58,12 +58,17 @@ jobs:
       - name: Checkout this repository
         uses: actions/checkout@v3.3.0
 
-      - name: Build and test the test project
-        working-directory: test
-        run:  |
-          cmake test/ -B test/build -DTEST_EVEN=OFF -DTEST_ODD=OFF
-          cmake --build test/build
-          ctest --test-dir test/build
+      - name: Configure and build the test project
+        uses: threeal/cmake-action@v1.0.0
+        with:
+          source-dir: test
+          build-dir: test/build
+          generator: Ninja
+          cxx-compiler: g++
+          args: -DTEST_EVEN=OFF -DTEST_ODD=OFF
+
+      - name: Test the test project
+        run: ctest --test-dir test/build
 
       - name: Use this action without an exclusion
         id: failed_step
