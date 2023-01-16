@@ -52,7 +52,7 @@ jobs:
         with:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
-  specified-root-usage:
+  exclusion-usage:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout this repository
@@ -61,50 +61,16 @@ jobs:
       - name: Build and test the test project
         working-directory: test
         run:  |
-          cmake . -B build
-          cmake --build build
-          ctest --test-dir build
-
-      - name: Use this action from the build root
-        id: failed_step
-        continue-on-error: true
-        uses: ./
-        with:
-          root: test/build
-          fail-under-line: 100
-
-      - name: Check if the previous step did fail
-        run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
-
-      - name: Use this action from the build root but without a fail threshold
-        uses: ./
-        with:
-          root: test/build
-
-      - name: Use this action from the project root
-        uses: ./
-        with:
-          root: test
-          fail-under-line: 100
-
-  excusion-usage:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Build and test the test project
-        working-directory: test
-        run:  |
-          cmake . -B build -DTEST_EVEN=OFF -DTEST_ODD=OFF
-          cmake --build build
-          ctest --test-dir build
+          cmake test/ -B test/build -DTEST_EVEN=OFF -DTEST_ODD=OFF
+          cmake --build test/build
+          ctest --test-dir test/build
 
       - name: Use this action without an exclusion
         id: failed_step
         continue-on-error: true
         uses: ./
         with:
+          root: test
           fail-under-line: 100
 
       - name: Check if the previous step did fail
@@ -113,11 +79,13 @@ jobs:
       - name: Use this action without an exclusion but with a lower fail threshold
         uses: ./
         with:
+          root: test
           fail-under-line: 50
 
       - name: Use this action with an exclusion
         uses: ./
         with:
+          root: test
           exclude: test/include/*
           fail-under-line: 100
 
