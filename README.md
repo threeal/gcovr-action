@@ -34,16 +34,16 @@ jobs:
   test-coverage:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Check out this repository
         uses: actions/checkout@v3.2.0
 
-      - name: Build and test project
+      - name: Build and test this project
         run: |
           cmake . -B build
           cmake --build build
           ctest --test-dir build
 
-      - name: Generate code coverage report
+      - name: Generate a code coverage report
         uses: threeal/gcovr-action@latest
 ```
 
@@ -52,13 +52,13 @@ jobs:
 #### Using LLVM
 
 ```yaml
-- name: Build and test project
+- name: Build and test this project
   run: |
     cmake . -B build -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
     cmake --build build
     ctest --test-dir build
 
-- name: Generate code coverage report
+- name: Generate a code coverage report
   uses: threeal/gcovr-action@latest
   with:
     gcov-executable: llvm-cov gcov
@@ -67,7 +67,7 @@ jobs:
 #### Send to Coveralls
 
 ```yaml
-- name: Generate and send code coverage report to Coveralls
+- name: Generate and send a code coverage report to Coveralls
   uses: threeal/gcovr-action@latest
   with:
     coveralls-send: true
