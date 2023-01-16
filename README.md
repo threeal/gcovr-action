@@ -6,6 +6,14 @@
 
 Generate code coverage reports for a C++ project on [GitHub Actions](https://github.com/features/actions) using [gcovr](https://gcovr.com/en/stable/).
 
+## Features
+
+- Generate code coverage reports using [gcovr](https://gcovr.com/en/stable/).
+- Generate and send reports in [Coveralls API](https://docs.coveralls.io/api-introduction) format.
+- Auto detect and install required dependencies.
+- Support coverage report on [GCC](https://gcc.gnu.org/) and [LLVM Clang](https://clang.llvm.org/).
+- Support files exclusion and fail if coverage is below a specific thresold.
+
 ## Usage
 
 For more information, see [action.yml](./action.yml) and [GitHub Actions guide](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions).
