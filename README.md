@@ -55,7 +55,7 @@ jobs:
         uses: threeal/gcovr-action@latest
 ```
 
-> Note: You can replace `@latest` with any version you like.
+> Note: You can replace `@latest` with any version you like. See [this](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsuses).
 
 #### Using LLVM Clang
 
