@@ -3,40 +3,40 @@ on:
   workflow_dispatch:
   push:
 jobs:
-  use-action:
+  standard-usage:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout repository
+      - name: Checkout this repository
         uses: actions/checkout@v3.3.0
 
-      - name: Configure and build the example project
+      - name: Configure and build the test project
         uses: threeal/cmake-action@v1.0.0
         with:
           source-dir: test
           generator: Ninja
           cxx-compiler: g++
 
-      - name: Test the example project
+      - name: Test the test project
         run: ctest --test-dir build
 
       - name: Use this action
         uses: ./
 
-  use-action-llvm:
+  llvm-usage:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout repository
+      - name: Checkout this repository
         uses: actions/checkout@v3.3.0
 
-      - name: Configure and build the example project
+      - name: Configure and build the test project
         uses: threeal/cmake-action@v1.0.0
         with:
           source-dir: test
@@ -44,123 +44,100 @@ jobs:
           c-compiler: clang
           cxx-compiler: clang++
 
-      - name: Test the example project
+      - name: Test the test project
         run: ctest --test-dir build
 
-      - name: Use this action with specified gcov executable
+      - name: Use this action with llvm-cov as the gcov executable
         uses: ./
         with:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
-  use-action-from-different-root:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Build and test example project
-        working-directory: test
-        run:  |
-          cmake . -B build
-          cmake --build build
-          ctest --test-dir build
-
-      - name: Use this action from build root
-        id: failed_step
-        continue-on-error: true
-        uses: ./
-        with:
-          root: test/build
-          fail-under-line: 100
-
-      - name: Check if previous step is failing
-        run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
-
-      - name: Use this action from build root but without fail threshold
-        uses: ./
-        with:
-          root: test/build
-
-      - name: Use this action from project root
-        uses: ./
-        with:
-          root: test
-          fail-under-line: 100
-
-  use-action-with-exclusion:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Build and test example project
-        working-directory: test
-        run:  |
-          cmake . -B build -DTEST_EVEN=OFF -DTEST_ODD=OFF
-          cmake --build build
-          ctest --test-dir build
-
-      - name: Use this action without exclusion
-        id: failed_step
-        continue-on-error: true
-        uses: ./
-        with:
-          fail-under-line: 100
-
-      - name: Check if previous step is failing
-        run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
-
-      - name: Use this action without exclusion but with lower fail threshold
-        uses: ./
-        with:
-          fail-under-line: 50
-
-      - name: Use this action with exclusion
-        uses: ./
-        with:
-          exclude: test/include/*
-          fail-under-line: 100
-
-  use-action-generate-coveralls:
+  exclusion-usage:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout repository
+      - name: Checkout this repository
         uses: actions/checkout@v3.3.0
 
-      - name: Configure and build the example project
+      - name: Configure and build the test project
+        uses: threeal/cmake-action@v1.0.0
+        with:
+          source-dir: test
+          build-dir: test/build
+          generator: Ninja
+          cxx-compiler: g++
+          args: -DTEST_EVEN=OFF -DTEST_ODD=OFF
+
+      - name: Test the test project
+        run: ctest --test-dir test/build
+
+      - name: Use this action without an exclusion
+        id: failed_step
+        continue-on-error: true
+        uses: ./
+        with:
+          root: test
+          fail-under-line: 100
+
+      - name: Check if the previous step did fail
+        run: ${{ steps.failed_step.outcome == 'failure' && true || false }}
+
+      - name: Use this action without an exclusion but with a lower fail threshold
+        uses: ./
+        with:
+          root: test
+          fail-under-line: 50
+
+      - name: Use this action with an exclusion
+        uses: ./
+        with:
+          root: test
+          exclude: test/include/*
+          fail-under-line: 100
+
+  coveralls-usage:
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows, ubuntu, macos]
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v3.3.0
+
+      - name: Configure and build the test project
         uses: threeal/cmake-action@v1.0.0
         with:
           source-dir: test
           generator: Ninja
           cxx-compiler: g++
 
-      - name: Test the example project
+      - name: Test the test project
         run: ctest --test-dir build
 
-      - name: Use this action to generate Coveralls report
+      - name: Use this action to generate a Coveralls report
         uses: ./
         with:
           coveralls-out: coveralls.json
 
-      - name: Check if Coveralls report exist
+      - name: Check if that Coveralls report does exist
         run: cat coveralls.json
 
-      - name: Use this action to generate and send Coveralls report
+      - name: Use this action to generate and send another Coveralls report
         uses: ./
         with:
           coveralls-send: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Use this action to generate and send Coveralls report on specified output
+      - name: Use this action to generate and send another Coveralls report on a specified output
         uses: ./
         with:
           coveralls-out: coveralls-2.json
           coveralls-send: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if Coveralls report exist
+      - name: Check if that Coveralls report does exist
         run: cat coveralls-2.json
