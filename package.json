@@ -6,6 +6,7 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
+    "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt"
   },
   "repository": {
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.18",
+    "eslint-plugin-github": "^4.6.0",
     "typescript": "^4.9.4"
   }
 }

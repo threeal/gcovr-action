@@ -44,8 +44,8 @@ const exec = __importStar(__nccwpck_require__(475));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            core.startGroup('Install gcovr');
-            yield exec.exec('pip3 install gcovr');
+            core.startGroup("Install gcovr");
+            yield exec.exec("pip3 install gcovr");
             core.endGroup();
         }
         catch (error) {
