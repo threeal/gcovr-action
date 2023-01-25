@@ -1,0 +1,20 @@
+{
+  "name": "gcovr-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generate code coverage reports for a C++ project using gcovr",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/threeal/gcovr-action.git"
+  },
+  "keywords": [
+    "actions",
+    "c",
+    "coverage",
+    "cpp",
+    "gcov",
+    "testing"
+  ],
+  "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
+  "license": "MIT"
+}
