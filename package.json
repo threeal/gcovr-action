@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "description": "Generate code coverage reports for a C++ project using gcovr",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/threeal/gcovr-action.git"
@@ -16,5 +20,11 @@
     "testing"
   ],
   "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.10.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
 }
