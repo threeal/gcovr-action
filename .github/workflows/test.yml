@@ -27,15 +27,28 @@ jobs:
       - name: Check if the distribution is up to date
         run: git diff --exit-code HEAD
 
+      - name: Upload the distribution as an artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: dist
+          if-no-files-found: error
+          path: |
+            dist/
+            test/
+            action.yml
+
   standard-usage:
+    needs: check-build
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
+      - name: Download the distribution artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: dist
 
       - name: Configure and build the test project
         uses: threeal/cmake-action@v1.0.0
@@ -51,14 +64,17 @@ jobs:
         uses: ./
 
   llvm-usage:
+    needs: check-build
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
+      - name: Download the distribution artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: dist
 
       - name: Configure and build the test project
         uses: threeal/cmake-action@v1.0.0
@@ -77,14 +93,17 @@ jobs:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   exclusion-usage:
+    needs: check-build
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
+      - name: Download the distribution artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: dist
 
       - name: Configure and build the test project
         uses: threeal/cmake-action@v1.0.0
@@ -123,14 +142,17 @@ jobs:
           fail-under-line: 100
 
   coveralls-usage:
+    needs: check-build
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
+      - name: Download the distribution artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: dist
 
       - name: Configure and build the test project
         uses: threeal/cmake-action@v1.0.0
