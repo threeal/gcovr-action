@@ -24,6 +24,9 @@ jobs:
       - name: Build this package for distribution
         run: npm run package
 
+      - name: Check if the distribution is up to date
+        run: git diff --exit-code HEAD
+
   standard-usage:
     runs-on: ${{ matrix.os }}-latest
     strategy:
