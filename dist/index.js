@@ -103,6 +103,9 @@ function run() {
             if (inputs.root) {
                 args = args.concat(["--root", inputs.root]);
             }
+            if (inputs.gcovExecutable) {
+                args = args.concat("--gcov-executable", inputs.gcovExecutable);
+            }
             core.startGroup("Generate code coverage report using gcovr");
             yield exec.exec("gcovr", args);
             core.endGroup();
