@@ -46,13 +46,13 @@ const inputs_1 = __nccwpck_require__(180);
 function parseArgs() {
     let args = [];
     const inputs = (0, inputs_1.parseInputs)();
-    if (inputs.root) {
+    if (inputs.root !== null) {
         args = args.concat(["--root", inputs.root]);
     }
-    if (inputs.gcovExecutable) {
+    if (inputs.gcovExecutable !== null) {
         args = args.concat("--gcov-executable", inputs.gcovExecutable);
     }
-    if (inputs.exclude) {
+    if (inputs.exclude !== null) {
         args = args.concat("--exclude", inputs.exclude);
     }
     return args;
@@ -101,18 +101,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseInputs = void 0;
 const core = __importStar(__nccwpck_require__(186));
+function getStringInput(key) {
+    const val = core.getInput(key);
+    return val.length > 0 ? val : null;
+}
 function getNumberInput(key) {
-    return parseInt(core.getInput(key), 10);
+    const val = getStringInput(key);
+    if (val === null)
+        return null;
+    return parseInt(val, 10);
 }
 function parseInputs() {
     return {
-        root: core.getInput("root"),
-        gcovExecutable: core.getInput("gcov-executable"),
-        exclude: core.getInput("exclude"),
+        root: getStringInput("root"),
+        gcovExecutable: getStringInput("gcov-executable"),
+        exclude: getStringInput("exclude"),
         failUnderLine: getNumberInput("fail-under-line"),
-        coverallsOut: core.getInput("coveralls-out"),
+        coverallsOut: getStringInput("coveralls-out"),
         coverallsSend: core.getBooleanInput("coveralls-send"),
-        githubToken: core.getInput("github-token"),
+        githubToken: getStringInput("github-token"),
     };
 }
 exports.parseInputs = parseInputs;

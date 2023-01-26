@@ -5,13 +5,13 @@ import { parseInputs } from "./inputs";
 function parseArgs(): string[] {
   let args: string[] = [];
   const inputs = parseInputs();
-  if (inputs.root) {
+  if (inputs.root !== null) {
     args = args.concat(["--root", inputs.root]);
   }
-  if (inputs.gcovExecutable) {
+  if (inputs.gcovExecutable !== null) {
     args = args.concat("--gcov-executable", inputs.gcovExecutable);
   }
-  if (inputs.exclude) {
+  if (inputs.exclude !== null) {
     args = args.concat("--exclude", inputs.exclude);
   }
   return args;

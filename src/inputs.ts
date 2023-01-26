@@ -1,27 +1,34 @@
 import * as core from "@actions/core";
 
 export interface Inputs {
-  root: string;
-  gcovExecutable: string;
-  exclude: string;
-  failUnderLine: number;
-  coverallsOut: string;
+  root: string | null;
+  gcovExecutable: string | null;
+  exclude: string | null;
+  failUnderLine: number | null;
+  coverallsOut: string | null;
   coverallsSend: boolean;
-  githubToken: string;
+  githubToken: string | null;
 }
 
-function getNumberInput(key: string): number {
-  return parseInt(core.getInput(key), 10);
+function getStringInput(key: string): string | null {
+  const val = core.getInput(key);
+  return val.length > 0 ? val : null;
+}
+
+function getNumberInput(key: string): number | null {
+  const val = getStringInput(key);
+  if (val === null) return null;
+  return parseInt(val, 10);
 }
 
 export function parseInputs(): Inputs {
   return {
-    root: core.getInput("root"),
-    gcovExecutable: core.getInput("gcov-executable"),
-    exclude: core.getInput("exclude"),
+    root: getStringInput("root"),
+    gcovExecutable: getStringInput("gcov-executable"),
+    exclude: getStringInput("exclude"),
     failUnderLine: getNumberInput("fail-under-line"),
-    coverallsOut: core.getInput("coveralls-out"),
+    coverallsOut: getStringInput("coveralls-out"),
     coverallsSend: core.getBooleanInput("coveralls-send"),
-    githubToken: core.getInput("github-token"),
+    githubToken: getStringInput("github-token"),
   };
 }
