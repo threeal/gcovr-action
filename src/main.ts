@@ -1,25 +1,13 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import { parseInputs } from "./inputs";
+import { runGcovr } from "./gcovr";
 
 async function run(): Promise<void> {
   try {
     core.startGroup("Install gcovr");
     await exec.exec("pip3 install gcovr");
     core.endGroup();
-
-    let args: string[] = [];
-    const inputs = parseInputs();
-    if (inputs.root) {
-      args = args.concat(["--root", inputs.root]);
-    }
-    if (inputs.gcovExecutable) {
-      args = args.concat("--gcov-executable", inputs.gcovExecutable);
-    }
-
-    core.startGroup("Generate code coverage report using gcovr");
-    await exec.exec("gcovr", args);
-    core.endGroup();
+    await runGcovr();
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }
