@@ -55,6 +55,9 @@ function parseArgs() {
     if (inputs.exclude !== null) {
         args = args.concat("--exclude", inputs.exclude);
     }
+    if (inputs.failUnderLine !== null) {
+        args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
+    }
     return args;
 }
 function runGcovr() {
