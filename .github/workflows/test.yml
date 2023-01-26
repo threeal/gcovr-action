@@ -3,6 +3,27 @@ on:
   workflow_dispatch:
   push:
 jobs:
+  check-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v3.3.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check formatting
+        run: npm run format-check
+
+      - name: Run static analysis
+        run: npm run lint
+
+      - name: Build this package
+        run: npm run build
+
+      - name: Build this package for distribution
+        run: npm run package
+
   standard-usage:
     runs-on: ${{ matrix.os }}-latest
     strategy:
