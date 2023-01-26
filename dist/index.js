@@ -52,6 +52,9 @@ function parseArgs() {
     if (inputs.gcovExecutable) {
         args = args.concat("--gcov-executable", inputs.gcovExecutable);
     }
+    if (inputs.exclude) {
+        args = args.concat("--exclude", inputs.exclude);
+    }
     return args;
 }
 function runGcovr() {
