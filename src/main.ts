@@ -6,6 +6,10 @@ async function run(): Promise<void> {
     core.startGroup("Install gcovr");
     await exec.exec("pip3 install gcovr");
     core.endGroup();
+
+    core.startGroup("Generate code coverage report using gcovr");
+    await exec.exec("gcovr");
+    core.endGroup();
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message);
   }

@@ -47,6 +47,9 @@ function run() {
             core.startGroup("Install gcovr");
             yield exec.exec("pip3 install gcovr");
             core.endGroup();
+            core.startGroup("Generate code coverage report using gcovr");
+            yield exec.exec("gcovr");
+            core.endGroup();
         }
         catch (error) {
             if (error instanceof Error)
