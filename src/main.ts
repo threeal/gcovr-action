@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import { parseInputs } from "./inputs";
 
 async function run(): Promise<void> {
   try {
@@ -8,9 +9,9 @@ async function run(): Promise<void> {
     core.endGroup();
 
     let args: string[] = [];
-    const root: string = core.getInput("root");
-    if (root) {
-      args = args.concat(["--root", root]);
+    const inputs = parseInputs();
+    if (inputs.root) {
+      args = args.concat(["--root", inputs.root]);
     }
 
     core.startGroup("Generate code coverage report using gcovr");
