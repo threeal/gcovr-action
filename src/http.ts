@@ -18,15 +18,19 @@ export async function postForm(url: string, form: Form): Promise<Buffer[]> {
   return new Promise<Buffer[]>((resolve, reject) => {
     formData.submit(options, (err, res) => {
       if (err) return reject(err);
-      if (res.statusCode === undefined) {
-        return reject(new Error("HTTP status code unknown"));
-      }
-      if (res.statusCode < 200 || res.statusCode > 299) {
-        return reject(new Error(`HTTP status code ${res.statusCode}`));
-      }
       const body: Buffer[] = [];
       res.on("data", (chunk) => body.push(chunk));
-      res.on("end", () => resolve(body));
+      res.on("end", () => {
+        if (res.statusCode === undefined) {
+          reject(new Error(`HTTP status code unknown: ${body.toString()}`));
+        } else if (res.statusCode < 200 || res.statusCode > 299) {
+          reject(
+            new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`)
+          );
+        } else {
+          resolve(body);
+        }
+      });
     });
   });
 }
