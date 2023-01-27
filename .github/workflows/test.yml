@@ -33,6 +33,7 @@ jobs:
           name: dist
           if-no-files-found: error
           path: |
+            .git/
             dist/
             test/
             action.yml
