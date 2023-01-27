@@ -58,7 +58,7 @@ function processInputs() {
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut === null) {
         inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-        core.info(`Auto set coveralls output to '${inputs.coverallsOut}'`);
+        core.info(`Auto set Coveralls output to '${inputs.coverallsOut}'`);
     }
     return inputs;
 }
@@ -185,7 +185,7 @@ async function smartInstall(pkg) {
             await brewInstall(pkg);
             break;
         default:
-            throw new Error(`unknown OS type: ${os.type()}`);
+            throw new Error(`Unknown OS type: ${os.type()}`);
     }
 }
 async function checkGcovr() {
@@ -278,7 +278,7 @@ async function run(inputs) {
         }
         await exec.exec("gcovr", args);
         if (inputs.coverallsOut !== null) {
-            core.info("Patching coveralls API report...");
+            core.info("Patching Coveralls API report...");
             coveralls.patch(inputs.coverallsOut);
             core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
         }

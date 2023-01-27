@@ -37,7 +37,7 @@ export function processInputs(): Inputs {
   // Auto set coveralls output if not specified
   if (inputs.coverallsSend && inputs.coverallsOut === null) {
     inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-    core.info(`Auto set coveralls output to '${inputs.coverallsOut}'`);
+    core.info(`Auto set Coveralls output to '${inputs.coverallsOut}'`);
   }
   return inputs;
 }

@@ -32,7 +32,7 @@ export async function run(inputs: action.Inputs) {
     }
     await exec.exec("gcovr", args);
     if (inputs.coverallsOut !== null) {
-      core.info("Patching coveralls API report...");
+      core.info("Patching Coveralls API report...");
       coveralls.patch(inputs.coverallsOut);
       core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
     }

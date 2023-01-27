@@ -41,7 +41,7 @@ async function smartInstall(pkg: string) {
       await brewInstall(pkg);
       break;
     default:
-      throw new Error(`unknown OS type: ${os.type()}`);
+      throw new Error(`Unknown OS type: ${os.type()}`);
   }
 }
 
