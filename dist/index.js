@@ -374,8 +374,7 @@ async function run() {
         }
     }
     catch (error) {
-        if (error instanceof Error)
-            core.setFailed(error.message);
+        core.setFailed(`Action failed with error ${error}`);
     }
 }
 run();

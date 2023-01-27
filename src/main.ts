@@ -13,7 +13,7 @@ async function run(): Promise<void> {
       await coveralls.send(inputs.coverallsOut);
     }
   } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message);
+    core.setFailed(`Action failed with error ${error}`);
   }
 }
 
