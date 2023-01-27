@@ -1,10 +1,9 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
-import { parseInputs } from "./inputs";
+import { Inputs } from "./inputs";
 
-function parseArgs(): string[] {
+function getArgs(inputs: Inputs): string[] {
   let args: string[] = [];
-  const inputs = parseInputs();
   if (inputs.root !== null) {
     args = args.concat(["--root", inputs.root]);
   }
@@ -20,8 +19,8 @@ function parseArgs(): string[] {
   return args;
 }
 
-export async function runGcovr() {
-  const args = parseArgs();
+export async function run(inputs: Inputs) {
+  const args = getArgs(inputs);
   core.startGroup("Generate code coverage report using gcovr");
   await exec.exec("gcovr", args);
   core.endGroup();

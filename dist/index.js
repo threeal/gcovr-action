@@ -39,13 +39,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runGcovr = void 0;
+exports.run = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
-const inputs_1 = __nccwpck_require__(180);
-function parseArgs() {
+function getArgs(inputs) {
     let args = [];
-    const inputs = (0, inputs_1.parseInputs)();
     if (inputs.root !== null) {
         args = args.concat(["--root", inputs.root]);
     }
@@ -60,15 +58,15 @@ function parseArgs() {
     }
     return args;
 }
-function runGcovr() {
+function run(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
-        const args = parseArgs();
+        const args = getArgs(inputs);
         core.startGroup("Generate code coverage report using gcovr");
         yield exec.exec("gcovr", args);
         core.endGroup();
     });
 }
-exports.runGcovr = runGcovr;
+exports.run = run;
 
 
 /***/ }),
@@ -170,14 +168,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
-const gcovr_1 = __nccwpck_require__(930);
+const gcovr = __importStar(__nccwpck_require__(930));
+const inputs_1 = __nccwpck_require__(180);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            const inputs = (0, inputs_1.parseInputs)();
             core.startGroup("Install gcovr");
             yield exec.exec("pip3 install gcovr");
             core.endGroup();
-            yield (0, gcovr_1.runGcovr)();
+            yield gcovr.run(inputs);
         }
         catch (error) {
             if (error instanceof Error)
