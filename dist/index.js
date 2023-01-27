@@ -56,6 +56,9 @@ function getArgs(inputs) {
     if (inputs.failUnderLine !== null) {
         args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
     }
+    if (inputs.coverallsOut !== null) {
+        args = args.concat("--coveralls", inputs.coverallsOut);
+    }
     return args;
 }
 function run(inputs) {
