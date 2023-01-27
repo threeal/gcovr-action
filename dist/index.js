@@ -65,6 +65,107 @@ exports.parseInputs = parseInputs;
 
 /***/ }),
 
+/***/ 857:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.checkLlvm = void 0;
+const core = __importStar(__nccwpck_require__(186));
+const exec = __importStar(__nccwpck_require__(514));
+const io = __importStar(__nccwpck_require__(436));
+const os = __importStar(__nccwpck_require__(37));
+function isAvailable(tool) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield io.which(tool, true);
+            return true;
+        }
+        catch (_a) {
+            return false;
+        }
+    });
+}
+function chocoInstall(pkg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield exec.exec("choco", ["install", "-y", pkg]);
+    });
+}
+function aptInstall(pkg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield exec.exec("sudo", ["apt-get", "install", "-y", pkg]);
+    });
+}
+function brewInstall(pkg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield exec.exec("brew", ["install", pkg]);
+    });
+}
+function smartInstall(pkg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        switch (os.type()) {
+            case "Windows_NT":
+                yield chocoInstall(pkg);
+                break;
+            case "Linux":
+                yield aptInstall(pkg);
+                break;
+            case "Darwin":
+                yield brewInstall(pkg);
+                break;
+            default:
+                throw new Error(`unknown OS type: ${os.type()}`);
+        }
+    });
+}
+function checkLlvm() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const available = yield isAvailable("llvm-cov");
+        if (!available) {
+            yield core.group("Install LLVM", () => __awaiter(this, void 0, void 0, function* () {
+                yield smartInstall("llvm");
+            }));
+        }
+    });
+}
+exports.checkLlvm = checkLlvm;
+
+
+/***/ }),
+
 /***/ 930:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -193,12 +294,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
 const action = __importStar(__nccwpck_require__(139));
+const deps = __importStar(__nccwpck_require__(857));
 const gcovr = __importStar(__nccwpck_require__(930));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputs = action.parseInputs();
             yield gcovr.check();
+            if (inputs.gcovExecutable !== null &&
+                inputs.gcovExecutable.includes("llvm-cov")) {
+                yield deps.checkLlvm();
+            }
             yield gcovr.run(inputs);
         }
         catch (error) {
