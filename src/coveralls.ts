@@ -3,19 +3,12 @@ import * as fs from "fs";
 import * as http from "./http";
 
 export async function patch(coverallsOut: string) {
-  // Read file and replace search sentences in lines with a replacement sentence
-  let file = await fs.promises.open(coverallsOut, "r");
-  const lines: string[] = [];
-  const search = '"service_name": "github-actions-ci"';
-  const replacement = '"service_name": "github"';
-  for await (const line of file.readLines()) {
-    lines.push(line.replaceAll(search, replacement));
-  }
-  await file.close();
-  // Write back replaced lines to the file
-  file = await fs.promises.open(coverallsOut, "w");
-  await file.writeFile(lines.join());
-  await file.close();
+  let data: string = fs.readFileSync(coverallsOut).toString();
+  data = data.replaceAll(
+    '"service_name": "github-actions-ci"',
+    '"service_name": "github"'
+  );
+  fs.writeFileSync(coverallsOut, data);
 }
 
 export async function send(coverallsOut: string) {
