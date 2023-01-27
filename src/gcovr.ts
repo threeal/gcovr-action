@@ -1,6 +1,18 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import * as io from "@actions/io";
 import * as action from "./action";
+
+export async function check() {
+  try {
+    await io.which("gcovr", true);
+  } catch {
+    // gcovr is not available, installing
+    await core.group("Install gcovr", async () => {
+      await exec.exec("pip3 install gcovr");
+    });
+  }
+}
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];

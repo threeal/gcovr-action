@@ -103,9 +103,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = void 0;
+exports.run = exports.check = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
+const io = __importStar(__nccwpck_require__(436));
+function check() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield io.which("gcovr", true);
+        }
+        catch (_a) {
+            // gcovr is not available, installing
+            yield core.group("Install gcovr", () => __awaiter(this, void 0, void 0, function* () {
+                yield exec.exec("pip3 install gcovr");
+            }));
+        }
+    });
+}
+exports.check = check;
 function getArgs(inputs) {
     let args = [];
     if (inputs.root !== null) {
@@ -177,16 +192,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(186));
-const exec = __importStar(__nccwpck_require__(514));
 const action = __importStar(__nccwpck_require__(139));
 const gcovr = __importStar(__nccwpck_require__(930));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputs = action.parseInputs();
-            core.startGroup("Install gcovr");
-            yield exec.exec("pip3 install gcovr");
-            core.endGroup();
+            yield gcovr.check();
             yield gcovr.run(inputs);
         }
         catch (error) {
