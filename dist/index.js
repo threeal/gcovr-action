@@ -105,6 +105,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseInputs = void 0;
 const core = __importStar(__nccwpck_require__(186));
+const os = __importStar(__nccwpck_require__(37));
+const path = __importStar(__nccwpck_require__(17));
 function getStringInput(key) {
     const val = core.getInput(key);
     return val.length > 0 ? val : null;
@@ -127,7 +129,7 @@ function parseInputs() {
     };
     // set default Coveralls output
     if (inputs.coverallsSend && inputs.coverallsOut === null) {
-        inputs.coverallsOut = "/tmp/coveralls.json";
+        inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
     }
     return inputs;
 }

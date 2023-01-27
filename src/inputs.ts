@@ -1,4 +1,6 @@
 import * as core from "@actions/core";
+import * as os from "os";
+import * as path from "path";
 
 export interface Inputs {
   root: string | null;
@@ -33,7 +35,7 @@ export function parseInputs(): Inputs {
   };
   // set default Coveralls output
   if (inputs.coverallsSend && inputs.coverallsOut === null) {
-    inputs.coverallsOut = "/tmp/coveralls.json";
+    inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
   }
   return inputs;
 }
