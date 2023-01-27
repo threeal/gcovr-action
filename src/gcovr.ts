@@ -25,13 +25,16 @@ function getArgs(inputs: action.Inputs): string[] {
 
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
-  await core.group("Generate code coverage report using gcovr", async () => {
+  await core.group("Generating code coverage report...", async () => {
     if (inputs.githubToken !== null) {
+      core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
       core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
     }
     await exec.exec("gcovr", args);
     if (inputs.coverallsOut !== null) {
+      core.info("Patching coveralls API report...");
       coveralls.patch(inputs.coverallsOut);
+      core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
     }
   });
 }

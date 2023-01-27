@@ -6,7 +6,7 @@ import * as gcovr from "./gcovr";
 
 async function run(): Promise<void> {
   try {
-    const inputs = action.parseInputs();
+    const inputs = action.processInputs();
     await deps.check(inputs);
     await gcovr.run(inputs);
     if (inputs.coverallsSend && inputs.coverallsOut !== null) {

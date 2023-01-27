@@ -12,7 +12,7 @@ export async function patch(coverallsOut: string) {
 }
 
 export async function send(coverallsOut: string) {
-  await core.group("Send code coverage report to Coveralls", async () => {
+  await core.group("Sending report to Coveralls...", async () => {
     await http.postForm("https://coveralls.io/api/v1/jobs", {
       json_file: fs.createReadStream(coverallsOut),
     });

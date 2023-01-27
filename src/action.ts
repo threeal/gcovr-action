@@ -23,7 +23,8 @@ function getNumberInput(key: string): number | null {
   return parseInt(val, 10);
 }
 
-export function parseInputs(): Inputs {
+export function processInputs(): Inputs {
+  core.info("Processing the action inputs...");
   const inputs: Inputs = {
     root: getStringInput("root"),
     gcovExecutable: getStringInput("gcov-executable"),
@@ -33,9 +34,10 @@ export function parseInputs(): Inputs {
     coverallsSend: core.getBooleanInput("coveralls-send"),
     githubToken: getStringInput("github-token"),
   };
-  // set default Coveralls output
+  // Auto set coveralls output if not specified
   if (inputs.coverallsSend && inputs.coverallsOut === null) {
     inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
+    core.info(`Auto set coveralls output to '${inputs.coverallsOut}'`);
   }
   return inputs;
 }

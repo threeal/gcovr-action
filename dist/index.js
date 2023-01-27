@@ -30,7 +30,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseInputs = void 0;
+exports.processInputs = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
@@ -44,7 +44,8 @@ function getNumberInput(key) {
         return null;
     return parseInt(val, 10);
 }
-function parseInputs() {
+function processInputs() {
+    core.info("Processing the action inputs...");
     const inputs = {
         root: getStringInput("root"),
         gcovExecutable: getStringInput("gcov-executable"),
@@ -54,13 +55,14 @@ function parseInputs() {
         coverallsSend: core.getBooleanInput("coveralls-send"),
         githubToken: getStringInput("github-token"),
     };
-    // set default Coveralls output
+    // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut === null) {
         inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
+        core.info(`Auto set coveralls output to '${inputs.coverallsOut}'`);
     }
     return inputs;
 }
-exports.parseInputs = parseInputs;
+exports.processInputs = processInputs;
 
 
 /***/ }),
@@ -105,7 +107,7 @@ async function patch(coverallsOut) {
 }
 exports.patch = patch;
 async function send(coverallsOut) {
-    await core.group("Send code coverage report to Coveralls", async () => {
+    await core.group("Sending report to Coveralls...", async () => {
         await http.postForm("https://coveralls.io/api/v1/jobs", {
             json_file: fs.createReadStream(coverallsOut),
         });
@@ -187,15 +189,17 @@ async function smartInstall(pkg) {
     }
 }
 async function checkGcovr() {
+    core.info("Checking gcovr...");
     if (await isMissing("gcovr")) {
-        await core.group("Install gcovr", async () => {
+        await core.group("Installing gcovr...", async () => {
             await pipInstall("gcovr");
         });
     }
 }
 async function checkLlvm() {
+    core.info("Checking llvm-cov...");
     if (await isMissing("llvm-cov")) {
-        await core.group("Install LLVM", async () => {
+        await core.group("Installing LLVM...", async () => {
             await smartInstall("llvm");
         });
     }
@@ -267,13 +271,16 @@ function getArgs(inputs) {
 }
 async function run(inputs) {
     const args = getArgs(inputs);
-    await core.group("Generate code coverage report using gcovr", async () => {
+    await core.group("Generating code coverage report...", async () => {
         if (inputs.githubToken !== null) {
+            core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
         }
         await exec.exec("gcovr", args);
         if (inputs.coverallsOut !== null) {
+            core.info("Patching coveralls API report...");
             coveralls.patch(inputs.coverallsOut);
+            core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
         }
     });
 }
@@ -287,11 +294,35 @@ exports.run = run;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.postForm = void 0;
+const core = __importStar(__nccwpck_require__(2186));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 async function postForm(url, form) {
     const formData = new form_data_1.default();
@@ -310,7 +341,11 @@ async function postForm(url, form) {
             if (err)
                 return reject(err);
             const body = [];
-            res.on("data", (chunk) => body.push(chunk));
+            res.on("data", (chunk) => {
+                const prev = body.length;
+                body.push(chunk);
+                core.info(`Received ${chunk.length - prev} bytes of data`);
+            });
             res.on("end", () => {
                 if (res.statusCode === undefined) {
                     reject(new Error(`HTTP status code unknown: ${body.toString()}`));
@@ -319,7 +354,8 @@ async function postForm(url, form) {
                     reject(new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`));
                 }
                 else {
-                    resolve(body);
+                    core.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
+                    resolve(null);
                 }
             });
         });
@@ -366,7 +402,7 @@ const deps = __importStar(__nccwpck_require__(9857));
 const gcovr = __importStar(__nccwpck_require__(4930));
 async function run() {
     try {
-        const inputs = action.parseInputs();
+        const inputs = action.processInputs();
         await deps.check(inputs);
         await gcovr.run(inputs);
         if (inputs.coverallsSend && inputs.coverallsOut !== null) {

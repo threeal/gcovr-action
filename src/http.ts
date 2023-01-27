@@ -1,9 +1,10 @@
+import * as core from "@actions/core";
 import FormData from "form-data";
 import * as fs from "fs";
 
 type Form = { [key: string]: string | fs.ReadStream };
 
-export async function postForm(url: string, form: Form): Promise<Buffer[]> {
+export async function postForm(url: string, form: Form): Promise<null> {
   const formData = new FormData();
   for (const [key, value] of Object.entries(form)) {
     formData.append(key, value);
@@ -15,11 +16,15 @@ export async function postForm(url: string, form: Form): Promise<Buffer[]> {
     method: "POST",
     protocol: "https:",
   };
-  return new Promise<Buffer[]>((resolve, reject) => {
+  return new Promise<null>((resolve, reject) => {
     formData.submit(options, (err, res) => {
       if (err) return reject(err);
       const body: Buffer[] = [];
-      res.on("data", (chunk) => body.push(chunk));
+      res.on("data", (chunk) => {
+        const prev = body.length;
+        body.push(chunk);
+        core.info(`Received ${chunk.length - prev} bytes of data`);
+      });
       res.on("end", () => {
         if (res.statusCode === undefined) {
           reject(new Error(`HTTP status code unknown: ${body.toString()}`));
@@ -28,7 +33,8 @@ export async function postForm(url: string, form: Form): Promise<Buffer[]> {
             new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`)
           );
         } else {
-          resolve(body);
+          core.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
+          resolve(null);
         }
       });
     });
