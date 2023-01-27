@@ -2,13 +2,14 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as io from "@actions/io";
 import * as os from "os";
+import * as action from "./action";
 
-async function isAvailable(tool: string): Promise<boolean> {
+async function isMissing(tool: string): Promise<boolean> {
   try {
     await io.which(tool, true);
-    return true;
-  } catch {
     return false;
+  } catch {
+    return true;
   }
 }
 
@@ -22,6 +23,10 @@ async function aptInstall(pkg: string) {
 
 async function brewInstall(pkg: string) {
   await exec.exec("brew", ["install", pkg]);
+}
+
+async function pipInstall(pkg: string) {
+  await exec.exec("pip3", ["install", pkg]);
 }
 
 async function smartInstall(pkg: string) {
@@ -40,11 +45,27 @@ async function smartInstall(pkg: string) {
   }
 }
 
-export async function checkLlvm() {
-  const available = await isAvailable("llvm-cov");
-  if (!available) {
+async function checkGcovr() {
+  if (await isMissing("gcovr")) {
+    await core.group("Install gcovr", async () => {
+      await pipInstall("gcovr");
+    });
+  }
+}
+
+async function checkLlvm() {
+  if (await isMissing("llvm-cov")) {
     await core.group("Install LLVM", async () => {
       await smartInstall("llvm");
     });
+  }
+}
+
+export async function check(inputs: action.Inputs) {
+  await checkGcovr();
+  if (inputs.gcovExecutable !== null) {
+    if (inputs.gcovExecutable.includes("llvm-cov")) {
+      await checkLlvm();
+    }
   }
 }

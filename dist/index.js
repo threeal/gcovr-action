@@ -103,19 +103,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.checkLlvm = void 0;
+exports.check = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
 const io = __importStar(__nccwpck_require__(436));
 const os = __importStar(__nccwpck_require__(37));
-function isAvailable(tool) {
+function isMissing(tool) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield io.which(tool, true);
-            return true;
+            return false;
         }
         catch (_a) {
-            return false;
+            return true;
         }
     });
 }
@@ -132,6 +132,11 @@ function aptInstall(pkg) {
 function brewInstall(pkg) {
     return __awaiter(this, void 0, void 0, function* () {
         yield exec.exec("brew", ["install", pkg]);
+    });
+}
+function pipInstall(pkg) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield exec.exec("pip3", ["install", pkg]);
     });
 }
 function smartInstall(pkg) {
@@ -151,17 +156,35 @@ function smartInstall(pkg) {
         }
     });
 }
+function checkGcovr() {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (yield isMissing("gcovr")) {
+            yield core.group("Install gcovr", () => __awaiter(this, void 0, void 0, function* () {
+                yield pipInstall("gcovr");
+            }));
+        }
+    });
+}
 function checkLlvm() {
     return __awaiter(this, void 0, void 0, function* () {
-        const available = yield isAvailable("llvm-cov");
-        if (!available) {
+        if (yield isMissing("llvm-cov")) {
             yield core.group("Install LLVM", () => __awaiter(this, void 0, void 0, function* () {
                 yield smartInstall("llvm");
             }));
         }
     });
 }
-exports.checkLlvm = checkLlvm;
+function check(inputs) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield checkGcovr();
+        if (inputs.gcovExecutable !== null) {
+            if (inputs.gcovExecutable.includes("llvm-cov")) {
+                yield checkLlvm();
+            }
+        }
+    });
+}
+exports.check = check;
 
 
 /***/ }),
@@ -204,24 +227,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.check = void 0;
+exports.run = void 0;
 const core = __importStar(__nccwpck_require__(186));
 const exec = __importStar(__nccwpck_require__(514));
-const io = __importStar(__nccwpck_require__(436));
-function check() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield io.which("gcovr", true);
-        }
-        catch (_a) {
-            // gcovr is not available, installing
-            yield core.group("Install gcovr", () => __awaiter(this, void 0, void 0, function* () {
-                yield exec.exec("pip3 install gcovr");
-            }));
-        }
-    });
-}
-exports.check = check;
 function getArgs(inputs) {
     let args = [];
     if (inputs.root !== null) {
@@ -300,11 +308,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const inputs = action.parseInputs();
-            yield gcovr.check();
-            if (inputs.gcovExecutable !== null &&
-                inputs.gcovExecutable.includes("llvm-cov")) {
-                yield deps.checkLlvm();
-            }
+            yield deps.check(inputs);
             yield gcovr.run(inputs);
         }
         catch (error) {
