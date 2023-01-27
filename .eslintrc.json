@@ -8,6 +8,7 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "camelcase": "off",
     "i18n-text/no-en": "off",
     "import/no-namespace": "off"
   },
