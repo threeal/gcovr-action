@@ -26,6 +26,9 @@ function getArgs(inputs: action.Inputs): string[] {
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
   await core.group("Generate code coverage report using gcovr", async () => {
+    if (inputs.githubToken !== null) {
+      core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
+    }
     await exec.exec("gcovr", args);
     if (inputs.coverallsOut !== null) {
       coveralls.patch(inputs.coverallsOut);
