@@ -116,7 +116,7 @@ function getNumberInput(key) {
     return parseInt(val, 10);
 }
 function parseInputs() {
-    return {
+    const inputs = {
         root: getStringInput("root"),
         gcovExecutable: getStringInput("gcov-executable"),
         exclude: getStringInput("exclude"),
@@ -125,6 +125,11 @@ function parseInputs() {
         coverallsSend: core.getBooleanInput("coveralls-send"),
         githubToken: getStringInput("github-token"),
     };
+    // set default Coveralls output
+    if (inputs.coverallsSend && inputs.coverallsOut === null) {
+        inputs.coverallsOut = "/tmp/coveralls.json";
+    }
+    return inputs;
 }
 exports.parseInputs = parseInputs;
 
