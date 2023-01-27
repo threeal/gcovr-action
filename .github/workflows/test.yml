@@ -65,7 +65,7 @@ jobs:
         uses: ./
 
   llvm-usage:
-    needs: check-build
+    needs: standard-usage
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -94,7 +94,7 @@ jobs:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   exclusion-usage:
-    needs: check-build
+    needs: standard-usage
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -143,7 +143,7 @@ jobs:
           fail-under-line: 100
 
   coveralls-usage:
-    needs: check-build
+    needs: standard-usage
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
