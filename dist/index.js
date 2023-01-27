@@ -93,27 +93,32 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.send = void 0;
+exports.send = exports.patch = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
 const http = __importStar(__nccwpck_require__(1270));
-function send(coverallsOut) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield core.group("Send code coverage report to Coveralls", () => __awaiter(this, void 0, void 0, function* () {
-            yield http.postForm("https://coveralls.io/api/v1/jobs", {
-                json_file: fs.createReadStream(coverallsOut),
-            });
-        }));
+async function patch(coverallsOut) {
+    // Read file and replace search sentences in lines with a replacement sentence
+    let file = await fs.promises.open(coverallsOut, "r");
+    const lines = [];
+    const search = '"service_name": "github-actions-ci"';
+    const replacement = '"service_name": "github"';
+    for await (const line of file.readLines()) {
+        lines.push(line.replaceAll(search, replacement));
+    }
+    await file.close();
+    // Write back replaced lines to the file
+    file = await fs.promises.open(coverallsOut, "w");
+    await file.writeFile(lines.join());
+    await file.close();
+}
+exports.patch = patch;
+async function send(coverallsOut) {
+    await core.group("Send code coverage report to Coveralls", async () => {
+        await http.postForm("https://coveralls.io/api/v1/jobs", {
+            json_file: fs.createReadStream(coverallsOut),
+        });
     });
 }
 exports.send = send;
@@ -149,96 +154,69 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.check = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
-function isMissing(tool) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield io.which(tool, true);
-            return false;
+async function isMissing(tool) {
+    try {
+        await io.which(tool, true);
+        return false;
+    }
+    catch {
+        return true;
+    }
+}
+async function chocoInstall(pkg) {
+    await exec.exec("choco", ["install", "-y", pkg]);
+}
+async function aptInstall(pkg) {
+    await exec.exec("sudo", ["apt-get", "install", "-y", pkg]);
+}
+async function brewInstall(pkg) {
+    await exec.exec("brew", ["install", pkg]);
+}
+async function pipInstall(pkg) {
+    await exec.exec("pip3", ["install", pkg]);
+}
+async function smartInstall(pkg) {
+    switch (os.type()) {
+        case "Windows_NT":
+            await chocoInstall(pkg);
+            break;
+        case "Linux":
+            await aptInstall(pkg);
+            break;
+        case "Darwin":
+            await brewInstall(pkg);
+            break;
+        default:
+            throw new Error(`unknown OS type: ${os.type()}`);
+    }
+}
+async function checkGcovr() {
+    if (await isMissing("gcovr")) {
+        await core.group("Install gcovr", async () => {
+            await pipInstall("gcovr");
+        });
+    }
+}
+async function checkLlvm() {
+    if (await isMissing("llvm-cov")) {
+        await core.group("Install LLVM", async () => {
+            await smartInstall("llvm");
+        });
+    }
+}
+async function check(inputs) {
+    await checkGcovr();
+    if (inputs.gcovExecutable !== null) {
+        if (inputs.gcovExecutable.includes("llvm-cov")) {
+            await checkLlvm();
         }
-        catch (_a) {
-            return true;
-        }
-    });
-}
-function chocoInstall(pkg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield exec.exec("choco", ["install", "-y", pkg]);
-    });
-}
-function aptInstall(pkg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield exec.exec("sudo", ["apt-get", "install", "-y", pkg]);
-    });
-}
-function brewInstall(pkg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield exec.exec("brew", ["install", pkg]);
-    });
-}
-function pipInstall(pkg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield exec.exec("pip3", ["install", pkg]);
-    });
-}
-function smartInstall(pkg) {
-    return __awaiter(this, void 0, void 0, function* () {
-        switch (os.type()) {
-            case "Windows_NT":
-                yield chocoInstall(pkg);
-                break;
-            case "Linux":
-                yield aptInstall(pkg);
-                break;
-            case "Darwin":
-                yield brewInstall(pkg);
-                break;
-            default:
-                throw new Error(`unknown OS type: ${os.type()}`);
-        }
-    });
-}
-function checkGcovr() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (yield isMissing("gcovr")) {
-            yield core.group("Install gcovr", () => __awaiter(this, void 0, void 0, function* () {
-                yield pipInstall("gcovr");
-            }));
-        }
-    });
-}
-function checkLlvm() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (yield isMissing("llvm-cov")) {
-            yield core.group("Install LLVM", () => __awaiter(this, void 0, void 0, function* () {
-                yield smartInstall("llvm");
-            }));
-        }
-    });
-}
-function check(inputs) {
-    return __awaiter(this, void 0, void 0, function* () {
-        yield checkGcovr();
-        if (inputs.gcovExecutable !== null) {
-            if (inputs.gcovExecutable.includes("llvm-cov")) {
-                yield checkLlvm();
-            }
-        }
-    });
+    }
 }
 exports.check = check;
 
@@ -273,19 +251,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
+const coveralls = __importStar(__nccwpck_require__(747));
 function getArgs(inputs) {
     let args = [];
     if (inputs.root !== null) {
@@ -305,12 +275,13 @@ function getArgs(inputs) {
     }
     return args;
 }
-function run(inputs) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const args = getArgs(inputs);
-        core.startGroup("Generate code coverage report using gcovr");
-        yield exec.exec("gcovr", args);
-        core.endGroup();
+async function run(inputs) {
+    const args = getArgs(inputs);
+    await core.group("Generate code coverage report using gcovr", async () => {
+        await exec.exec("gcovr", args);
+        if (inputs.coverallsOut !== null) {
+            coveralls.patch(inputs.coverallsOut);
+        }
     });
 }
 exports.run = run;
@@ -323,51 +294,40 @@ exports.run = run;
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.postForm = void 0;
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
-function postForm(url, form) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const formData = new form_data_1.default();
-        for (const [key, value] of Object.entries(form)) {
-            formData.append(key, value);
-        }
-        const urlObj = new URL(url);
-        const options = {
-            host: urlObj.host,
-            path: urlObj.pathname,
-            method: "POST",
-            protocol: "https:",
-        };
-        return new Promise((resolve, reject) => {
-            formData.submit(options, (err, res) => {
-                if (err)
-                    return reject(err);
-                const body = [];
-                res.on("data", (chunk) => body.push(chunk));
-                res.on("end", () => {
-                    if (res.statusCode === undefined) {
-                        reject(new Error(`HTTP status code unknown: ${body.toString()}`));
-                    }
-                    else if (res.statusCode < 200 || res.statusCode > 299) {
-                        reject(new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`));
-                    }
-                    else {
-                        resolve(body);
-                    }
-                });
+async function postForm(url, form) {
+    const formData = new form_data_1.default();
+    for (const [key, value] of Object.entries(form)) {
+        formData.append(key, value);
+    }
+    const urlObj = new URL(url);
+    const options = {
+        host: urlObj.host,
+        path: urlObj.pathname,
+        method: "POST",
+        protocol: "https:",
+    };
+    return new Promise((resolve, reject) => {
+        formData.submit(options, (err, res) => {
+            if (err)
+                return reject(err);
+            const body = [];
+            res.on("data", (chunk) => body.push(chunk));
+            res.on("end", () => {
+                if (res.statusCode === undefined) {
+                    reject(new Error(`HTTP status code unknown: ${body.toString()}`));
+                }
+                else if (res.statusCode < 200 || res.statusCode > 299) {
+                    reject(new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`));
+                }
+                else {
+                    resolve(body);
+                }
             });
         });
     });
@@ -405,36 +365,25 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const action = __importStar(__nccwpck_require__(9139));
 const coveralls = __importStar(__nccwpck_require__(747));
 const deps = __importStar(__nccwpck_require__(9857));
 const gcovr = __importStar(__nccwpck_require__(4930));
-function run() {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const inputs = action.parseInputs();
-            yield deps.check(inputs);
-            yield gcovr.run(inputs);
-            if (inputs.coverallsSend && inputs.coverallsOut !== null) {
-                yield coveralls.send(inputs.coverallsOut);
-            }
+async function run() {
+    try {
+        const inputs = action.parseInputs();
+        await deps.check(inputs);
+        await gcovr.run(inputs);
+        if (inputs.coverallsSend && inputs.coverallsOut !== null) {
+            await coveralls.send(inputs.coverallsOut);
         }
-        catch (error) {
-            if (error instanceof Error)
-                core.setFailed(error.message);
-        }
-    });
+    }
+    catch (error) {
+        if (error instanceof Error)
+            core.setFailed(error.message);
+    }
 }
 run();
 

@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as action from "./action";
+import * as coveralls from "./coveralls";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];
@@ -26,5 +27,8 @@ export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
   await core.group("Generate code coverage report using gcovr", async () => {
     await exec.exec("gcovr", args);
+    if (inputs.coverallsOut !== null) {
+      coveralls.patch(inputs.coverallsOut);
+    }
   });
 }
