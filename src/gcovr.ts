@@ -24,7 +24,7 @@ function getArgs(inputs: action.Inputs): string[] {
 
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
-  core.startGroup("Generate code coverage report using gcovr");
-  await exec.exec("gcovr", args);
-  core.endGroup();
+  await core.group("Generate code coverage report using gcovr", async () => {
+    await exec.exec("gcovr", args);
+  });
 }
