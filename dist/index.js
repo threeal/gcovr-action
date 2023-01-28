@@ -343,7 +343,10 @@ exports.pipInstall = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 async function isPackageExist(pkg) {
-    const rc = await exec.exec("pip3", ["show", pkg], { ignoreReturnCode: true });
+    const rc = await exec.exec("pip3", ["show", pkg], {
+        silent: true,
+        ignoreReturnCode: true,
+    });
     return rc === 0;
 }
 async function pipInstall(pkg) {
