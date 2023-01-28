@@ -67,6 +67,93 @@ exports.processInputs = processInputs;
 
 /***/ }),
 
+/***/ 3235:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Duration = void 0;
+class Duration {
+    constructor(ms) {
+        this.ms = ms;
+    }
+    toString() {
+        let ms = Math.floor(this.ms);
+        if (ms < 1000) {
+            return `${ms}ms`;
+        }
+        let s = Math.floor(ms / 1000);
+        ms = ms - s * 1000;
+        if (s < 60) {
+            return `${s}s ${ms}ms`;
+        }
+        let m = Math.floor(s / 60);
+        s = s - m * 60;
+        if (m < 60) {
+            return `${m}m ${s}s`;
+        }
+        const h = Math.floor(m / 60);
+        m = m - h * 60;
+        return `${h}h ${m}m`;
+    }
+}
+exports.Duration = Duration;
+
+
+/***/ }),
+
+/***/ 8727:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(3235), exports);
+__exportStar(__nccwpck_require__(5405), exports);
+
+
+/***/ }),
+
+/***/ 5405:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.now = exports.Time = void 0;
+const duration_1 = __nccwpck_require__(3235);
+class Time {
+    constructor(ms) {
+        this.ms = ms;
+    }
+    elapsed() {
+        return new duration_1.Duration(Date.now() - this.ms);
+    }
+}
+exports.Time = Time;
+function now() {
+    return new Time(Date.now());
+}
+exports.now = now;
+
+
+/***/ }),
+
 /***/ 747:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -99,6 +186,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.send = exports.patch = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
+const chrono = __importStar(__nccwpck_require__(8727));
 const http = __importStar(__nccwpck_require__(1270));
 async function patch(coverallsOut) {
     let data = fs.readFileSync(coverallsOut).toString();
@@ -108,9 +196,11 @@ async function patch(coverallsOut) {
 exports.patch = patch;
 async function send(coverallsOut) {
     await core.group("Sending report to Coveralls...", async () => {
+        const time = chrono.now();
         await http.postForm("https://coveralls.io/api/v1/jobs", {
             json_file: fs.createReadStream(coverallsOut),
         });
+        core.info(`Done in ${time.elapsed()}`);
     });
 }
 exports.send = send;
@@ -152,6 +242,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
+const chrono = __importStar(__nccwpck_require__(8727));
 async function isMissing(tool) {
     try {
         await io.which(tool, true);
@@ -192,7 +283,9 @@ async function checkGcovr() {
     core.info("Checking gcovr...");
     if (await isMissing("gcovr")) {
         await core.group("Installing gcovr...", async () => {
+            const time = chrono.now();
             await pipInstall("gcovr");
+            core.info(`Done in ${time.elapsed()}`);
         });
     }
 }
@@ -200,7 +293,9 @@ async function checkLlvm() {
     core.info("Checking llvm-cov...");
     if (await isMissing("llvm-cov")) {
         await core.group("Installing LLVM...", async () => {
+            const time = chrono.now();
             await smartInstall("llvm");
+            core.info(`Done in ${time.elapsed()}`);
         });
     }
 }
@@ -249,6 +344,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
+const chrono = __importStar(__nccwpck_require__(8727));
 const coveralls = __importStar(__nccwpck_require__(747));
 function getArgs(inputs) {
     let args = [];
@@ -272,6 +368,7 @@ function getArgs(inputs) {
 async function run(inputs) {
     const args = getArgs(inputs);
     await core.group("Generating code coverage report...", async () => {
+        const time = chrono.now();
         if (inputs.githubToken !== null) {
             core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
@@ -282,6 +379,7 @@ async function run(inputs) {
             coveralls.patch(inputs.coverallsOut);
             core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
         }
+        core.info(`Done in ${time.elapsed()}`);
     });
 }
 exports.run = run;

@@ -3,6 +3,7 @@ import * as exec from "@actions/exec";
 import * as io from "@actions/io";
 import * as os from "os";
 import * as action from "./action";
+import * as chrono from "./chrono";
 
 async function isMissing(tool: string): Promise<boolean> {
   try {
@@ -49,7 +50,9 @@ async function checkGcovr() {
   core.info("Checking gcovr...");
   if (await isMissing("gcovr")) {
     await core.group("Installing gcovr...", async () => {
+      const time = chrono.now();
       await pipInstall("gcovr");
+      core.info(`Done in ${time.elapsed()}`);
     });
   }
 }
@@ -58,7 +61,9 @@ async function checkLlvm() {
   core.info("Checking llvm-cov...");
   if (await isMissing("llvm-cov")) {
     await core.group("Installing LLVM...", async () => {
+      const time = chrono.now();
       await smartInstall("llvm");
+      core.info(`Done in ${time.elapsed()}`);
     });
   }
 }
