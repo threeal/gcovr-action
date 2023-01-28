@@ -340,8 +340,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.pipInstall = void 0;
+const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
+async function isPackageExist(pkg) {
+    const rc = await exec.exec("pip3", ["show", pkg], { ignoreReturnCode: true });
+    return rc === 0;
+}
 async function pipInstall(pkg) {
+    if (await isPackageExist(pkg)) {
+        core.info(`Package ${pkg} already installed`);
+        return;
+    }
     await exec.exec("pip3", ["install", pkg]);
 }
 exports.pipInstall = pipInstall;
