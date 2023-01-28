@@ -79,7 +79,23 @@ class Duration {
         this.ms = ms;
     }
     toString() {
-        return this.ms.toString();
+        let ms = Math.floor(this.ms);
+        if (ms < 1000) {
+            return `${ms}ms`;
+        }
+        let s = Math.floor(ms / 1000);
+        ms = ms - s * 1000;
+        if (s < 60) {
+            return `${s}s ${ms}ms`;
+        }
+        let m = Math.floor(s / 60);
+        s = s - m * 60;
+        if (m < 60) {
+            return `${m}m ${s}s`;
+        }
+        const h = Math.floor(m / 60);
+        m = m - h * 60;
+        return `${h}h ${m}m`;
     }
 }
 exports.Duration = Duration;
@@ -355,7 +371,7 @@ async function run(inputs) {
             coveralls.patch(inputs.coverallsOut);
             core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
         }
-        core.info(`Done generating code coverage report in ${time.elapsed().toString()}`);
+        core.info(`Done generating code coverage report in ${time.elapsed()}`);
     });
 }
 exports.run = run;

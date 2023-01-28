@@ -38,8 +38,6 @@ export async function run(inputs: action.Inputs) {
       coveralls.patch(inputs.coverallsOut);
       core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
     }
-    core.info(
-      `Done generating code coverage report in ${time.elapsed().toString()}`
-    );
+    core.info(`Done generating code coverage report in ${time.elapsed()}`);
   });
 }
