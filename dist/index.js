@@ -67,6 +67,77 @@ exports.processInputs = processInputs;
 
 /***/ }),
 
+/***/ 3235:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Duration = void 0;
+class Duration {
+    constructor(ms) {
+        this.ms = ms;
+    }
+    toString() {
+        return this.ms.toString();
+    }
+}
+exports.Duration = Duration;
+
+
+/***/ }),
+
+/***/ 8727:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(3235), exports);
+__exportStar(__nccwpck_require__(5405), exports);
+
+
+/***/ }),
+
+/***/ 5405:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.now = exports.Time = void 0;
+const duration_1 = __nccwpck_require__(3235);
+class Time {
+    constructor(ms) {
+        this.ms = ms;
+    }
+    elapsed() {
+        return new duration_1.Duration(Date.now() - this.ms);
+    }
+}
+exports.Time = Time;
+function now() {
+    return new Time(Date.now());
+}
+exports.now = now;
+
+
+/***/ }),
+
 /***/ 747:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -249,6 +320,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
+const chrono = __importStar(__nccwpck_require__(8727));
 const coveralls = __importStar(__nccwpck_require__(747));
 function getArgs(inputs) {
     let args = [];
@@ -272,6 +344,7 @@ function getArgs(inputs) {
 async function run(inputs) {
     const args = getArgs(inputs);
     await core.group("Generating code coverage report...", async () => {
+        const time = chrono.now();
         if (inputs.githubToken !== null) {
             core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
@@ -282,6 +355,7 @@ async function run(inputs) {
             coveralls.patch(inputs.coverallsOut);
             core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
         }
+        core.info(`Done generating code coverage report in ${time.elapsed().toString()}`);
     });
 }
 exports.run = run;
