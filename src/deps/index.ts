@@ -2,8 +2,8 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as io from "@actions/io";
 import * as os from "os";
-import * as action from "./action";
-import * as chrono from "./chrono";
+import * as action from "../action";
+import * as chrono from "../chrono";
 
 async function isMissing(tool: string): Promise<boolean> {
   try {
