@@ -186,6 +186,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.send = exports.patch = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
+const chrono = __importStar(__nccwpck_require__(8727));
 const http = __importStar(__nccwpck_require__(1270));
 async function patch(coverallsOut) {
     let data = fs.readFileSync(coverallsOut).toString();
@@ -195,9 +196,11 @@ async function patch(coverallsOut) {
 exports.patch = patch;
 async function send(coverallsOut) {
     await core.group("Sending report to Coveralls...", async () => {
+        const time = chrono.now();
         await http.postForm("https://coveralls.io/api/v1/jobs", {
             json_file: fs.createReadStream(coverallsOut),
         });
+        core.info(`Done in ${time.elapsed()}`);
     });
 }
 exports.send = send;
@@ -239,6 +242,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
+const chrono = __importStar(__nccwpck_require__(8727));
 async function isMissing(tool) {
     try {
         await io.which(tool, true);
@@ -279,7 +283,9 @@ async function checkGcovr() {
     core.info("Checking gcovr...");
     if (await isMissing("gcovr")) {
         await core.group("Installing gcovr...", async () => {
+            const time = chrono.now();
             await pipInstall("gcovr");
+            core.info(`Done in ${time.elapsed()}`);
         });
     }
 }
@@ -287,7 +293,9 @@ async function checkLlvm() {
     core.info("Checking llvm-cov...");
     if (await isMissing("llvm-cov")) {
         await core.group("Installing LLVM...", async () => {
+            const time = chrono.now();
             await smartInstall("llvm");
+            core.info(`Done in ${time.elapsed()}`);
         });
     }
 }
@@ -371,7 +379,7 @@ async function run(inputs) {
             coveralls.patch(inputs.coverallsOut);
             core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
         }
-        core.info(`Done generating code coverage report in ${time.elapsed()}`);
+        core.info(`Done in ${time.elapsed()}`);
     });
 }
 exports.run = run;
