@@ -59,6 +59,17 @@ jobs:
           cxx-compiler: g++
           run-test: true
 
+      - name: Upload the distribution with build as an artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: dist-with-build-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            .git/
+            dist/
+            sample/
+            action.yml
+
       - name: Use this action
         uses: ./
 
@@ -143,18 +154,10 @@ jobs:
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the distribution artifact
+      - name: Download the distribution with build artifact
         uses: actions/download-artifact@v3.0.2
         with:
-          name: dist
-
-      - name: Configure, build, and test the sample project
-        uses: threeal/cmake-action@v1.1.0
-        with:
-          source-dir: sample
-          generator: Ninja
-          cxx-compiler: g++
-          run-test: true
+          name: dist-with-build-${{ matrix.os }}
 
       - name: Use this action to generate a Coveralls report
         uses: ./
