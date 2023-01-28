@@ -35,7 +35,7 @@ jobs:
           path: |
             .git/
             dist/
-            test/
+            sample/
             action.yml
 
   standard-usage:
@@ -51,19 +51,30 @@ jobs:
         with:
           name: dist
 
-      - name: Configure, build, and test the test project
+      - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
         with:
-          source-dir: test
+          source-dir: sample
           generator: Ninja
           cxx-compiler: g++
           run-test: true
+
+      - name: Upload the distribution with build as an artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: dist-with-build-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            .git/
+            dist/
+            sample/
+            action.yml
 
       - name: Use this action
         uses: ./
 
   llvm-usage:
-    needs: standard-usage
+    needs: check-build
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -75,10 +86,10 @@ jobs:
         with:
           name: dist
 
-      - name: Configure, build, and test the test project
+      - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
         with:
-          source-dir: test
+          source-dir: sample
           generator: Ninja
           c-compiler: clang
           cxx-compiler: clang++
@@ -90,7 +101,7 @@ jobs:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   exclusion-usage:
-    needs: standard-usage
+    needs: check-build
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -102,10 +113,10 @@ jobs:
         with:
           name: dist
 
-      - name: Configure, build, and test the test project
+      - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
         with:
-          source-dir: test
+          source-dir: sample
           generator: Ninja
           cxx-compiler: g++
           args: -DTEST_EVEN=OFF -DTEST_ODD=OFF
@@ -116,7 +127,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          root: test
+          root: sample
           fail-under-line: 100
 
       - name: Check if the previous step did fail
@@ -125,14 +136,14 @@ jobs:
       - name: Use this action without an exclusion but with a lower fail threshold
         uses: ./
         with:
-          root: test
+          root: sample
           fail-under-line: 50
 
       - name: Use this action with an exclusion
         uses: ./
         with:
-          root: test
-          exclude: test/include/*
+          root: sample
+          exclude: sample/include/*
           fail-under-line: 100
 
   coveralls-usage:
@@ -143,18 +154,10 @@ jobs:
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the distribution artifact
+      - name: Download the distribution with build artifact
         uses: actions/download-artifact@v3.0.2
         with:
-          name: dist
-
-      - name: Configure, build, and test the test project
-        uses: threeal/cmake-action@v1.1.0
-        with:
-          source-dir: test
-          generator: Ninja
-          cxx-compiler: g++
-          run-test: true
+          name: dist-with-build-${{ matrix.os }}
 
       - name: Use this action to generate a Coveralls report
         uses: ./
