@@ -35,7 +35,7 @@ jobs:
           path: |
             .git/
             dist/
-            test/
+            sample/
             action.yml
 
   standard-usage:
@@ -51,10 +51,10 @@ jobs:
         with:
           name: dist
 
-      - name: Configure, build, and test the test project
+      - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
         with:
-          source-dir: test
+          source-dir: sample
           generator: Ninja
           cxx-compiler: g++
           run-test: true
@@ -75,10 +75,10 @@ jobs:
         with:
           name: dist
 
-      - name: Configure, build, and test the test project
+      - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
         with:
-          source-dir: test
+          source-dir: sample
           generator: Ninja
           c-compiler: clang
           cxx-compiler: clang++
@@ -102,10 +102,10 @@ jobs:
         with:
           name: dist
 
-      - name: Configure, build, and test the test project
+      - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
         with:
-          source-dir: test
+          source-dir: sample
           generator: Ninja
           cxx-compiler: g++
           args: -DTEST_EVEN=OFF -DTEST_ODD=OFF
@@ -116,7 +116,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          root: test
+          root: sample
           fail-under-line: 100
 
       - name: Check if the previous step did fail
@@ -125,14 +125,14 @@ jobs:
       - name: Use this action without an exclusion but with a lower fail threshold
         uses: ./
         with:
-          root: test
+          root: sample
           fail-under-line: 50
 
       - name: Use this action with an exclusion
         uses: ./
         with:
-          root: test
-          exclude: test/include/*
+          root: sample
+          exclude: sample/include/*
           fail-under-line: 100
 
   coveralls-usage:
@@ -148,10 +148,10 @@ jobs:
         with:
           name: dist
 
-      - name: Configure, build, and test the test project
+      - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
         with:
-          source-dir: test
+          source-dir: sample
           generator: Ninja
           cxx-compiler: g++
           run-test: true
