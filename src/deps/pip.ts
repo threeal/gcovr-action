@@ -1,4 +1,7 @@
+import * as cache from "@actions/cache";
 import * as core from "@actions/core";
+import * as os from "os";
+import * as path from "path";
 import * as exec from "../exec";
 
 interface PackageInfo {
@@ -44,6 +47,17 @@ function diffPackageInfos(
   return diff;
 }
 
+async function cachePackage(packageInfo: PackageInfo): Promise<void> {
+  const loc = packageInfo.location;
+  await cache.saveCache(
+    [
+      path.join(loc, packageInfo.name.toLowerCase()),
+      path.join(loc, `${packageInfo.name}-${packageInfo.version}.dist-info`),
+    ],
+    `pip-${os.type()}-${packageInfo.name}-${packageInfo.version}`
+  );
+}
+
 async function isPackageExist(packageName: string): Promise<boolean> {
   return await exec.execCheck("python3", ["-m", "pip", "show", packageName]);
 }
@@ -56,9 +70,8 @@ export async function installPackage(packageName: string) {
   let packageInfos = await listPackageInfos();
   await exec.exec("python3", ["-m", "pip", "install", packageName]);
   packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());
-  core.info(`After install package list: ${JSON.stringify(packageInfos)}`);
   for (const packageInfo of Object.values(packageInfos)) {
-    core.info(`'${packageInfo.name}' info: ${JSON.stringify(packageInfo)}`);
-    await exec.exec("ls", [packageInfo.location]);
+    core.info(`Caching ${packageInfo.name}-${packageInfo.version}...`);
+    await cachePackage(packageInfo);
   }
 }
