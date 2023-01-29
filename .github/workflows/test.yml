@@ -24,21 +24,22 @@ jobs:
       - name: Build this package for distribution
         run: npm run package
 
-      - name: Upload the distribution as an artifact
+      - name: Upload this project as an artifact
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: dist
+          name: project
           if-no-files-found: error
-          path: |
-            .git/
-            dist/
-            sample/
-            action.yml
+          path: '*'
 
   check-build:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: project
+
       - name: Check if the distribution is up to date
         run: git diff --exit-code HEAD
 
@@ -50,10 +51,10 @@ jobs:
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the distribution artifact
+      - name: Download the project artifact
         uses: actions/download-artifact@v3.0.2
         with:
-          name: dist
+          name: project
 
       - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
@@ -85,10 +86,10 @@ jobs:
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the distribution artifact
+      - name: Download the project artifact
         uses: actions/download-artifact@v3.0.2
         with:
-          name: dist
+          name: project
 
       - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
@@ -112,10 +113,10 @@ jobs:
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the distribution artifact
+      - name: Download the project artifact
         uses: actions/download-artifact@v3.0.2
         with:
-          name: dist
+          name: project
 
       - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.1.0
