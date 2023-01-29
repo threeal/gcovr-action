@@ -551,7 +551,7 @@ async function run(inputs) {
             core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
         }
-        await exec.exec("gcovr", args);
+        await exec.exec("python3", ["-m", "gcovr", ...args]);
         if (inputs.coverallsOut !== null) {
             core.info("Patching Coveralls API report...");
             coveralls.patch(inputs.coverallsOut);
