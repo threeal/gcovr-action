@@ -345,14 +345,14 @@ const core = __importStar(__nccwpck_require__(2186));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(7757));
-let tempSitePckages = null;
-async function getSitePackages() {
-    if (tempSitePckages === null) {
+let tempUserSitePckages = null;
+async function getUserSitePackages() {
+    if (tempUserSitePckages === null) {
         const cmd = "import site; print(site.getusersitepackages())";
         const out = await exec.execOut("python3", ["-c", cmd]);
-        tempSitePckages = out.trim();
+        tempUserSitePckages = out.trim();
     }
-    return tempSitePckages;
+    return tempUserSitePckages;
 }
 async function listPackageInfos() {
     const packageInfos = {};
@@ -385,19 +385,23 @@ function diffPackageInfos(previous, current) {
     }
     return diff;
 }
-function getCacheKey(packageName) {
-    return `pip-${os.type()}-${packageName}`;
+async function getCacheInfo(packageName) {
+    const root = await getUserSitePackages();
+    return {
+        paths: [
+            path.join(root, `${packageName.toLowerCase()}*`),
+            path.join(root, `${packageName}*`),
+        ],
+        key: `pip-${os.type()}-${packageName}`,
+    };
 }
 async function cachePackage(packageInfo) {
-    const loc = await getSitePackages();
-    await cache.saveCache([
-        path.join(loc, packageInfo.name.toLowerCase()),
-        path.join(loc, `${packageInfo.name}-${packageInfo.version}.dist-info`),
-    ], getCacheKey(packageInfo.name));
+    const info = await getCacheInfo(packageInfo.name);
+    await cache.saveCache(info.paths, info.key);
 }
 async function restorePackage(packageName) {
-    const loc = path.join(await getSitePackages(), "*");
-    const key = await cache.restoreCache([loc], getCacheKey(packageName));
+    const info = await getCacheInfo(packageName);
+    const key = await cache.restoreCache(info.paths, info.key);
     return key !== undefined;
 }
 async function isPackageExist(packageName) {
@@ -413,7 +417,6 @@ async function installPackage(packageName) {
         core.info(`Done restoring ${packageName}...`);
         return;
     }
-    core.info(`Using site packages: ${await getSitePackages()}`);
     let packageInfos = await listPackageInfos();
     await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
     packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());

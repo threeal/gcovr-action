@@ -12,15 +12,15 @@ interface PackageInfo {
 
 type PackageInfos = { [key: string]: PackageInfo };
 
-let tempSitePckages: string | null = null;
+let tempUserSitePckages: string | null = null;
 
-async function getSitePackages(): Promise<string> {
-  if (tempSitePckages === null) {
+async function getUserSitePackages(): Promise<string> {
+  if (tempUserSitePckages === null) {
     const cmd = "import site; print(site.getusersitepackages())";
     const out = await exec.execOut("python3", ["-c", cmd]);
-    tempSitePckages = out.trim();
+    tempUserSitePckages = out.trim();
   }
-  return tempSitePckages;
+  return tempUserSitePckages;
 }
 
 async function listPackageInfos(): Promise<PackageInfos> {
@@ -58,24 +58,30 @@ function diffPackageInfos(
   return diff;
 }
 
-function getCacheKey(packageName: string): string {
-  return `pip-${os.type()}-${packageName}`;
+interface CacheInfo {
+  paths: string[];
+  key: string;
+}
+
+async function getCacheInfo(packageName: string): Promise<CacheInfo> {
+  const root = await getUserSitePackages();
+  return {
+    paths: [
+      path.join(root, `${packageName.toLowerCase()}*`),
+      path.join(root, `${packageName}*`),
+    ],
+    key: `pip-${os.type()}-${packageName}`,
+  };
 }
 
 async function cachePackage(packageInfo: PackageInfo): Promise<void> {
-  const loc = await getSitePackages();
-  await cache.saveCache(
-    [
-      path.join(loc, packageInfo.name.toLowerCase()),
-      path.join(loc, `${packageInfo.name}-${packageInfo.version}.dist-info`),
-    ],
-    getCacheKey(packageInfo.name)
-  );
+  const info = await getCacheInfo(packageInfo.name);
+  await cache.saveCache(info.paths, info.key);
 }
 
 async function restorePackage(packageName: string): Promise<boolean> {
-  const loc = path.join(await getSitePackages(), "*");
-  const key = await cache.restoreCache([loc], getCacheKey(packageName));
+  const info = await getCacheInfo(packageName);
+  const key = await cache.restoreCache(info.paths, info.key);
   return key !== undefined;
 }
 
@@ -93,7 +99,6 @@ export async function installPackage(packageName: string) {
     core.info(`Done restoring ${packageName}...`);
     return;
   }
-  core.info(`Using site packages: ${await getSitePackages()}`);
   let packageInfos = await listPackageInfos();
   await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
   packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());
