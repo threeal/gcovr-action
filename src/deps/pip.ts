@@ -63,7 +63,7 @@ function getCacheKey(packageName: string): string {
 }
 
 async function cachePackage(packageInfo: PackageInfo): Promise<void> {
-  const loc = packageInfo.location;
+  const loc = await getSitePackages();
   await cache.saveCache(
     [
       path.join(loc, packageInfo.name.toLowerCase()),
@@ -74,7 +74,8 @@ async function cachePackage(packageInfo: PackageInfo): Promise<void> {
 }
 
 async function restorePackage(packageName: string): Promise<boolean> {
-  const key = await cache.restoreCache(["*"], getCacheKey(packageName));
+  const loc = path.join(await getSitePackages(), "*");
+  const key = await cache.restoreCache([loc], getCacheKey(packageName));
   return key !== undefined;
 }
 
@@ -94,7 +95,7 @@ export async function installPackage(packageName: string) {
   }
   core.info(`Using site packages: ${await getSitePackages()}`);
   let packageInfos = await listPackageInfos();
-  await exec.exec("python3", ["-m", "pip", "install", packageName]);
+  await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
   packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());
   for (const packageInfo of Object.values(packageInfos)) {
     core.info(`Caching ${packageInfo.name}-${packageInfo.version}...`);
