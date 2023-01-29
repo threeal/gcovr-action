@@ -4,7 +4,7 @@ import * as io from "@actions/io";
 import * as os from "os";
 import * as action from "../action";
 import * as chrono from "../chrono";
-import { pipInstall } from "./pip";
+import * as pip from "./pip";
 
 async function isMissing(tool: string): Promise<boolean> {
   try {
@@ -48,7 +48,7 @@ async function checkGcovr() {
   if (await isMissing("gcovr")) {
     await core.group("Installing gcovr...", async () => {
       const time = chrono.now();
-      await pipInstall("gcovr");
+      await pip.installPackage("gcovr");
       core.info(`Done in ${time.elapsed()}`);
     });
   }
