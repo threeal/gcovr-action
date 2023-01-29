@@ -3,7 +3,7 @@ import * as exec from "../exec";
 
 type PkgVers = { [key: string]: string | string };
 
-export async function list(): Promise<PkgVers> {
+async function list(): Promise<PkgVers> {
   const pkgVers: PkgVers = {};
   const out: string = await exec.execOut("pip3", ["list"]);
   const lines = out.split("\n");
@@ -19,6 +19,17 @@ export async function list(): Promise<PkgVers> {
   return pkgVers;
 }
 
+function diffPkgVers(prev: PkgVers, current: PkgVers): PkgVers {
+  const diff: PkgVers = {};
+  for (const key of Object.keys(current)) {
+    if (key in prev && prev[key] === current[key]) {
+      continue;
+    }
+    diff[key] = current[key];
+  }
+  return diff;
+}
+
 async function isPackageExist(pkg: string): Promise<boolean> {
   return await exec.execCheck("pip3", ["show", pkg]);
 }
@@ -28,7 +39,11 @@ export async function pipInstall(pkg: string) {
     core.info(`Package ${pkg} already installed`);
     return;
   }
-  core.info(`Package list: ${JSON.stringify(await list())}`);
+  const prev = await list();
+  core.info(`Package list: ${JSON.stringify(prev)}`);
   await exec.exec("pip3", ["install", pkg]);
-  core.info(`After install package list: ${JSON.stringify(await list())}`);
+  const current = await list();
+  core.info(`After install package list: ${JSON.stringify(current)}`);
+  const diff = diffPkgVers(prev, current);
+  core.info(`After install package list: ${JSON.stringify(diff)}`);
 }
