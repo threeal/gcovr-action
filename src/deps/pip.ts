@@ -10,7 +10,7 @@ async function list(): Promise<PkgVers> {
   for (let i = 2; i < lines.length - 1; ++i) {
     const line = lines[i];
     const strs = line.split(/(\s+)/);
-    if (strs.length === 3) {
+    if (strs.length >= 3) {
       pkgVers[strs[0]] = strs[2];
     } else {
       core.info(`WARNING: Invalid line: ${strs}`);
