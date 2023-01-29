@@ -69,6 +69,13 @@ async function cachePackage(packageInfo: PackageInfo): Promise<void> {
   );
 }
 
+async function restorePackage(packageName: string): Promise<boolean> {
+  const key = await cache.restoreCache(["*"], "", [
+    `pip-${os.type()}-${packageName}-`,
+  ]);
+  return key !== undefined;
+}
+
 async function isPackageExist(packageName: string): Promise<boolean> {
   return await exec.execCheck("python3", ["-m", "pip", "show", packageName]);
 }
@@ -76,6 +83,11 @@ async function isPackageExist(packageName: string): Promise<boolean> {
 export async function installPackage(packageName: string) {
   if (await isPackageExist(packageName)) {
     core.info(`Package ${packageName} already installed`);
+    return;
+  }
+  core.info(`Restoring ${packageName}...`);
+  if (await restorePackage(packageName)) {
+    core.info(`Done restoring ${packageName}...`);
     return;
   }
   core.info(`Using site packages: ${await getSitePackages()}`);
