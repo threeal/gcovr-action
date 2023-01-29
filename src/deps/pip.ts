@@ -12,10 +12,15 @@ interface PackageInfo {
 
 type PackageInfos = { [key: string]: PackageInfo };
 
+let tempSitePckages: string | null = null;
+
 async function getSitePackages(): Promise<string> {
-  const cmd = "import site; print(site.getusersitepackages())";
-  const out = await exec.execOut("python3", ["-c", cmd]);
-  return out.trim();
+  if (tempSitePckages === null) {
+    const cmd = "import site; print(site.getusersitepackages())";
+    const out = await exec.execOut("python3", ["-c", cmd]);
+    tempSitePckages = out.trim();
+  }
+  return tempSitePckages;
 }
 
 async function listPackageInfos(): Promise<PackageInfos> {
