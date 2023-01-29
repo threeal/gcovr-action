@@ -208,7 +208,7 @@ exports.send = send;
 
 /***/ }),
 
-/***/ 4695:
+/***/ 9857:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -243,7 +243,6 @@ const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
 const chrono = __importStar(__nccwpck_require__(8727));
-const pip_1 = __nccwpck_require__(2139);
 async function isMissing(tool) {
     try {
         await io.which(tool, true);
@@ -261,6 +260,9 @@ async function aptInstall(pkg) {
 }
 async function brewInstall(pkg) {
     await exec.exec("brew", ["install", pkg]);
+}
+async function pipInstall(pkg) {
+    await exec.exec("pip3", ["install", pkg]);
 }
 async function smartInstall(pkg) {
     switch (os.type()) {
@@ -282,7 +284,7 @@ async function checkGcovr() {
     if (await isMissing("gcovr")) {
         await core.group("Installing gcovr...", async () => {
             const time = chrono.now();
-            await (0, pip_1.pipInstall)("gcovr");
+            await pipInstall("gcovr");
             core.info(`Done in ${time.elapsed()}`);
         });
     }
@@ -306,57 +308,6 @@ async function check(inputs) {
     }
 }
 exports.check = check;
-
-
-/***/ }),
-
-/***/ 2139:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.pipInstall = void 0;
-const core = __importStar(__nccwpck_require__(2186));
-const exec = __importStar(__nccwpck_require__(1514));
-async function isPackageExist(pkg) {
-    const rc = await exec.exec("pip3", ["show", pkg], {
-        silent: true,
-        ignoreReturnCode: true,
-    });
-    return rc === 0;
-}
-async function pipInstall(pkg) {
-    if (await isPackageExist(pkg)) {
-        core.info(`Package ${pkg} already installed`);
-        return;
-    }
-    await exec.exec("pip3", ["install", pkg]);
-}
-exports.pipInstall = pipInstall;
 
 
 /***/ }),
@@ -545,7 +496,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const action = __importStar(__nccwpck_require__(9139));
 const coveralls = __importStar(__nccwpck_require__(747));
-const deps = __importStar(__nccwpck_require__(4695));
+const deps = __importStar(__nccwpck_require__(9857));
 const gcovr = __importStar(__nccwpck_require__(4930));
 async function run() {
     try {
