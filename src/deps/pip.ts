@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as exec from "../exec";
 
-type PackageVers = { [key: string]: string | string };
+type PackageVers = { [key: string]: string };
 
 async function listPackageVers(): Promise<PackageVers> {
   const packageVers: PackageVers = {};
@@ -33,6 +33,31 @@ function diffPackageVers(
   return diff;
 }
 
+interface PackageInfo {
+  name: string;
+  version: string;
+  location: string;
+}
+
+async function showPackageInfo(packageName: string): Promise<PackageInfo> {
+  const out: string = await exec.execOut("pip3", ["show", packageName]);
+  const lines = out.split("\n");
+  const info: { [key: string]: string } = {};
+  for (let i = 0; i < lines.length - 1; ++i) {
+    const strs = lines[i].split(/:(.*)/s);
+    if (strs.length >= 2) {
+      info[strs[0].trim()] = strs[1].trim();
+    } else {
+      core.info(`WARNING: Invalid line: ${strs}`);
+    }
+  }
+  return {
+    name: info["Name"],
+    version: info["Version"],
+    location: info["Location"],
+  };
+}
+
 async function isPackageExist(packageName: string): Promise<boolean> {
   return await exec.execCheck("pip3", ["show", packageName]);
 }
@@ -46,4 +71,9 @@ export async function installPackage(packageName: string) {
   await exec.exec("pip3", ["install", packageName]);
   packageVers = diffPackageVers(packageVers, await listPackageVers());
   core.info(`After install package list: ${JSON.stringify(packageVers)}`);
+  for (const name of Object.keys(packageVers)) {
+    const packageInfo = await showPackageInfo(name);
+    core.info(`'${name}' info: ${JSON.stringify(packageInfo)}`);
+    await exec.exec("ls", [packageInfo.location]);
+  }
 }
