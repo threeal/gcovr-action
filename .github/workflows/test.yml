@@ -29,7 +29,10 @@ jobs:
         with:
           name: project
           if-no-files-found: error
-          path: '*'
+          path: |
+            *
+            !lib/
+            !node_modules/
 
   check-build:
     needs: build
