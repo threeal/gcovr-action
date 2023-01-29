@@ -58,6 +58,10 @@ function diffPackageInfos(
   return diff;
 }
 
+function getCacheKey(packageName: string): string {
+  return `pip-${os.type()}-${packageName}`;
+}
+
 async function cachePackage(packageInfo: PackageInfo): Promise<void> {
   const loc = packageInfo.location;
   await cache.saveCache(
@@ -65,14 +69,12 @@ async function cachePackage(packageInfo: PackageInfo): Promise<void> {
       path.join(loc, packageInfo.name.toLowerCase()),
       path.join(loc, `${packageInfo.name}-${packageInfo.version}.dist-info`),
     ],
-    `pip-${os.type()}-${packageInfo.name}-${packageInfo.version}`
+    getCacheKey(packageInfo.name)
   );
 }
 
 async function restorePackage(packageName: string): Promise<boolean> {
-  const key = await cache.restoreCache(["*"], "", [
-    `pip-${os.type()}-${packageName}-`,
-  ]);
+  const key = await cache.restoreCache(["*"], getCacheKey(packageName));
   return key !== undefined;
 }
 
