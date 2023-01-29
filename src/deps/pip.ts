@@ -12,6 +12,12 @@ interface PackageInfo {
 
 type PackageInfos = { [key: string]: PackageInfo };
 
+async function getSitePackages(): Promise<string> {
+  const cmd = "import site; print(site.getusersitepackages())";
+  const out = await exec.execOut("python3", ["-c", cmd]);
+  return out.trim();
+}
+
 async function listPackageInfos(): Promise<PackageInfos> {
   const packageInfos: PackageInfos = {};
   const args = ["-m", "pip", "list", "-v"];
@@ -67,6 +73,7 @@ export async function installPackage(packageName: string) {
     core.info(`Package ${packageName} already installed`);
     return;
   }
+  core.info(`Using site packages: ${await getSitePackages()}`);
   let packageInfos = await listPackageInfos();
   await exec.exec("python3", ["-m", "pip", "install", packageName]);
   packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());
