@@ -1,19 +1,11 @@
 import * as core from "@actions/core";
-import * as exec from "@actions/exec";
+import * as exec from "../exec";
 
 type PkgVers = { [key: string]: string | string };
 
 export async function list(): Promise<PkgVers> {
   const pkgVers: PkgVers = {};
-  let out: string = "";
-  await exec.exec("pip3", ["list"], {
-    silent: true,
-    listeners: {
-      stdout: (data: Buffer) => {
-        out += data.toString();
-      },
-    },
-  });
+  const out: string = await exec.execOut("pip3", ["list"]);
   const lines = out.split("\n");
   for (let i = 2; i < lines.length - 1; ++i) {
     const line = lines[i];
@@ -28,11 +20,7 @@ export async function list(): Promise<PkgVers> {
 }
 
 async function isPackageExist(pkg: string): Promise<boolean> {
-  const rc = await exec.exec("pip3", ["show", pkg], {
-    silent: true,
-    ignoreReturnCode: true,
-  });
-  return rc === 0;
+  return await exec.execCheck("pip3", ["show", pkg]);
 }
 
 export async function pipInstall(pkg: string) {
