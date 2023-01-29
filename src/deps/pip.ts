@@ -11,7 +11,8 @@ type PackageInfos = { [key: string]: PackageInfo };
 
 async function listPackageInfos(): Promise<PackageInfos> {
   const packageInfos: PackageInfos = {};
-  const out: string = await exec.execOut("pip3", ["list", "-v"]);
+  const args = ["-m", "pip", "list", "-v"];
+  const out: string = await exec.execOut("python3", args);
   const lines = out.split("\n");
   for (let i = 2; i < lines.length - 1; ++i) {
     const line = lines[i];
@@ -44,7 +45,7 @@ function diffPackageInfos(
 }
 
 async function isPackageExist(packageName: string): Promise<boolean> {
-  return await exec.execCheck("pip3", ["show", packageName]);
+  return await exec.execCheck("python3", ["-m", "pip", "show", packageName]);
 }
 
 export async function installPackage(packageName: string) {
@@ -53,7 +54,7 @@ export async function installPackage(packageName: string) {
     return;
   }
   let packageInfos = await listPackageInfos();
-  await exec.exec("pip3", ["install", packageName]);
+  await exec.exec("python3", ["-m", "pip", "install", packageName]);
   packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());
   core.info(`After install package list: ${JSON.stringify(packageInfos)}`);
   for (const packageInfo of Object.values(packageInfos)) {
