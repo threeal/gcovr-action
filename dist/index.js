@@ -310,6 +310,65 @@ exports.check = check;
 
 /***/ }),
 
+/***/ 143:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.restorePackage = exports.cachePackage = void 0;
+const cache = __importStar(__nccwpck_require__(7799));
+const os = __importStar(__nccwpck_require__(2037));
+const path = __importStar(__nccwpck_require__(1017));
+const context_1 = __nccwpck_require__(3272);
+async function getCacheInfo(packageName) {
+    const context = await (0, context_1.initContext)();
+    return {
+        paths: [
+            path.join(context.userSitePackage, `${packageName.toLowerCase()}*`),
+            path.join(context.userSitePackage, `${packageName}*`),
+        ],
+        key: `pip-${os.type()}-${packageName}`,
+    };
+}
+async function cachePackage(packageName) {
+    const info = await getCacheInfo(packageName);
+    await cache.saveCache(info.paths, info.key);
+}
+exports.cachePackage = cachePackage;
+async function restorePackage(packageName) {
+    const info = await getCacheInfo(packageName);
+    const key = await cache.restoreCache(info.paths, info.key);
+    return key !== undefined;
+}
+exports.restorePackage = restorePackage;
+
+
+/***/ }),
+
 /***/ 3272:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -390,32 +449,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.installPackage = void 0;
-const cache = __importStar(__nccwpck_require__(7799));
 const core = __importStar(__nccwpck_require__(2186));
-const os = __importStar(__nccwpck_require__(2037));
-const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(7757));
-const context_1 = __nccwpck_require__(3272);
 const info_1 = __nccwpck_require__(8414);
-async function getCacheInfo(packageName) {
-    const context = await (0, context_1.initContext)();
-    return {
-        paths: [
-            path.join(context.userSitePackage, `${packageName.toLowerCase()}*`),
-            path.join(context.userSitePackage, `${packageName}*`),
-        ],
-        key: `pip-${os.type()}-${packageName}`,
-    };
-}
-async function cachePackage(packageName) {
-    const info = await getCacheInfo(packageName);
-    await cache.saveCache(info.paths, info.key);
-}
-async function restorePackage(packageName) {
-    const info = await getCacheInfo(packageName);
-    const key = await cache.restoreCache(info.paths, info.key);
-    return key !== undefined;
-}
+const cache_1 = __nccwpck_require__(143);
 async function installPackage(packageName) {
     core.info(`Checking ${packageName}...`);
     const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
@@ -424,13 +461,13 @@ async function installPackage(packageName) {
         return;
     }
     core.info(`Restoring ${packageName}...`);
-    if (await restorePackage(packageName)) {
+    if (await (0, cache_1.restorePackage)(packageName)) {
         core.info(`Done restoring ${packageName}...`);
         return;
     }
     await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
     core.info(`Caching ${packageName}...`);
-    await cachePackage(packageName);
+    await (0, cache_1.cachePackage)(packageName);
 }
 exports.installPackage = installPackage;
 
