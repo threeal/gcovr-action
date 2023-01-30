@@ -530,29 +530,41 @@ const info_1 = __nccwpck_require__(8414);
 const cache_1 = __nccwpck_require__(143);
 async function installPackage(packageName) {
     core.info(`Checking ${packageName}...`);
-    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-    if (pkgInfo !== null) {
+    if ((await (0, info_1.showPackageInfo)(packageName)) !== null) {
         core.info(`Package ${packageName} already installed`);
         return;
     }
-    core.info(`Restoring ${packageName}...`);
-    if (await (0, cache_1.restorePackage)(packageName)) {
-        core.info(`Done restoring ${packageName}...`);
-        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-        if (pkgInfo !== null) {
-            for (const dependency of pkgInfo.dependencies) {
-                core.info(`Installing ${dependency}...`);
-                await installPackage(dependency);
-            }
+    await core.group(`Restoring ${packageName}...`, async () => {
+        if (await (0, cache_1.restorePackage)(packageName)) {
+            core.info(`Done restoring ${packageName}`);
         }
         else {
-            core.info(`WARNING: Package cache of ${packageName} is corrupted!`);
+            core.info(`Failed to restore ${packageName}`);
+            await core.group(`Installing ${packageName}...`, async () => {
+                await exec.exec("python3", [
+                    "-m",
+                    "pip",
+                    "install",
+                    "--user",
+                    "--no-deps",
+                    packageName,
+                ]);
+            });
+            await core.group(`Caching ${packageName}...`, async () => {
+                await (0, cache_1.cachePackage)(packageName);
+            });
         }
+    });
+    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+    if (pkgInfo === null) {
+        throw new Error(`Could not find package ${packageName}. Cache or installation may corrupted!`);
     }
-    const args = ["-m", "pip", "install", "--user", "--no-deps", packageName];
-    await exec.exec("python3", args);
-    core.info(`Caching ${packageName}...`);
-    await (0, cache_1.cachePackage)(packageName);
+    await core.group(`Installing ${packageName} dependencies...`, async () => {
+        for (const dependency of pkgInfo.dependencies) {
+            core.info(`Installing ${dependency}...`);
+            await installPackage(dependency);
+        }
+    });
 }
 exports.installPackage = installPackage;
 
