@@ -4,6 +4,7 @@ import * as os from "os";
 import * as path from "path";
 import * as exec from "../../exec";
 import { initContext } from "./context";
+import { showPackageInfo } from "./info";
 
 interface CacheInfo {
   paths: string[];
@@ -32,12 +33,10 @@ async function restorePackage(packageName: string): Promise<boolean> {
   return key !== undefined;
 }
 
-async function isPackageExist(packageName: string): Promise<boolean> {
-  return await exec.execCheck("python3", ["-m", "pip", "show", packageName]);
-}
-
 export async function installPackage(packageName: string) {
-  if (await isPackageExist(packageName)) {
+  core.info(`Checking ${packageName}...`);
+  const pkgInfo = await showPackageInfo(packageName);
+  if (pkgInfo !== null) {
     core.info(`Package ${packageName} already installed`);
     return;
   }

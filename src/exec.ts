@@ -33,3 +33,20 @@ export async function execCheck(
   });
   return rc === 0;
 }
+
+export async function execOutCheck(
+  commandLine: string,
+  args?: string[] | undefined
+): Promise<[string, boolean]> {
+  let out: string = "";
+  const rc = await actionsExec.exec(commandLine, args, {
+    silent: true,
+    ignoreReturnCode: true,
+    listeners: {
+      stdout: (data: Buffer) => {
+        out += data.toString();
+      },
+    },
+  });
+  return [out, rc === 0];
+}

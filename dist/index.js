@@ -396,6 +396,7 @@ const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(7757));
 const context_1 = __nccwpck_require__(3272);
+const info_1 = __nccwpck_require__(8414);
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {
@@ -415,11 +416,10 @@ async function restorePackage(packageName) {
     const key = await cache.restoreCache(info.paths, info.key);
     return key !== undefined;
 }
-async function isPackageExist(packageName) {
-    return await exec.execCheck("python3", ["-m", "pip", "show", packageName]);
-}
 async function installPackage(packageName) {
-    if (await isPackageExist(packageName)) {
+    core.info(`Checking ${packageName}...`);
+    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+    if (pkgInfo !== null) {
         core.info(`Package ${packageName} already installed`);
         return;
     }
@@ -433,6 +433,64 @@ async function installPackage(packageName) {
     await cachePackage(packageName);
 }
 exports.installPackage = installPackage;
+
+
+/***/ }),
+
+/***/ 8414:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.showPackageInfo = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const exec = __importStar(__nccwpck_require__(7757));
+async function showPackageInfo(packageName) {
+    const args = ["-m", "pip", "show", packageName];
+    const [out, ok] = await exec.execOutCheck("python3", args);
+    if (!ok)
+        return null;
+    const lines = out.split("\n");
+    const info = {};
+    for (let i = 0; i < lines.length - 1; ++i) {
+        const strs = lines[i].split(/:(.*)/s);
+        if (strs.length >= 2) {
+            info[strs[0].trim()] = strs[1].trim();
+        }
+        else {
+            core.info(`WARNING: Invalid line: ${strs}`);
+        }
+    }
+    return {
+        name: info["Name"],
+        version: info["Version"],
+    };
+}
+exports.showPackageInfo = showPackageInfo;
 
 
 /***/ }),
@@ -466,7 +524,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.execCheck = exports.execOut = exports.exec = void 0;
+exports.execOutCheck = exports.execCheck = exports.execOut = exports.exec = void 0;
 const actionsExec = __importStar(__nccwpck_require__(1514));
 async function exec(commandLine, args) {
     await actionsExec.exec(commandLine, args);
@@ -493,6 +551,20 @@ async function execCheck(commandLine, args) {
     return rc === 0;
 }
 exports.execCheck = execCheck;
+async function execOutCheck(commandLine, args) {
+    let out = "";
+    const rc = await actionsExec.exec(commandLine, args, {
+        silent: true,
+        ignoreReturnCode: true,
+        listeners: {
+            stdout: (data) => {
+                out += data.toString();
+            },
+        },
+    });
+    return [out, rc === 0];
+}
+exports.execOutCheck = execOutCheck;
 
 
 /***/ }),
