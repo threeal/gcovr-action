@@ -3,17 +3,7 @@ import * as core from "@actions/core";
 import * as os from "os";
 import * as path from "path";
 import * as exec from "../../exec";
-
-let tempUserSitePckages: string | null = null;
-
-async function getUserSitePackages(): Promise<string> {
-  if (tempUserSitePckages === null) {
-    const cmd = "import site; print(site.getusersitepackages())";
-    const out = await exec.execOut("python3", ["-c", cmd]);
-    tempUserSitePckages = out.trim();
-  }
-  return tempUserSitePckages;
-}
+import { initContext } from "./context";
 
 interface CacheInfo {
   paths: string[];
@@ -21,11 +11,11 @@ interface CacheInfo {
 }
 
 async function getCacheInfo(packageName: string): Promise<CacheInfo> {
-  const root = await getUserSitePackages();
+  const context = await initContext();
   return {
     paths: [
-      path.join(root, `${packageName.toLowerCase()}*`),
-      path.join(root, `${packageName}*`),
+      path.join(context.userSitePackage, `${packageName.toLowerCase()}*`),
+      path.join(context.userSitePackage, `${packageName}*`),
     ],
     key: `pip-${os.type()}-${packageName}`,
   };
