@@ -533,23 +533,28 @@ function validatePackageName(packageName) {
     }
     return packageName;
 }
+async function installPackageDependencies(packageInfo) {
+    for (const dependency of packageInfo.dependencies) {
+        await installPackage(dependency);
+    }
+}
 async function installPackage(packageName) {
+    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+    if (pkgInfo !== null) {
+        await installPackageDependencies(pkgInfo);
+        return;
+    }
     packageName = validatePackageName(packageName);
-    const pkgInfo = await core.group(`Installing ${packageName} package...`, async () => {
-        core.info(`Checking ${packageName} package...`);
-        let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-        if (pkgInfo !== null) {
-            core.info(`Package ${packageName} is already installed`);
-            return pkgInfo;
-        }
+    await core.group(`Installing ${packageName} package...`, async () => {
         core.info(`Restoring ${packageName} package from cache...`);
         if (await (0, cache_1.restorePackage)(packageName)) {
             core.info(`Done restoring ${packageName} package from cache`);
             core.info(`Validating ${packageName} package...`);
-            pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+            const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
             if (pkgInfo !== null) {
                 core.info(`Package ${packageName} is valid`);
-                return pkgInfo;
+                await installPackageDependencies(pkgInfo);
+                return;
             }
             core.info(`WARNING: Invalid ${packageName} package. Cache probably is corrupted!`);
         }
@@ -565,16 +570,13 @@ async function installPackage(packageName) {
         core.info(`Saving ${packageName} package to cache...`);
         await (0, cache_1.cachePackage)(packageName);
         core.info(`Validating ${packageName} package...`);
-        pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
         if (pkgInfo === null) {
             throw new Error(`Invalid ${packageName} package. Installation probably is corrupted!`);
         }
         core.info(`Package ${packageName} is valid`);
-        return pkgInfo;
+        await installPackageDependencies(pkgInfo);
     });
-    for (const dependency of pkgInfo.dependencies) {
-        await installPackage(dependency);
-    }
 }
 exports.installPackage = installPackage;
 
