@@ -46,11 +46,7 @@ async function smartInstall(pkg: string) {
 async function checkGcovr() {
   core.info("Checking gcovr...");
   if (await isMissing("gcovr")) {
-    await core.group("Installing gcovr...", async () => {
-      const time = chrono.now();
-      await pip.installPackage("gcovr");
-      core.info(`Done in ${time.elapsed()}`);
-    });
+    await pip.installPackage("gcovr");
   }
 }
 

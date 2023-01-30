@@ -280,11 +280,7 @@ async function smartInstall(pkg) {
 async function checkGcovr() {
     core.info("Checking gcovr...");
     if (await isMissing("gcovr")) {
-        await core.group("Installing gcovr...", async () => {
-            const time = chrono.now();
-            await pip.installPackage("gcovr");
-            core.info(`Done in ${time.elapsed()}`);
-        });
+        await pip.installPackage("gcovr");
     }
 }
 async function checkLlvm() {
@@ -529,42 +525,41 @@ const exec = __importStar(__nccwpck_require__(7757));
 const info_1 = __nccwpck_require__(8414);
 const cache_1 = __nccwpck_require__(143);
 async function installPackage(packageName) {
-    core.info(`Checking ${packageName}...`);
-    if ((await (0, info_1.showPackageInfo)(packageName)) !== null) {
-        core.info(`Package ${packageName} already installed`);
-        return;
-    }
-    await core.group(`Restoring ${packageName}...`, async () => {
+    const pkgInfo = await core.group(`Installing ${packageName} package...`, async () => {
+        core.info(`Checking ${packageName} package...`);
+        let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (pkgInfo !== null) {
+            core.info(`Package ${packageName} is already installed`);
+            return pkgInfo;
+        }
+        core.info(`Restoring ${packageName} package from cache...`);
         if (await (0, cache_1.restorePackage)(packageName)) {
-            core.info(`Done restoring ${packageName}`);
+            core.info(`Done restoring ${packageName} package from cache`);
         }
         else {
-            core.info(`Failed to restore ${packageName}`);
-            await core.group(`Installing ${packageName}...`, async () => {
-                await exec.exec("python3", [
-                    "-m",
-                    "pip",
-                    "install",
-                    "--user",
-                    "--no-deps",
-                    packageName,
-                ]);
-            });
-            await core.group(`Caching ${packageName}...`, async () => {
-                await (0, cache_1.cachePackage)(packageName);
-            });
+            core.info(`Failed to restore ${packageName} package from cache`);
+            core.info(`Installing ${packageName} package using pip...`);
+            await exec.exec("python3", [
+                "-m",
+                "pip",
+                "install",
+                "--user",
+                "--no-deps",
+                packageName,
+            ]);
+            core.info(`Save ${packageName} package to cache...`);
+            await (0, cache_1.cachePackage)(packageName);
         }
+        core.info(`Validating ${packageName} package...`);
+        pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (pkgInfo === null) {
+            throw new Error(`Could not find ${packageName} package. Cache or installation may corrupted!`);
+        }
+        return pkgInfo;
     });
-    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-    if (pkgInfo === null) {
-        throw new Error(`Could not find package ${packageName}. Cache or installation may corrupted!`);
+    for (const dependency of pkgInfo.dependencies) {
+        await installPackage(dependency);
     }
-    await core.group(`Installing ${packageName} dependencies...`, async () => {
-        for (const dependency of pkgInfo.dependencies) {
-            core.info(`Installing ${dependency}...`);
-            await installPackage(dependency);
-        }
-    });
 }
 exports.installPackage = installPackage;
 
