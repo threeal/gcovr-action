@@ -16,27 +16,35 @@ export async function installPackage(packageName: string) {
       core.info(`Restoring ${packageName} package from cache...`);
       if (await restorePackage(packageName)) {
         core.info(`Done restoring ${packageName} package from cache`);
-      } else {
-        core.info(`Failed to restore ${packageName} package from cache`);
-        core.info(`Installing ${packageName} package using pip...`);
-        await exec.exec("python3", [
-          "-m",
-          "pip",
-          "install",
-          "--user",
-          "--no-deps",
-          packageName,
-        ]);
-        core.info(`Saving ${packageName} package to cache...`);
-        await cachePackage(packageName);
+        core.info(`Validating ${packageName} package...`);
+        pkgInfo = await showPackageInfo(packageName);
+        if (pkgInfo !== null) {
+          core.info(`Package ${packageName} is valid`);
+          return pkgInfo;
+        }
+        core.info(
+          `WARNING: Invalid ${packageName} package. Cache probably is corrupted!`
+        );
       }
+      core.info(`Installing ${packageName} package using pip...`);
+      await exec.exec("python3", [
+        "-m",
+        "pip",
+        "install",
+        "--user",
+        "--no-deps",
+        packageName,
+      ]);
+      core.info(`Saving ${packageName} package to cache...`);
+      await cachePackage(packageName);
       core.info(`Validating ${packageName} package...`);
       pkgInfo = await showPackageInfo(packageName);
       if (pkgInfo === null) {
         throw new Error(
-          `Could not find ${packageName} package. Cache or installation may corrupted!`
+          `Invalid ${packageName} package. Installation probably is corrupted!`
         );
       }
+      core.info(`Package ${packageName} is valid`);
       return pkgInfo;
     }
   );
