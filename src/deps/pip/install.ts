@@ -3,7 +3,18 @@ import * as exec from "../../exec";
 import { showPackageInfo } from "./info";
 import { cachePackage, restorePackage } from "./cache";
 
+function validatePackageName(packageName: string): string {
+  switch (packageName.toLowerCase()) {
+    case "jinja2":
+      return "Jinja2";
+    case "pygments":
+      return "Pygments";
+  }
+  return packageName;
+}
+
 export async function installPackage(packageName: string) {
+  packageName = validatePackageName(packageName);
   const pkgInfo = await core.group(
     `Installing ${packageName} package...`,
     async () => {

@@ -524,7 +524,17 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(7757));
 const info_1 = __nccwpck_require__(8414);
 const cache_1 = __nccwpck_require__(143);
+function validatePackageName(packageName) {
+    switch (packageName.toLowerCase()) {
+        case "jinja2":
+            return "Jinja2";
+        case "pygments":
+            return "Pygments";
+    }
+    return packageName;
+}
 async function installPackage(packageName) {
+    packageName = validatePackageName(packageName);
     const pkgInfo = await core.group(`Installing ${packageName} package...`, async () => {
         core.info(`Checking ${packageName} package...`);
         let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
