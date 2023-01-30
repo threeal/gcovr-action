@@ -13,9 +13,18 @@ export async function installPackage(packageName: string) {
   core.info(`Restoring ${packageName}...`);
   if (await restorePackage(packageName)) {
     core.info(`Done restoring ${packageName}...`);
-    return;
+    const pkgInfo = await showPackageInfo(packageName);
+    if (pkgInfo !== null) {
+      for (const dependency of pkgInfo.dependencies) {
+        core.info(`Installing ${dependency}...`);
+        await installPackage(dependency);
+      }
+    } else {
+      core.info(`WARNING: Package cache of ${packageName} is corrupted!`);
+    }
   }
-  await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
+  const args = ["-m", "pip", "install", "--user", "--no-deps", packageName];
+  await exec.exec("python3", args);
   core.info(`Caching ${packageName}...`);
   await cachePackage(packageName);
 }

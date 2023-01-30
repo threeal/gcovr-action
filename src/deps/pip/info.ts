@@ -4,6 +4,7 @@ import * as exec from "../../exec";
 export interface PackageInfo {
   name: string;
   version: string;
+  dependencies: string[];
 }
 
 export async function showPackageInfo(
@@ -25,5 +26,9 @@ export async function showPackageInfo(
   return {
     name: info["Name"],
     version: info["Version"],
+    dependencies: info["Requires"]
+      .split(",")
+      .map((str) => str.trim())
+      .filter((str) => str.length > 0),
   };
 }

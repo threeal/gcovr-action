@@ -483,6 +483,10 @@ async function showPackageInfo(packageName) {
     return {
         name: info["Name"],
         version: info["Version"],
+        dependencies: info["Requires"]
+            .split(",")
+            .map((str) => str.trim())
+            .filter((str) => str.length > 0),
     };
 }
 exports.showPackageInfo = showPackageInfo;
@@ -534,9 +538,19 @@ async function installPackage(packageName) {
     core.info(`Restoring ${packageName}...`);
     if (await (0, cache_1.restorePackage)(packageName)) {
         core.info(`Done restoring ${packageName}...`);
-        return;
+        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (pkgInfo !== null) {
+            for (const dependency of pkgInfo.dependencies) {
+                core.info(`Installing ${dependency}...`);
+                await installPackage(dependency);
+            }
+        }
+        else {
+            core.info(`WARNING: Package cache of ${packageName} is corrupted!`);
+        }
     }
-    await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
+    const args = ["-m", "pip", "install", "--user", "--no-deps", packageName];
+    await exec.exec("python3", args);
     core.info(`Caching ${packageName}...`);
     await (0, cache_1.cachePackage)(packageName);
 }
