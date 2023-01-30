@@ -354,37 +354,6 @@ async function getUserSitePackages() {
     }
     return tempUserSitePckages;
 }
-async function listPackageInfos() {
-    const packageInfos = {};
-    const args = ["-m", "pip", "list", "-v"];
-    const out = await exec.execOut("python3", args);
-    const lines = out.split("\n");
-    for (let i = 2; i < lines.length - 1; ++i) {
-        const line = lines[i];
-        const strs = line.split(/(\s+)/);
-        if (strs.length >= 5) {
-            packageInfos[strs[0]] = {
-                name: strs[0],
-                version: strs[2],
-                location: strs[4],
-            };
-        }
-        else {
-            core.info(`WARNING: Invalid line: ${strs}`);
-        }
-    }
-    return packageInfos;
-}
-function diffPackageInfos(previous, current) {
-    const diff = {};
-    for (const key of Object.keys(current)) {
-        if (key in previous && previous[key].version === current[key].version) {
-            continue;
-        }
-        diff[key] = current[key];
-    }
-    return diff;
-}
 async function getCacheInfo(packageName) {
     const root = await getUserSitePackages();
     return {
@@ -395,8 +364,8 @@ async function getCacheInfo(packageName) {
         key: `pip-${os.type()}-${packageName}`,
     };
 }
-async function cachePackage(packageInfo) {
-    const info = await getCacheInfo(packageInfo.name);
+async function cachePackage(packageName) {
+    const info = await getCacheInfo(packageName);
     await cache.saveCache(info.paths, info.key);
 }
 async function restorePackage(packageName) {
@@ -417,13 +386,9 @@ async function installPackage(packageName) {
         core.info(`Done restoring ${packageName}...`);
         return;
     }
-    let packageInfos = await listPackageInfos();
     await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
-    packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());
-    for (const packageInfo of Object.values(packageInfos)) {
-        core.info(`Caching ${packageInfo.name}-${packageInfo.version}...`);
-        await cachePackage(packageInfo);
-    }
+    core.info(`Caching ${packageName}...`);
+    await cachePackage(packageName);
 }
 exports.installPackage = installPackage;
 

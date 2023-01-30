@@ -4,14 +4,6 @@ import * as os from "os";
 import * as path from "path";
 import * as exec from "../exec";
 
-interface PackageInfo {
-  name: string;
-  version: string;
-  location: string;
-}
-
-type PackageInfos = { [key: string]: PackageInfo };
-
 let tempUserSitePckages: string | null = null;
 
 async function getUserSitePackages(): Promise<string> {
@@ -21,41 +13,6 @@ async function getUserSitePackages(): Promise<string> {
     tempUserSitePckages = out.trim();
   }
   return tempUserSitePckages;
-}
-
-async function listPackageInfos(): Promise<PackageInfos> {
-  const packageInfos: PackageInfos = {};
-  const args = ["-m", "pip", "list", "-v"];
-  const out: string = await exec.execOut("python3", args);
-  const lines = out.split("\n");
-  for (let i = 2; i < lines.length - 1; ++i) {
-    const line = lines[i];
-    const strs = line.split(/(\s+)/);
-    if (strs.length >= 5) {
-      packageInfos[strs[0]] = {
-        name: strs[0],
-        version: strs[2],
-        location: strs[4],
-      };
-    } else {
-      core.info(`WARNING: Invalid line: ${strs}`);
-    }
-  }
-  return packageInfos;
-}
-
-function diffPackageInfos(
-  previous: PackageInfos,
-  current: PackageInfos
-): PackageInfos {
-  const diff: PackageInfos = {};
-  for (const key of Object.keys(current)) {
-    if (key in previous && previous[key].version === current[key].version) {
-      continue;
-    }
-    diff[key] = current[key];
-  }
-  return diff;
 }
 
 interface CacheInfo {
@@ -74,8 +31,8 @@ async function getCacheInfo(packageName: string): Promise<CacheInfo> {
   };
 }
 
-async function cachePackage(packageInfo: PackageInfo): Promise<void> {
-  const info = await getCacheInfo(packageInfo.name);
+async function cachePackage(packageName: string): Promise<void> {
+  const info = await getCacheInfo(packageName);
   await cache.saveCache(info.paths, info.key);
 }
 
@@ -99,11 +56,7 @@ export async function installPackage(packageName: string) {
     core.info(`Done restoring ${packageName}...`);
     return;
   }
-  let packageInfos = await listPackageInfos();
   await exec.exec("python3", ["-m", "pip", "install", "--user", packageName]);
-  packageInfos = diffPackageInfos(packageInfos, await listPackageInfos());
-  for (const packageInfo of Object.values(packageInfos)) {
-    core.info(`Caching ${packageInfo.name}-${packageInfo.version}...`);
-    await cachePackage(packageInfo);
-  }
+  core.info(`Caching ${packageName}...`);
+  await cachePackage(packageName);
 }
