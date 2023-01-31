@@ -24,7 +24,7 @@ export async function installPackage(packageName: string) {
   if (pkgInfo === null) {
     packageName = validatePackageName(packageName);
     pkgInfo = await log.group(
-      `Installing ${packageName} package...`,
+      `Installing ${log.emph(packageName)} package...`,
       async (): Promise<PackageInfo> => {
         log.info(`Restoring ${packageName} package from cache...`);
         if (await restorePackage(packageName)) {

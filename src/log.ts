@@ -2,6 +2,10 @@ import * as core from "@actions/core";
 import styles from "ansi-styles";
 import * as chrono from "./chrono";
 
+export function emph(message: string): string {
+  return `${styles.blue.open}${message}${styles.blue.close}`;
+}
+
 export const info = core.info;
 
 export function warning(message: string) {
@@ -31,9 +35,4 @@ export async function group<Type>(
   });
 }
 
-export default {
-  info,
-  warning,
-  error,
-  group,
-};
+export default { emph, info, warning, error, group };

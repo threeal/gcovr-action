@@ -28,7 +28,8 @@ export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
   await log.group("Generating code coverage report...", async () => {
     if (inputs.githubToken !== null) {
-      log.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
+      const label = log.emph("COVERALLS_REPO_TOKEN");
+      log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}'...`);
       core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
     }
     await exec.exec("python3", ["-m", "gcovr", ...args]);

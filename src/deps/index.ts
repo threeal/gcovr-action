@@ -43,16 +43,16 @@ async function smartInstall(pkg: string) {
 }
 
 async function checkGcovr() {
-  log.info("Checking gcovr...");
+  log.info(`Checking ${log.emph("gcovr")}...`);
   if (await isMissing("gcovr")) {
     await pip.installPackage("gcovr");
   }
 }
 
 async function checkLlvm() {
-  log.info("Checking llvm-cov...");
+  log.info(`Checking ${log.emph("llvm-cov")}...`);
   if (await isMissing("llvm-cov")) {
-    await log.group("Installing LLVM...", async () => {
+    await log.group(`Installing ${log.emph("LLVM")}...`, async () => {
       await smartInstall("llvm");
     });
   }

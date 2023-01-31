@@ -62,7 +62,7 @@ function processInputs() {
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut === null) {
         inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-        log_1.default.info(`Auto set Coveralls output to '${inputs.coverallsOut}'`);
+        log_1.default.info(`Auto set Coveralls output to ${log_1.default.emph(inputs.coverallsOut)}'`);
     }
     return inputs;
 }
@@ -284,15 +284,15 @@ async function smartInstall(pkg) {
     }
 }
 async function checkGcovr() {
-    log_1.default.info("Checking gcovr...");
+    log_1.default.info(`Checking ${log_1.default.emph("gcovr")}...`);
     if (await isMissing("gcovr")) {
         await pip.installPackage("gcovr");
     }
 }
 async function checkLlvm() {
-    log_1.default.info("Checking llvm-cov...");
+    log_1.default.info(`Checking ${log_1.default.emph("llvm-cov")}...`);
     if (await isMissing("llvm-cov")) {
-        await log_1.default.group("Installing LLVM...", async () => {
+        await log_1.default.group(`Installing ${log_1.default.emph("LLVM")}...`, async () => {
             await smartInstall("llvm");
         });
     }
@@ -552,7 +552,7 @@ async function installPackage(packageName) {
     let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
     if (pkgInfo === null) {
         packageName = validatePackageName(packageName);
-        pkgInfo = await log_1.default.group(`Installing ${packageName} package...`, async () => {
+        pkgInfo = await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
             log_1.default.info(`Restoring ${packageName} package from cache...`);
             if (await (0, cache_1.restorePackage)(packageName)) {
                 log_1.default.info(`Done restoring ${packageName} package from cache`);
@@ -725,7 +725,8 @@ async function run(inputs) {
     const args = getArgs(inputs);
     await log_1.default.group("Generating code coverage report...", async () => {
         if (inputs.githubToken !== null) {
-            log_1.default.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
+            const label = log_1.default.emph("COVERALLS_REPO_TOKEN");
+            log_1.default.info(`Setting ${label} to ${log_1.default.emph(inputs.githubToken)}'...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
         }
         await exec.exec("python3", ["-m", "gcovr", ...args]);
@@ -827,10 +828,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.group = exports.error = exports.warning = exports.info = void 0;
+exports.group = exports.error = exports.warning = exports.info = exports.emph = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const ansi_styles_1 = __importDefault(__nccwpck_require__(6844));
 const chrono = __importStar(__nccwpck_require__(8727));
+function emph(message) {
+    return `${ansi_styles_1.default.blue.open}${message}${ansi_styles_1.default.blue.close}`;
+}
+exports.emph = emph;
 exports.info = core.info;
 function warning(message) {
     const label = `${ansi_styles_1.default.yellow.open}Warning:${ansi_styles_1.default.yellow.close}`;
@@ -857,12 +862,7 @@ async function group(name, fn) {
     });
 }
 exports.group = group;
-exports["default"] = {
-    info: exports.info,
-    warning,
-    error,
-    group,
-};
+exports["default"] = { emph, info: exports.info, warning, error, group };
 
 
 /***/ }),
