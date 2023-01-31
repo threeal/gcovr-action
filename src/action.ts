@@ -1,6 +1,7 @@
 import * as core from "@actions/core";
 import * as os from "os";
 import * as path from "path";
+import log from "./log";
 
 export interface Inputs {
   root: string | null;
@@ -24,7 +25,7 @@ function getNumberInput(key: string): number | null {
 }
 
 export function processInputs(): Inputs {
-  core.info("Processing the action inputs...");
+  log.info("Processing the action inputs...");
   const inputs: Inputs = {
     root: getStringInput("root"),
     gcovExecutable: getStringInput("gcov-executable"),
@@ -37,7 +38,7 @@ export function processInputs(): Inputs {
   // Auto set coveralls output if not specified
   if (inputs.coverallsSend && inputs.coverallsOut === null) {
     inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-    core.info(`Auto set Coveralls output to '${inputs.coverallsOut}'`);
+    log.info(`Auto set Coveralls output to '${inputs.coverallsOut}'`);
   }
   return inputs;
 }

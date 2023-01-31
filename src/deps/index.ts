@@ -1,4 +1,3 @@
-import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as io from "@actions/io";
 import * as os from "os";
@@ -44,14 +43,14 @@ async function smartInstall(pkg: string) {
 }
 
 async function checkGcovr() {
-  core.info("Checking gcovr...");
+  log.info("Checking gcovr...");
   if (await isMissing("gcovr")) {
     await pip.installPackage("gcovr");
   }
 }
 
 async function checkLlvm() {
-  core.info("Checking llvm-cov...");
+  log.info("Checking llvm-cov...");
   if (await isMissing("llvm-cov")) {
     await log.group("Installing LLVM...", async () => {
       await smartInstall("llvm");

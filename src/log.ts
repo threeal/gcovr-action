@@ -2,6 +2,8 @@ import * as core from "@actions/core";
 import styles from "ansi-styles";
 import * as chrono from "./chrono";
 
+export const info = core.info;
+
 export function warning(message: string) {
   const label = `${styles.yellow.open}Warning:${styles.yellow.close}`;
   core.info(`${label} ${message}`);
@@ -30,6 +32,7 @@ export async function group<Type>(
 }
 
 export default {
+  info,
   warning,
   error,
   group,
