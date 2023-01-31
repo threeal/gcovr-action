@@ -553,18 +553,17 @@ async function installPackage(packageName) {
     if (pkgInfo === null) {
         packageName = validatePackageName(packageName);
         pkgInfo = await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
-            log_1.default.info(`Restoring ${packageName} package from cache...`);
+            log_1.default.info("Restoring package from cache...");
             if (await (0, cache_1.restorePackage)(packageName)) {
-                log_1.default.info(`Done restoring ${packageName} package from cache`);
-                log_1.default.info(`Validating ${packageName} package...`);
+                log_1.default.info("Validating package...");
                 const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
                 if (pkgInfo !== null) {
-                    log_1.default.info(`Package ${packageName} is valid`);
+                    log_1.default.info("Package is valid");
                     return pkgInfo;
                 }
-                log_1.default.warning(`Invalid ${packageName} package. Cache probably is corrupted!`);
+                log_1.default.warning("Invalid package. Cache probably is corrupted!");
             }
-            log_1.default.info(`Installing ${packageName} package using pip...`);
+            log_1.default.info("Installing package using pip...");
             await exec.exec("python3", [
                 "-m",
                 "pip",
@@ -573,14 +572,14 @@ async function installPackage(packageName) {
                 "--no-deps",
                 packageName,
             ]);
-            log_1.default.info(`Saving ${packageName} package to cache...`);
+            log_1.default.info("Saving package to cache...");
             await (0, cache_1.cachePackage)(packageName);
-            log_1.default.info(`Validating ${packageName} package...`);
+            log_1.default.info("Validating package...");
             const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
             if (pkgInfo === null) {
-                throw new Error(`Invalid ${packageName} package. Installation probably is corrupted!`);
+                throw new Error("Invalid package. Installation probably is corrupted!");
             }
-            log_1.default.info(`Package ${packageName} is valid`);
+            log_1.default.info("Package is valid");
             return pkgInfo;
         });
     }

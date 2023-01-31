@@ -26,20 +26,17 @@ export async function installPackage(packageName: string) {
     pkgInfo = await log.group(
       `Installing ${log.emph(packageName)} package...`,
       async (): Promise<PackageInfo> => {
-        log.info(`Restoring ${packageName} package from cache...`);
+        log.info("Restoring package from cache...");
         if (await restorePackage(packageName)) {
-          log.info(`Done restoring ${packageName} package from cache`);
-          log.info(`Validating ${packageName} package...`);
+          log.info("Validating package...");
           const pkgInfo = await showPackageInfo(packageName);
           if (pkgInfo !== null) {
-            log.info(`Package ${packageName} is valid`);
+            log.info("Package is valid");
             return pkgInfo;
           }
-          log.warning(
-            `Invalid ${packageName} package. Cache probably is corrupted!`
-          );
+          log.warning("Invalid package. Cache probably is corrupted!");
         }
-        log.info(`Installing ${packageName} package using pip...`);
+        log.info("Installing package using pip...");
         await exec.exec("python3", [
           "-m",
           "pip",
@@ -48,16 +45,16 @@ export async function installPackage(packageName: string) {
           "--no-deps",
           packageName,
         ]);
-        log.info(`Saving ${packageName} package to cache...`);
+        log.info("Saving package to cache...");
         await cachePackage(packageName);
-        log.info(`Validating ${packageName} package...`);
+        log.info("Validating package...");
         const pkgInfo = await showPackageInfo(packageName);
         if (pkgInfo === null) {
           throw new Error(
-            `Invalid ${packageName} package. Installation probably is corrupted!`
+            "Invalid package. Installation probably is corrupted!"
           );
         }
-        log.info(`Package ${packageName} is valid`);
+        log.info("Package is valid");
         return pkgInfo;
       }
     );
