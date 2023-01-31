@@ -3,7 +3,7 @@ import * as exec from "@actions/exec";
 import * as io from "@actions/io";
 import * as os from "os";
 import * as action from "../action";
-import * as log from "../log";
+import log from "../log";
 import * as pip from "./pip";
 
 async function isMissing(tool: string): Promise<boolean> {

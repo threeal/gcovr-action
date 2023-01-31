@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as http from "./http";
-import * as log from "./log";
+import log from "./log";
 
 export async function patch(coverallsOut: string) {
   let data: string = fs.readFileSync(coverallsOut).toString();

@@ -182,11 +182,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.send = exports.patch = void 0;
 const fs = __importStar(__nccwpck_require__(7147));
 const http = __importStar(__nccwpck_require__(1270));
-const log = __importStar(__nccwpck_require__(3817));
+const log_1 = __importDefault(__nccwpck_require__(3817));
 async function patch(coverallsOut) {
     let data = fs.readFileSync(coverallsOut).toString();
     data = data.replaceAll('"service_name": "github-actions-ci"', '"service_name": "github"');
@@ -194,7 +197,7 @@ async function patch(coverallsOut) {
 }
 exports.patch = patch;
 async function send(coverallsOut) {
-    await log.group("Sending report to Coveralls...", async () => {
+    await log_1.default.group("Sending report to Coveralls...", async () => {
         await http.postForm("https://coveralls.io/api/v1/jobs", {
             json_file: fs.createReadStream(coverallsOut),
         });
@@ -233,13 +236,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.check = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
-const log = __importStar(__nccwpck_require__(3817));
+const log_1 = __importDefault(__nccwpck_require__(3817));
 const pip = __importStar(__nccwpck_require__(9875));
 async function isMissing(tool) {
     try {
@@ -283,7 +289,7 @@ async function checkGcovr() {
 async function checkLlvm() {
     core.info("Checking llvm-cov...");
     if (await isMissing("llvm-cov")) {
-        await log.group("Installing LLVM...", async () => {
+        await log_1.default.group("Installing LLVM...", async () => {
             await smartInstall("llvm");
         });
     }
@@ -451,10 +457,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
-const log = __importStar(__nccwpck_require__(3817));
+const log_1 = __importDefault(__nccwpck_require__(3817));
 async function showPackageInfo(packageName) {
     const args = ["-m", "pip", "show", packageName];
     const [out, ok] = await exec.execOutCheck("python3", args);
@@ -468,7 +477,7 @@ async function showPackageInfo(packageName) {
             info[strs[0].trim()] = strs[1].trim();
         }
         else {
-            log.warning(`Invalid line: ${strs}`);
+            log_1.default.warning(`Invalid line: ${strs}`);
         }
     }
     return {
@@ -513,11 +522,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.installPackage = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(7757));
-const log = __importStar(__nccwpck_require__(3817));
+const log_1 = __importDefault(__nccwpck_require__(3817));
 const info_1 = __nccwpck_require__(8414);
 const cache_1 = __nccwpck_require__(143);
 function validatePackageName(packageName) {
@@ -538,7 +550,7 @@ async function installPackage(packageName) {
     let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
     if (pkgInfo === null) {
         packageName = validatePackageName(packageName);
-        pkgInfo = await log.group(`Installing ${packageName} package...`, async () => {
+        pkgInfo = await log_1.default.group(`Installing ${packageName} package...`, async () => {
             core.info(`Restoring ${packageName} package from cache...`);
             if (await (0, cache_1.restorePackage)(packageName)) {
                 core.info(`Done restoring ${packageName} package from cache`);
@@ -548,7 +560,7 @@ async function installPackage(packageName) {
                     core.info(`Package ${packageName} is valid`);
                     return pkgInfo;
                 }
-                log.warning(`Invalid ${packageName} package. Cache probably is corrupted!`);
+                log_1.default.warning(`Invalid ${packageName} package. Cache probably is corrupted!`);
             }
             core.info(`Installing ${packageName} package using pip...`);
             await exec.exec("python3", [
@@ -679,12 +691,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const coveralls = __importStar(__nccwpck_require__(747));
-const log = __importStar(__nccwpck_require__(3817));
+const log_1 = __importDefault(__nccwpck_require__(3817));
 function getArgs(inputs) {
     let args = [];
     if (inputs.root !== null) {
@@ -706,7 +721,7 @@ function getArgs(inputs) {
 }
 async function run(inputs) {
     const args = getArgs(inputs);
-    await log.group("Generating code coverage report...", async () => {
+    await log_1.default.group("Generating code coverage report...", async () => {
         if (inputs.githubToken !== null) {
             core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
@@ -862,6 +877,11 @@ async function group(name, fn) {
     });
 }
 exports.group = group;
+exports["default"] = {
+    warning,
+    error,
+    group,
+};
 
 
 /***/ }),

@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as action from "./action";
 import * as coveralls from "./coveralls";
-import * as log from "./log";
+import log from "./log";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];

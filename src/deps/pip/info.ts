@@ -1,5 +1,5 @@
 import * as exec from "../../exec";
-import * as log from "../../log";
+import log from "../../log";
 
 export interface PackageInfo {
   name: string;

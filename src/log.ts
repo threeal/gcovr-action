@@ -28,3 +28,9 @@ export async function group<Type>(
     }
   });
 }
+
+export default {
+  warning,
+  error,
+  group,
+};

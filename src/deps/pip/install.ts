@@ -1,6 +1,6 @@
 import * as core from "@actions/core";
 import * as exec from "../../exec";
-import * as log from "../../log";
+import log from "../../log";
 import { PackageInfo, showPackageInfo } from "./info";
 import { cachePackage, restorePackage } from "./cache";
 
