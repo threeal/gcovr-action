@@ -1,8 +1,8 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as action from "./action";
-import * as chrono from "./chrono";
 import * as coveralls from "./coveralls";
+import * as log from "./log";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];
@@ -26,8 +26,7 @@ function getArgs(inputs: action.Inputs): string[] {
 
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
-  await core.group("Generating code coverage report...", async () => {
-    const time = chrono.now();
+  await log.group("Generating code coverage report...", async () => {
     if (inputs.githubToken !== null) {
       core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
       core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
@@ -38,6 +37,5 @@ export async function run(inputs: action.Inputs) {
       coveralls.patch(inputs.coverallsOut);
       core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
     }
-    core.info(`Done in ${time.elapsed()}`);
   });
 }

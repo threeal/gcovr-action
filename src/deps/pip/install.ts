@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as exec from "../../exec";
+import * as log from "../../log";
 import { PackageInfo, showPackageInfo } from "./info";
 import { cachePackage, restorePackage } from "./cache";
 
@@ -26,7 +27,7 @@ export async function installPackage(packageName: string) {
     return;
   }
   packageName = validatePackageName(packageName);
-  await core.group(`Installing ${packageName} package...`, async () => {
+  await log.group(`Installing ${packageName} package...`, async () => {
     core.info(`Restoring ${packageName} package from cache...`);
     if (await restorePackage(packageName)) {
       core.info(`Done restoring ${packageName} package from cache`);

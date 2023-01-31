@@ -184,10 +184,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.send = exports.patch = void 0;
-const core = __importStar(__nccwpck_require__(2186));
 const fs = __importStar(__nccwpck_require__(7147));
-const chrono = __importStar(__nccwpck_require__(8727));
 const http = __importStar(__nccwpck_require__(1270));
+const log = __importStar(__nccwpck_require__(3817));
 async function patch(coverallsOut) {
     let data = fs.readFileSync(coverallsOut).toString();
     data = data.replaceAll('"service_name": "github-actions-ci"', '"service_name": "github"');
@@ -195,12 +194,10 @@ async function patch(coverallsOut) {
 }
 exports.patch = patch;
 async function send(coverallsOut) {
-    await core.group("Sending report to Coveralls...", async () => {
-        const time = chrono.now();
+    await log.group("Sending report to Coveralls...", async () => {
         await http.postForm("https://coveralls.io/api/v1/jobs", {
             json_file: fs.createReadStream(coverallsOut),
         });
-        core.info(`Done in ${time.elapsed()}`);
     });
 }
 exports.send = send;
@@ -242,7 +239,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
-const chrono = __importStar(__nccwpck_require__(8727));
+const log = __importStar(__nccwpck_require__(3817));
 const pip = __importStar(__nccwpck_require__(9875));
 async function isMissing(tool) {
     try {
@@ -286,10 +283,8 @@ async function checkGcovr() {
 async function checkLlvm() {
     core.info("Checking llvm-cov...");
     if (await isMissing("llvm-cov")) {
-        await core.group("Installing LLVM...", async () => {
-            const time = chrono.now();
+        await log.group("Installing LLVM...", async () => {
             await smartInstall("llvm");
-            core.info(`Done in ${time.elapsed()}`);
         });
     }
 }
@@ -522,6 +517,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.installPackage = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(7757));
+const log = __importStar(__nccwpck_require__(3817));
 const info_1 = __nccwpck_require__(8414);
 const cache_1 = __nccwpck_require__(143);
 function validatePackageName(packageName) {
@@ -545,7 +541,7 @@ async function installPackage(packageName) {
         return;
     }
     packageName = validatePackageName(packageName);
-    await core.group(`Installing ${packageName} package...`, async () => {
+    await log.group(`Installing ${packageName} package...`, async () => {
         core.info(`Restoring ${packageName} package from cache...`);
         if (await (0, cache_1.restorePackage)(packageName)) {
             core.info(`Done restoring ${packageName} package from cache`);
@@ -689,8 +685,8 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(1514));
-const chrono = __importStar(__nccwpck_require__(8727));
 const coveralls = __importStar(__nccwpck_require__(747));
+const log = __importStar(__nccwpck_require__(3817));
 function getArgs(inputs) {
     let args = [];
     if (inputs.root !== null) {
@@ -712,8 +708,7 @@ function getArgs(inputs) {
 }
 async function run(inputs) {
     const args = getArgs(inputs);
-    await core.group("Generating code coverage report...", async () => {
-        const time = chrono.now();
+    await log.group("Generating code coverage report...", async () => {
         if (inputs.githubToken !== null) {
             core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
@@ -724,7 +719,6 @@ async function run(inputs) {
             coveralls.patch(inputs.coverallsOut);
             core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
         }
-        core.info(`Done in ${time.elapsed()}`);
     });
 }
 exports.run = run;
@@ -805,6 +799,52 @@ async function postForm(url, form) {
     });
 }
 exports.postForm = postForm;
+
+
+/***/ }),
+
+/***/ 3817:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.group = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const chrono = __importStar(__nccwpck_require__(8727));
+async function group(name, fn) {
+    const res = await core.group(name, async () => {
+        const time = chrono.now();
+        const res = await fn();
+        core.info(`Done in ${time.elapsed()}`);
+        return res;
+    });
+    return res;
+}
+exports.group = group;
 
 
 /***/ }),
