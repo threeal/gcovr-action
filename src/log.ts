@@ -1,12 +1,15 @@
 import * as core from "@actions/core";
+import styles from "ansi-styles";
 import * as chrono from "./chrono";
 
 export function warning(message: string) {
-  core.info(`WARNING: ${message}`);
+  const label = `${styles.yellow.open}Warning:${styles.yellow.close}`;
+  core.info(`${label} ${message}`);
 }
 
 export function error(message: string) {
-  core.info(`Error: ${message}`);
+  const label = `${styles.red.open}Error:${styles.red.close}`;
+  core.info(`${label} ${message}`);
 }
 
 export async function group<Type>(
