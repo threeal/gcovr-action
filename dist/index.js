@@ -830,21 +830,30 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.group = exports.warning = void 0;
+exports.group = exports.error = exports.warning = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const chrono = __importStar(__nccwpck_require__(8727));
 function warning(message) {
     core.info(`WARNING: ${message}`);
 }
 exports.warning = warning;
+function error(message) {
+    core.info(`Error: ${message}`);
+}
+exports.error = error;
 async function group(name, fn) {
-    const res = await core.group(name, async () => {
+    return core.group(name, async () => {
         const time = chrono.now();
-        const res = await fn();
-        core.info(`Done in ${time.elapsed()}`);
-        return res;
+        try {
+            const res = await fn();
+            core.info(`Done in ${time.elapsed()}`);
+            return res;
+        }
+        catch (err) {
+            error(`Failed in ${time.elapsed()}`);
+            throw err;
+        }
     });
-    return res;
 }
 exports.group = group;
 

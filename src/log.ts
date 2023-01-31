@@ -5,15 +5,23 @@ export function warning(message: string) {
   core.info(`WARNING: ${message}`);
 }
 
+export function error(message: string) {
+  core.info(`Error: ${message}`);
+}
+
 export async function group<Type>(
   name: string,
   fn: () => Promise<Type>
 ): Promise<Type> {
-  const res = await core.group(name, async () => {
+  return core.group(name, async () => {
     const time = chrono.now();
-    const res = await fn();
-    core.info(`Done in ${time.elapsed()}`);
-    return res;
+    try {
+      const res = await fn();
+      core.info(`Done in ${time.elapsed()}`);
+      return res;
+    } catch (err) {
+      error(`Failed in ${time.elapsed()}`);
+      throw err;
+    }
   });
-  return res;
 }
