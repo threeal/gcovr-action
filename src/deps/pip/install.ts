@@ -36,8 +36,8 @@ export async function installPackage(packageName: string) {
             core.info(`Package ${packageName} is valid`);
             return pkgInfo;
           }
-          core.info(
-            `WARNING: Invalid ${packageName} package. Cache probably is corrupted!`
+          log.warning(
+            `Invalid ${packageName} package. Cache probably is corrupted!`
           );
         }
         core.info(`Installing ${packageName} package using pip...`);

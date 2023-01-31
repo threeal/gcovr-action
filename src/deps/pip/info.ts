@@ -1,5 +1,5 @@
-import * as core from "@actions/core";
 import * as exec from "../../exec";
+import * as log from "../../log";
 
 export interface PackageInfo {
   name: string;
@@ -20,7 +20,7 @@ export async function showPackageInfo(
     if (strs.length >= 2) {
       info[strs[0].trim()] = strs[1].trim();
     } else {
-      core.info(`WARNING: Invalid line: ${strs}`);
+      log.warning(`Invalid line: ${strs}`);
     }
   }
   return {

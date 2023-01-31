@@ -1,6 +1,10 @@
 import * as core from "@actions/core";
 import * as chrono from "./chrono";
 
+export function warning(message: string) {
+  core.info(`WARNING: ${message}`);
+}
+
 export async function group<Type>(
   name: string,
   fn: () => Promise<Type>

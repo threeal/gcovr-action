@@ -453,8 +453,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = void 0;
-const core = __importStar(__nccwpck_require__(2186));
 const exec = __importStar(__nccwpck_require__(7757));
+const log = __importStar(__nccwpck_require__(3817));
 async function showPackageInfo(packageName) {
     const args = ["-m", "pip", "show", packageName];
     const [out, ok] = await exec.execOutCheck("python3", args);
@@ -468,7 +468,7 @@ async function showPackageInfo(packageName) {
             info[strs[0].trim()] = strs[1].trim();
         }
         else {
-            core.info(`WARNING: Invalid line: ${strs}`);
+            log.warning(`Invalid line: ${strs}`);
         }
     }
     return {
@@ -548,7 +548,7 @@ async function installPackage(packageName) {
                     core.info(`Package ${packageName} is valid`);
                     return pkgInfo;
                 }
-                core.info(`WARNING: Invalid ${packageName} package. Cache probably is corrupted!`);
+                log.warning(`Invalid ${packageName} package. Cache probably is corrupted!`);
             }
             core.info(`Installing ${packageName} package using pip...`);
             await exec.exec("python3", [
@@ -830,9 +830,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.group = void 0;
+exports.group = exports.warning = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const chrono = __importStar(__nccwpck_require__(8727));
+function warning(message) {
+    core.info(`WARNING: ${message}`);
+}
+exports.warning = warning;
 async function group(name, fn) {
     const res = await core.group(name, async () => {
         const time = chrono.now();
