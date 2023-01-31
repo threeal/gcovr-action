@@ -1,10 +1,10 @@
 import * as core from "@actions/core";
 import * as chrono from "./chrono";
 
-export async function group(
+export async function group<Type>(
   name: string,
-  fn: () => Promise<unknown>
-): Promise<unknown> {
+  fn: () => Promise<Type>
+): Promise<Type> {
   const res = await core.group(name, async () => {
     const time = chrono.now();
     const res = await fn();
