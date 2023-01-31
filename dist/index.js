@@ -62,7 +62,7 @@ function processInputs() {
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut === null) {
         inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-        log_1.default.info(`Auto set Coveralls output to ${log_1.default.emph(inputs.coverallsOut)}'`);
+        log_1.default.info(`Auto set Coveralls output to ${log_1.default.emph(inputs.coverallsOut)}`);
     }
     return inputs;
 }
@@ -725,14 +725,14 @@ async function run(inputs) {
     await log_1.default.group("Generating code coverage report...", async () => {
         if (inputs.githubToken !== null) {
             const label = log_1.default.emph("COVERALLS_REPO_TOKEN");
-            log_1.default.info(`Setting ${label} to ${log_1.default.emph(inputs.githubToken)}'...`);
+            log_1.default.info(`Setting ${label} to ${log_1.default.emph(inputs.githubToken)}...`);
             core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
         }
         await exec.exec("python3", ["-m", "gcovr", ...args]);
         if (inputs.coverallsOut !== null) {
             log_1.default.info("Patching Coveralls API report...");
             coveralls.patch(inputs.coverallsOut);
-            log_1.default.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
+            log_1.default.info(`Coveralls API report outputted to ${log_1.default.emph(inputs.coverallsOut)}`);
         }
     });
 }

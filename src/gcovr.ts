@@ -29,14 +29,16 @@ export async function run(inputs: action.Inputs) {
   await log.group("Generating code coverage report...", async () => {
     if (inputs.githubToken !== null) {
       const label = log.emph("COVERALLS_REPO_TOKEN");
-      log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}'...`);
+      log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}...`);
       core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
     }
     await exec.exec("python3", ["-m", "gcovr", ...args]);
     if (inputs.coverallsOut !== null) {
       log.info("Patching Coveralls API report...");
       coveralls.patch(inputs.coverallsOut);
-      log.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
+      log.info(
+        `Coveralls API report outputted to ${log.emph(inputs.coverallsOut)}`
+      );
     }
   });
 }
