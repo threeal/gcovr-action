@@ -1,0 +1,1 @@
+export { installPackage } from "./install";

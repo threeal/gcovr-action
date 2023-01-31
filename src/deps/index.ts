@@ -2,8 +2,9 @@ import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as io from "@actions/io";
 import * as os from "os";
-import * as action from "./action";
-import * as chrono from "./chrono";
+import * as action from "../action";
+import * as chrono from "../chrono";
+import * as pip from "./pip";
 
 async function isMissing(tool: string): Promise<boolean> {
   try {
@@ -26,10 +27,6 @@ async function brewInstall(pkg: string) {
   await exec.exec("brew", ["install", pkg]);
 }
 
-async function pipInstall(pkg: string) {
-  await exec.exec("pip3", ["install", pkg]);
-}
-
 async function smartInstall(pkg: string) {
   switch (os.type()) {
     case "Windows_NT":
@@ -49,11 +46,7 @@ async function smartInstall(pkg: string) {
 async function checkGcovr() {
   core.info("Checking gcovr...");
   if (await isMissing("gcovr")) {
-    await core.group("Installing gcovr...", async () => {
-      const time = chrono.now();
-      await pipInstall("gcovr");
-      core.info(`Done in ${time.elapsed()}`);
-    });
+    await pip.installPackage("gcovr");
   }
 }
 
