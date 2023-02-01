@@ -464,33 +464,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.showPackageInfo = void 0;
+exports.showPackageInfo = exports.PackageInfo = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
 const log_1 = __importDefault(__nccwpck_require__(3817));
+class PackageInfo {
+    constructor() {
+        this.name = "";
+        this.version = "";
+        this.dependencies = [];
+    }
+}
+exports.PackageInfo = PackageInfo;
 async function showPackageInfo(packageName) {
     const args = ["-m", "pip", "show", packageName];
     const [out, ok] = await exec.execOutCheck("python3", args);
     if (!ok)
         return null;
     const lines = out.split("\n");
-    const info = {};
+    let packageInfo = new PackageInfo();
     for (let i = 0; i < lines.length - 1; ++i) {
         const strs = lines[i].split(/:(.*)/s);
         if (strs.length >= 2) {
-            info[strs[0].trim()] = strs[1].trim();
+            switch (strs[0]) {
+                case "Name":
+                    packageInfo.name = strs[1].trim();
+                    break;
+                case "Version":
+                    packageInfo.version = strs[1].trim();
+                    break;
+                case "Requires":
+                    packageInfo.dependencies = strs[1]
+                        .split(",")
+                        .map((str) => str.trim())
+                        .filter((str) => str.length > 0);
+                    break;
+            }
         }
         else {
             log_1.default.warning(`Invalid line: ${strs}`);
         }
     }
-    return {
-        name: info["Name"],
-        version: info["Version"],
-        dependencies: info["Requires"]
-            .split(",")
-            .map((str) => str.trim())
-            .filter((str) => str.length > 0),
-    };
+    return packageInfo;
 }
 exports.showPackageInfo = showPackageInfo;
 
