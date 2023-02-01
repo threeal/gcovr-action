@@ -1,5 +1,13 @@
-import { describe, expect, jest, test } from "@jest/globals";
+import { describe, expect, test } from "@jest/globals";
+import * as fs from "fs";
+import * as path from "path";
 import { showPackageInfo } from "./info";
+
+function expectPathExist(path: string) {
+  if (!fs.existsSync(path)) {
+    throw new Error(`Expect ${path} to be exist`);
+  }
+}
 
 describe("pip module", () => {
   test("show pip package info", async () => {
@@ -10,6 +18,10 @@ describe("pip module", () => {
     }
     expect(pkgInfo.name).toBe("pip");
     expect(pkgInfo.version).toMatch(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
+    expectPathExist(pkgInfo.location);
+    for (const file of pkgInfo.files) {
+      expectPathExist(path.join(pkgInfo.location, file));
+    }
   });
   test("show invalid package info return null", async () => {
     const pkgInfo = await showPackageInfo("an-invalid-package");
