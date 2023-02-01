@@ -471,6 +471,7 @@ class PackageInfo {
     constructor() {
         this.name = "";
         this.version = "";
+        this.location = "";
         this.dependencies = [];
         this.files = [];
     }
@@ -500,6 +501,9 @@ async function showPackageInfo(packageName) {
                     break;
                 case "Version":
                     packageInfo.version = strs[1].trim();
+                    break;
+                case "Location":
+                    packageInfo.location = strs[1].trim();
                     break;
                 case "Requires":
                     packageInfo.dependencies = strs[1]

@@ -4,6 +4,7 @@ import log from "../../log";
 export class PackageInfo {
   name: string = "";
   version: string = "";
+  location: string = "";
   dependencies: string[] = [];
   files: string[] = [];
 }
@@ -31,6 +32,9 @@ export async function showPackageInfo(
           break;
         case "Version":
           packageInfo.version = strs[1].trim();
+          break;
+        case "Location":
+          packageInfo.location = strs[1].trim();
           break;
         case "Requires":
           packageInfo.dependencies = strs[1]
