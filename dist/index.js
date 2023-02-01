@@ -460,13 +460,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = exports.PackageInfo = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
-const log_1 = __importDefault(__nccwpck_require__(3817));
+// import log from "../../log";  temporarily disabled
 class PackageInfo {
     constructor() {
         this.name = "";
@@ -514,7 +511,7 @@ async function showPackageInfo(packageName) {
             }
         }
         else {
-            log_1.default.warning(`Invalid line: ${strs}`);
+            // log.warning(`Invalid line: ${strs}`);
         }
     }
     return packageInfo;

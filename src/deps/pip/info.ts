@@ -1,5 +1,5 @@
 import * as exec from "../../exec";
-import log from "../../log";
+// import log from "../../log";  temporarily disabled
 
 export class PackageInfo {
   name: string = "";
@@ -44,7 +44,7 @@ export async function showPackageInfo(
           break;
       }
     } else {
-      log.warning(`Invalid line: ${strs}`);
+      // log.warning(`Invalid line: ${strs}`);
     }
   }
   return packageInfo;
