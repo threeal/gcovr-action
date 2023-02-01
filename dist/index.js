@@ -485,9 +485,14 @@ async function showPackageInfo(packageName) {
         const strs = lines[i].split(/:(.*)/s);
         if (strs.length >= 1 && strs[0] === "Files") {
             for (let j = i + 1; j < lines.length; ++j) {
-                const line = lines[j].trim();
-                if (line.length > 0)
-                    packageInfo.files.push(line);
+                let line = lines[j].trim();
+                if (line.length < 0)
+                    continue;
+                // Fix wrong pip path on bin directory
+                if (line.startsWith("../../bin")) {
+                    line = `../${line}`;
+                }
+                packageInfo.files.push(line);
             }
             break;
         }
