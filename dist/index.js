@@ -553,7 +553,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.installCachedPackage = void 0;
+exports.installCachedPackage = exports.installPackage = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
 const log_1 = __importDefault(__nccwpck_require__(3817));
 const info_1 = __nccwpck_require__(8414);
@@ -567,6 +567,17 @@ function validatePackageName(packageName) {
     }
     return packageName;
 }
+async function installPackage(packageName) {
+    await exec.exec("python3", [
+        "-m",
+        "pip",
+        "install",
+        "--user",
+        "--no-deps",
+        packageName,
+    ]);
+}
+exports.installPackage = installPackage;
 async function installCachedPackage(packageName) {
     let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
     if (pkgInfo === null) {
@@ -583,14 +594,7 @@ async function installCachedPackage(packageName) {
                 log_1.default.warning("Invalid package. Cache probably is corrupted!");
             }
             log_1.default.info("Installing package using pip...");
-            await exec.exec("python3", [
-                "-m",
-                "pip",
-                "install",
-                "--user",
-                "--no-deps",
-                packageName,
-            ]);
+            installPackage(packageName);
             log_1.default.info("Saving package to cache...");
             await (0, cache_1.cachePackage)(packageName);
             log_1.default.info("Validating package...");

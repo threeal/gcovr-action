@@ -13,6 +13,17 @@ function validatePackageName(packageName: string): string {
   return packageName;
 }
 
+export async function installPackage(packageName: string) {
+  await exec.exec("python3", [
+    "-m",
+    "pip",
+    "install",
+    "--user",
+    "--no-deps",
+    packageName,
+  ]);
+}
+
 export async function installCachedPackage(packageName: string) {
   let pkgInfo = await showPackageInfo(packageName);
   if (pkgInfo === null) {
@@ -31,14 +42,7 @@ export async function installCachedPackage(packageName: string) {
           log.warning("Invalid package. Cache probably is corrupted!");
         }
         log.info("Installing package using pip...");
-        await exec.exec("python3", [
-          "-m",
-          "pip",
-          "install",
-          "--user",
-          "--no-deps",
-          packageName,
-        ]);
+        installPackage(packageName);
         log.info("Saving package to cache...");
         await cachePackage(packageName);
         log.info("Validating package...");
