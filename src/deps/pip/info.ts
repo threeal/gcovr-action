@@ -5,19 +5,26 @@ export class PackageInfo {
   name: string = "";
   version: string = "";
   dependencies: string[] = [];
+  files: string[] = [];
 }
 
 export async function showPackageInfo(
   packageName: string
 ): Promise<PackageInfo | null> {
-  const args = ["-m", "pip", "show", packageName];
+  const args = ["-m", "pip", "show", "-f", packageName];
   const [out, ok] = await exec.execOutCheck("python3", args);
   if (!ok) return null;
   const lines = out.split("\n");
   let packageInfo = new PackageInfo();
   for (let i = 0; i < lines.length - 1; ++i) {
     const strs = lines[i].split(/:(.*)/s);
-    if (strs.length >= 2) {
+    if (strs.length >= 1 && strs[0] === "Files") {
+      for (let j = i + 1; j < lines.length; ++j) {
+        const line = lines[j].trim();
+        if (line.length > 0) packageInfo.files.push(line);
+      }
+      break;
+    } else if (strs.length >= 2) {
       switch (strs[0]) {
         case "Name":
           packageInfo.name = strs[1].trim();
