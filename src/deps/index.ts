@@ -1,9 +1,8 @@
-import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as io from "@actions/io";
 import * as os from "os";
 import * as action from "../action";
-import * as chrono from "../chrono";
+import log from "../log";
 import * as pip from "./pip";
 
 async function isMissing(tool: string): Promise<boolean> {
@@ -44,19 +43,17 @@ async function smartInstall(pkg: string) {
 }
 
 async function checkGcovr() {
-  core.info("Checking gcovr...");
+  log.info(`Checking ${log.emph("gcovr")}...`);
   if (await isMissing("gcovr")) {
     await pip.installPackage("gcovr");
   }
 }
 
 async function checkLlvm() {
-  core.info("Checking llvm-cov...");
+  log.info(`Checking ${log.emph("llvm-cov")}...`);
   if (await isMissing("llvm-cov")) {
-    await core.group("Installing LLVM...", async () => {
-      const time = chrono.now();
+    await log.group(`Installing ${log.emph("LLVM")}...`, async () => {
       await smartInstall("llvm");
-      core.info(`Done in ${time.elapsed()}`);
     });
   }
 }

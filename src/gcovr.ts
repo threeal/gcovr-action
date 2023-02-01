@@ -1,8 +1,8 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import * as action from "./action";
-import * as chrono from "./chrono";
 import * as coveralls from "./coveralls";
+import log from "./log";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];
@@ -26,18 +26,19 @@ function getArgs(inputs: action.Inputs): string[] {
 
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
-  await core.group("Generating code coverage report...", async () => {
-    const time = chrono.now();
+  await log.group("Generating code coverage report...", async () => {
     if (inputs.githubToken !== null) {
-      core.info(`Setting 'COVERALLS_REPO_TOKEN' to '${inputs.githubToken}'...`);
+      const label = log.emph("COVERALLS_REPO_TOKEN");
+      log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}...`);
       core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
     }
     await exec.exec("python3", ["-m", "gcovr", ...args]);
     if (inputs.coverallsOut !== null) {
-      core.info("Patching Coveralls API report...");
+      log.info("Patching Coveralls API report...");
       coveralls.patch(inputs.coverallsOut);
-      core.info(`Coveralls API report outputted to '${inputs.coverallsOut}'`);
+      log.info(
+        `Coveralls API report outputted to ${log.emph(inputs.coverallsOut)}`
+      );
     }
-    core.info(`Done in ${time.elapsed()}`);
   });
 }
