@@ -11,4 +11,8 @@ describe("pip module", () => {
     expect(pkgInfo.name).toBe("pip");
     expect(pkgInfo.version).toMatch(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
   });
+  test("show invalid package info return null", async () => {
+    const pkgInfo = await showPackageInfo("an-invalid-package");
+    expect(pkgInfo).toBeNull();
+  });
 });
