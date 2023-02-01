@@ -286,7 +286,7 @@ async function smartInstall(pkg) {
 async function checkGcovr() {
     log_1.default.info(`Checking ${log_1.default.emph("gcovr")}...`);
     if (await isMissing("gcovr")) {
-        await pip.installPackage("gcovr");
+        await pip.installCachedPackage("gcovr");
     }
 }
 async function checkLlvm() {
@@ -425,9 +425,9 @@ exports.initContext = initContext;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.installPackage = void 0;
+exports.installCachedPackage = void 0;
 var install_1 = __nccwpck_require__(1450);
-Object.defineProperty(exports, "installPackage", ({ enumerable: true, get: function () { return install_1.installPackage; } }));
+Object.defineProperty(exports, "installCachedPackage", ({ enumerable: true, get: function () { return install_1.installCachedPackage; } }));
 
 
 /***/ }),
@@ -553,7 +553,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.installPackage = void 0;
+exports.installCachedPackage = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
 const log_1 = __importDefault(__nccwpck_require__(3817));
 const info_1 = __nccwpck_require__(8414);
@@ -567,12 +567,7 @@ function validatePackageName(packageName) {
     }
     return packageName;
 }
-async function installPackageDependencies(packageInfo) {
-    for (const dependency of packageInfo.dependencies) {
-        await installPackage(dependency);
-    }
-}
-async function installPackage(packageName) {
+async function installCachedPackage(packageName) {
     let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
     if (pkgInfo === null) {
         packageName = validatePackageName(packageName);
@@ -607,9 +602,11 @@ async function installPackage(packageName) {
             return pkgInfo;
         });
     }
-    await installPackageDependencies(pkgInfo);
+    for (const dependency of pkgInfo.dependencies) {
+        await installCachedPackage(dependency);
+    }
 }
-exports.installPackage = installPackage;
+exports.installCachedPackage = installCachedPackage;
 
 
 /***/ }),

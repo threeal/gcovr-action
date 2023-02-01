@@ -1,1 +1,1 @@
-export { installPackage } from "./install";
+export { installCachedPackage } from "./install";

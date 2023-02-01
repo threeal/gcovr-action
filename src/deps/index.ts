@@ -45,7 +45,7 @@ async function smartInstall(pkg: string) {
 async function checkGcovr() {
   log.info(`Checking ${log.emph("gcovr")}...`);
   if (await isMissing("gcovr")) {
-    await pip.installPackage("gcovr");
+    await pip.installCachedPackage("gcovr");
   }
 }
 

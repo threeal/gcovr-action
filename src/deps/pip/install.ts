@@ -13,13 +13,7 @@ function validatePackageName(packageName: string): string {
   return packageName;
 }
 
-async function installPackageDependencies(packageInfo: PackageInfo) {
-  for (const dependency of packageInfo.dependencies) {
-    await installPackage(dependency);
-  }
-}
-
-export async function installPackage(packageName: string) {
+export async function installCachedPackage(packageName: string) {
   let pkgInfo = await showPackageInfo(packageName);
   if (pkgInfo === null) {
     packageName = validatePackageName(packageName);
@@ -59,5 +53,7 @@ export async function installPackage(packageName: string) {
       }
     );
   }
-  await installPackageDependencies(pkgInfo);
+  for (const dependency of pkgInfo.dependencies) {
+    await installCachedPackage(dependency);
+  }
 }
