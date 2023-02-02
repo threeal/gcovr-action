@@ -27,26 +27,62 @@ describe("test show info of a pip package", () => {
       test("location should be exist", async () => {
         expectPathExist((await info).location);
       });
+
       test("dependencies should be valid", async () => {
-        expect((await info).dependencies.length).toBe(0);
+        const deps = (await info).dependencies;
+        try {
+          expect(deps.length).toBe(0);
+        } catch (err) {
+          if (err instanceof Error) {
+            const str = JSON.stringify(deps, null, 2);
+            err.message = `${err.message}\ndeps: ${str}`;
+          }
+          throw err;
+        }
       });
+
       test("files should be valid", async () => {
-        expect((await info).files.length).toBeGreaterThan(0);
+        const files = (await info).files;
+        try {
+          expect(files.length).toBeGreaterThan(0);
+        } catch (err) {
+          if (err instanceof Error) {
+            const str = JSON.stringify(files, null, 2);
+            err.message = `${err.message}\nfiles: ${str}`;
+          }
+          throw err;
+        }
       });
 
       test("directories should be exist", async () => {
         const dirs = (await info).directories();
-        expect(dirs.length).toBeGreaterThan(0);
-        for (const dir of dirs) {
-          expectPathExist(dir);
+        try {
+          expect(dirs.length).toBe(2);
+          for (const dir of dirs) {
+            expectPathExist(dir);
+          }
+        } catch (err) {
+          if (err instanceof Error) {
+            const str = JSON.stringify(dirs, null, 2);
+            err.message = `${err.message}\ndirs: ${str}`;
+          }
+          throw err;
         }
       });
 
       test("executables should be exist", async () => {
         const execs = await (await info).executables();
-        expect(execs.length).toBeGreaterThan(0);
-        for (const exec of execs) {
-          expectPathExist(exec);
+        try {
+          expect(execs.length).toBe(3);
+          for (const exec of execs) {
+            expectPathExist(exec);
+          }
+        } catch (err) {
+          if (err instanceof Error) {
+            const str = JSON.stringify(execs, null, 2);
+            err.message = `${err.message}\nexecs: ${str}`;
+          }
+          throw err;
         }
       });
     });
