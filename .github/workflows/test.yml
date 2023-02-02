@@ -64,9 +64,8 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-
   standard-usage:
-    needs: distribute
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -99,7 +98,7 @@ jobs:
         uses: ./
 
   llvm-usage:
-    needs: distribute
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -126,7 +125,7 @@ jobs:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   exclusion-usage:
-    needs: distribute
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
