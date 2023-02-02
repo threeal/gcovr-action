@@ -24,6 +24,11 @@ describe("pip module", () => {
     for (const dir of dirs) {
       expectPathExist(dir);
     }
+    const execs = await pkgInfo.executables();
+    expect(execs.length).toBeGreaterThan(0);
+    for (const exec of execs) {
+      expectPathExist(exec);
+    }
   });
   test("show invalid package info return null", async () => {
     const pkgInfo = await showPackageInfo("an-invalid-package");

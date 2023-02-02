@@ -462,6 +462,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = exports.PackageInfo = void 0;
+const io = __importStar(__nccwpck_require__(7436));
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(7757));
@@ -525,6 +526,23 @@ class PackageInfo {
                 absDirs.push(absDir);
         }
         return absDirs;
+    }
+    async executables() {
+        const execs = [];
+        for (const file of this.files) {
+            const strs = file.split(path.sep);
+            // check if it's package directory
+            if (strs.length > 0) {
+                const dir = strs[0].toLowerCase();
+                const name = this.name.toLowerCase();
+                if (dir.includes(name))
+                    continue;
+            }
+            const exec = path.basename(file);
+            const absExec = await io.which(exec, true);
+            execs.push(absExec);
+        }
+        return execs;
     }
 }
 exports.PackageInfo = PackageInfo;

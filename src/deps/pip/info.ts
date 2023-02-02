@@ -1,3 +1,4 @@
+import * as io from "@actions/io";
 import * as fs from "fs";
 import * as path from "path";
 import * as exec from "../../exec";
@@ -59,6 +60,23 @@ export class PackageInfo {
       if (fs.existsSync(absDir)) absDirs.push(absDir);
     }
     return absDirs;
+  }
+
+  async executables(): Promise<string[]> {
+    const execs: string[] = [];
+    for (const file of this.files) {
+      const strs = file.split(path.sep);
+      // check if it's package directory
+      if (strs.length > 0) {
+        const dir = strs[0].toLowerCase();
+        const name = this.name.toLowerCase();
+        if (dir.includes(name)) continue;
+      }
+      const exec = path.basename(file);
+      const absExec = await io.which(exec, true);
+      execs.push(absExec);
+    }
+    return execs;
   }
 }
 
