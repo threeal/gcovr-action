@@ -24,9 +24,6 @@ jobs:
       - name: Build this package for distribution
         run: npm run package
 
-      - name: Run unit tests
-        run: npm test
-
       - name: Upload this project as an artifact
         uses: actions/upload-artifact@v3.1.2
         with:
@@ -47,6 +44,26 @@ jobs:
 
       - name: Check if the distribution is up to date
         run: git diff --exit-code HEAD
+
+  unit-tests:
+    needs: distribute
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows, ubuntu, macos]
+    steps:
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: project
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test
+
 
   standard-usage:
     needs: distribute
