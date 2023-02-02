@@ -8,6 +8,16 @@ function expectPathExist(path: string) {
   }
 }
 
+function appendInfo(err: unknown, info: { [key: string]: any }): unknown {
+  if (err instanceof Error) {
+    for (const [key, value] of Object.entries(info)) {
+      const str = JSON.stringify(value, null, 2);
+      err.message = `${err.message}\n${key}: ${str}`;
+    }
+  }
+  return err;
+}
+
 describe("test show info of a pip package", () => {
   describe("show info of a valid package (pip)", () => {
     const pkgInfo = showPackageInfo("pip");
@@ -33,11 +43,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(deps.length).toBe(0);
         } catch (err) {
-          if (err instanceof Error) {
-            const str = JSON.stringify(deps, null, 2);
-            err.message = `${err.message}\ndeps: ${str}`;
-          }
-          throw err;
+          throw appendInfo(err, { deps: deps });
         }
       });
 
@@ -46,11 +52,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(files.length).toBeGreaterThan(0);
         } catch (err) {
-          if (err instanceof Error) {
-            const str = JSON.stringify(files, null, 2);
-            err.message = `${err.message}\nfiles: ${str}`;
-          }
-          throw err;
+          throw appendInfo(err, { files: files });
         }
       });
 
@@ -62,11 +64,7 @@ describe("test show info of a pip package", () => {
             expectPathExist(dir);
           }
         } catch (err) {
-          if (err instanceof Error) {
-            const str = JSON.stringify(dirs, null, 2);
-            err.message = `${err.message}\ndirs: ${str}`;
-          }
-          throw err;
+          throw appendInfo(err, { dirs: dirs });
         }
       });
 
@@ -78,11 +76,7 @@ describe("test show info of a pip package", () => {
             expectPathExist(exec);
           }
         } catch (err) {
-          if (err instanceof Error) {
-            const str = JSON.stringify(execs, null, 2);
-            err.message = `${err.message}\nexecs: ${str}`;
-          }
-          throw err;
+          throw appendInfo(err, { execs: execs });
         }
       });
     });
