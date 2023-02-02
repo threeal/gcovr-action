@@ -493,19 +493,16 @@ class PackageInfo {
         let binLocation = null;
         for (let i = 0; i < this.files.length; ++i) {
             let file = this.files[i];
-            // Fix wrong pip path on bin directory
-            if (file.includes("../bin/")) {
+            let filePath = path.parse(file);
+            if (filePath.dir.toLowerCase().startsWith(this.name.toLowerCase())) {
+                absFiles.push(path.join(this.location, file));
+            }
+            else {
+                // it's a binary file
                 if (binLocation === null) {
                     binLocation = determineBinLocation(this.location);
                 }
-                const strs = file.split("../bin/");
-                if (strs.length < 2) {
-                    throw new Error(`Failed to obtain bin content: ${JSON.stringify(strs)}`);
-                }
-                absFiles.push(path.join(binLocation, strs[1]));
-            }
-            else {
-                absFiles.push(path.join(this.location, file));
+                absFiles.push(path.join(binLocation, filePath.base));
             }
         }
         return absFiles;
