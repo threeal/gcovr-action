@@ -1,5 +1,6 @@
 import { describe, expect, test } from "@jest/globals";
 import * as fs from "fs";
+import * as os from "os";
 import { PackageInfo, showPackageInfo } from "./info";
 
 function expectPathExist(path: string) {
@@ -71,7 +72,7 @@ describe("test show info of a pip package", () => {
       test("executables should be exist", async () => {
         const execs = await (await info).executables();
         try {
-          expect(execs.length).toBe(3);
+          expect(execs.length).toBe(os.type() === "Windows_NT" ? 4 : 3);
           for (const exec of execs) {
             expectPathExist(exec);
           }
