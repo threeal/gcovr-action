@@ -1,6 +1,22 @@
-import * as exec from "../../exec";
+import * as fs from "fs";
 import * as path from "path";
+import * as exec from "../../exec";
 // import log from "../../log";  temporarily disabled
+
+function determineBinLocation(siteLocation: string): string {
+  let iterLocation = siteLocation;
+  while (true) {
+    const parsedPath = path.parse(iterLocation);
+    if (parsedPath.root === parsedPath.dir) {
+      throw new Error(`Failed to determine bin location of '${siteLocation}'`);
+    }
+    const binLocation = path.join(iterLocation, "bin");
+    if (fs.existsSync(binLocation)) {
+      return binLocation;
+    }
+    iterLocation = path.join(iterLocation, "..");
+  }
+}
 
 export class PackageInfo {
   name: string = "";
@@ -11,13 +27,24 @@ export class PackageInfo {
 
   absoluteFiles(): string[] {
     const absFiles: string[] = [];
+    let binLocation: string | null = null;
     for (let i = 0; i < this.files.length; ++i) {
       let file = this.files[i];
       // Fix wrong pip path on bin directory
-      if (file.includes("../bin")) {
-        file = `../${file}`;
+      if (file.includes("../bin/")) {
+        if (binLocation === null) {
+          binLocation = determineBinLocation(this.location);
+        }
+        const strs = file.split("../bin/");
+        if (strs.length < 2) {
+          throw new Error(
+            `Failed to obtain bin content: ${JSON.stringify(strs)}`
+          );
+        }
+        absFiles.push(path.join(binLocation, strs[1]));
+      } else {
+        absFiles.push(path.join(this.location, file));
       }
-      absFiles.push(path.join(this.location, file));
     }
     return absFiles;
   }
@@ -35,7 +62,7 @@ export async function showPackageInfo(
     const strs = lines[i].split(/:(.*)/s);
     if (strs.length >= 1 && strs[0] === "Files") {
       for (let j = i + 1; j < lines.length; ++j) {
-        let line = lines[j].trim();
+        const line = lines[j].trim();
         if (line.length > 0) packageInfo.files.push(line);
       }
       break;

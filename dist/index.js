@@ -462,9 +462,24 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = exports.PackageInfo = void 0;
-const exec = __importStar(__nccwpck_require__(7757));
+const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
+const exec = __importStar(__nccwpck_require__(7757));
 // import log from "../../log";  temporarily disabled
+function determineBinLocation(siteLocation) {
+    let iterLocation = siteLocation;
+    while (true) {
+        const parsedPath = path.parse(iterLocation);
+        if (parsedPath.root === parsedPath.dir) {
+            throw new Error(`Failed to determine bin location of '${siteLocation}'`);
+        }
+        const binLocation = path.join(iterLocation, "bin");
+        if (fs.existsSync(binLocation)) {
+            return binLocation;
+        }
+        iterLocation = path.join(iterLocation, "..");
+    }
+}
 class PackageInfo {
     constructor() {
         this.name = "";
@@ -475,13 +490,23 @@ class PackageInfo {
     }
     absoluteFiles() {
         const absFiles = [];
+        let binLocation = null;
         for (let i = 0; i < this.files.length; ++i) {
             let file = this.files[i];
             // Fix wrong pip path on bin directory
-            if (file.includes("../bin")) {
-                file = `../${file}`;
+            if (file.includes("../bin/")) {
+                if (binLocation === null) {
+                    binLocation = determineBinLocation(this.location);
+                }
+                const strs = file.split("../bin/");
+                if (strs.length < 2) {
+                    throw new Error(`Failed to obtain bin content: ${JSON.stringify(strs)}`);
+                }
+                absFiles.push(path.join(binLocation, strs[1]));
             }
-            absFiles.push(path.join(this.location, file));
+            else {
+                absFiles.push(path.join(this.location, file));
+            }
         }
         return absFiles;
     }
@@ -498,7 +523,7 @@ async function showPackageInfo(packageName) {
         const strs = lines[i].split(/:(.*)/s);
         if (strs.length >= 1 && strs[0] === "Files") {
             for (let j = i + 1; j < lines.length; ++j) {
-                let line = lines[j].trim();
+                const line = lines[j].trim();
                 if (line.length > 0)
                     packageInfo.files.push(line);
             }
