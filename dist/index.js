@@ -507,6 +507,25 @@ class PackageInfo {
         }
         return absFiles;
     }
+    directories() {
+        const dirs = [];
+        for (const file of this.files) {
+            const strs = file.split(path.sep);
+            if (strs.length < 1)
+                continue;
+            const dir = strs[0];
+            if (dir in dirs)
+                continue;
+            dirs.push(dir);
+        }
+        const absDirs = [];
+        for (const dir of dirs) {
+            const absDir = path.join(this.location, dir);
+            if (fs.existsSync(absDir))
+                absDirs.push(absDir);
+        }
+        return absDirs;
+    }
 }
 exports.PackageInfo = PackageInfo;
 async function showPackageInfo(packageName) {

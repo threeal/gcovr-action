@@ -43,6 +43,23 @@ export class PackageInfo {
     }
     return absFiles;
   }
+
+  directories(): string[] {
+    const dirs: string[] = [];
+    for (const file of this.files) {
+      const strs = file.split(path.sep);
+      if (strs.length < 1) continue;
+      const dir = strs[0];
+      if (dir in dirs) continue;
+      dirs.push(dir);
+    }
+    const absDirs: string[] = [];
+    for (const dir of dirs) {
+      const absDir = path.join(this.location, dir);
+      if (fs.existsSync(absDir)) absDirs.push(absDir);
+    }
+    return absDirs;
+  }
 }
 
 export async function showPackageInfo(

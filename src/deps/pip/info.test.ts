@@ -19,8 +19,10 @@ describe("pip module", () => {
     expect(pkgInfo.name).toBe("pip");
     expect(pkgInfo.version).toMatch(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
     expectPathExist(pkgInfo.location);
-    for (const file of pkgInfo.absoluteFiles()) {
-      expectPathExist(file);
+    const dirs = pkgInfo.directories();
+    expect(dirs.length).toBeGreaterThan(0);
+    for (const dir of dirs) {
+      expectPathExist(dir);
     }
   });
   test("show invalid package info return null", async () => {
