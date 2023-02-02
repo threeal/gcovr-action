@@ -481,6 +481,9 @@ function determineBinLocation(siteLocation) {
         iterLocation = path.join(iterLocation, "..");
     }
 }
+function isPackageDirectory(directory, pacageName) {
+    return directory.toLowerCase().includes(pacageName.toLowerCase());
+}
 class PackageInfo {
     constructor() {
         this.name = "";
@@ -515,9 +518,10 @@ class PackageInfo {
             if (strs.length < 1)
                 continue;
             const dir = strs[0];
-            if (dir in dirs)
+            if (dirs.includes(dir))
                 continue;
-            dirs.push(dir);
+            if (isPackageDirectory(dir, this.name))
+                dirs.push(dir);
         }
         const absDirs = [];
         for (const dir of dirs) {
@@ -532,12 +536,8 @@ class PackageInfo {
         for (const file of this.files) {
             const strs = file.split(path.sep);
             // check if it's package directory
-            if (strs.length > 0) {
-                const dir = strs[0].toLowerCase();
-                const name = this.name.toLowerCase();
-                if (dir.includes(name))
-                    continue;
-            }
+            if (strs.length > 0 && isPackageDirectory(strs[0], this.name))
+                continue;
             const exec = path.basename(file);
             const absExec = await io.which(exec, true);
             execs.push(absExec);

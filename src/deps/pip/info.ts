@@ -19,6 +19,10 @@ function determineBinLocation(siteLocation: string): string {
   }
 }
 
+function isPackageDirectory(directory: string, pacageName: string): boolean {
+  return directory.toLowerCase().includes(pacageName.toLowerCase());
+}
+
 export class PackageInfo {
   name: string = "";
   version: string = "";
@@ -51,8 +55,8 @@ export class PackageInfo {
       const strs = file.split(path.sep);
       if (strs.length < 1) continue;
       const dir = strs[0];
-      if (dir in dirs) continue;
-      dirs.push(dir);
+      if (dirs.includes(dir)) continue;
+      if (isPackageDirectory(dir, this.name)) dirs.push(dir);
     }
     const absDirs: string[] = [];
     for (const dir of dirs) {
@@ -67,11 +71,7 @@ export class PackageInfo {
     for (const file of this.files) {
       const strs = file.split(path.sep);
       // check if it's package directory
-      if (strs.length > 0) {
-        const dir = strs[0].toLowerCase();
-        const name = this.name.toLowerCase();
-        if (dir.includes(name)) continue;
-      }
+      if (strs.length > 0 && isPackageDirectory(strs[0], this.name)) continue;
       const exec = path.basename(file);
       const absExec = await io.which(exec, true);
       execs.push(absExec);
