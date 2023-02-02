@@ -463,6 +463,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = exports.PackageInfo = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
+const path = __importStar(__nccwpck_require__(1017));
 // import log from "../../log";  temporarily disabled
 class PackageInfo {
     constructor() {
@@ -471,6 +472,18 @@ class PackageInfo {
         this.location = "";
         this.dependencies = [];
         this.files = [];
+    }
+    absoluteFiles() {
+        const absFiles = [];
+        for (let i = 0; i < this.files.length; ++i) {
+            let file = this.files[i];
+            // Fix wrong pip path on bin directory
+            if (file.includes("../bin")) {
+                file = `../${file}`;
+            }
+            absFiles.push(path.join(this.location, file));
+        }
+        return absFiles;
     }
 }
 exports.PackageInfo = PackageInfo;
@@ -486,13 +499,8 @@ async function showPackageInfo(packageName) {
         if (strs.length >= 1 && strs[0] === "Files") {
             for (let j = i + 1; j < lines.length; ++j) {
                 let line = lines[j].trim();
-                if (line.length < 0)
-                    continue;
-                // Fix wrong pip path on bin directory
-                if (line.startsWith("../../bin")) {
-                    line = `../${line}`;
-                }
-                packageInfo.files.push(line);
+                if (line.length > 0)
+                    packageInfo.files.push(line);
             }
             break;
         }
