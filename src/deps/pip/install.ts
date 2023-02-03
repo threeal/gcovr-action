@@ -25,7 +25,14 @@ export async function installPackage(packageName: string) {
 }
 
 export async function uninstallPackage(packageName: string) {
-  await exec.exec("python3", ["-m", "pip", "uninstall", "-y", packageName]);
+  await exec.exec("python3", [
+    "-m",
+    "pip",
+    "uninstall",
+    "-y",
+    "--isolated",
+    packageName,
+  ]);
 }
 
 export async function installCachedPackage(packageName: string) {
