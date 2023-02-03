@@ -2,19 +2,21 @@ import { beforeAll, describe, expect, test } from "@jest/globals";
 import { PackageInfo, showPackageInfo } from "./info";
 import { installPackage, uninstallPackage } from "./install";
 
+const validPkgName = "rsa";
+
 describe("test install a pip package", () => {
-  describe("install a valid package (requests)", () => {
+  describe(`install a valid package (${validPkgName})`, () => {
     beforeAll(async () => {
-      await uninstallPackage("requests");
+      await uninstallPackage(validPkgName);
     });
 
     const testInstallPackage = async () => {
-      const res = installPackage("requests");
+      const res = installPackage(validPkgName);
       await expect(res).resolves.toBeUndefined();
     };
 
     const testShowPackageInfo = async () => {
-      const res = showPackageInfo("requests");
+      const res = showPackageInfo(validPkgName);
       await expect(res).resolves.toBeInstanceOf(PackageInfo);
     };
 
@@ -42,18 +44,18 @@ describe("test install a pip package", () => {
 });
 
 describe("test uninstall a pip package", () => {
-  describe("uninstall a valid package (requests)", () => {
+  describe(`uninstall a valid package (${validPkgName})`, () => {
     beforeAll(async () => {
-      await installPackage("requests");
+      await installPackage(validPkgName);
     });
 
     const testUninstallPackage = async () => {
-      const res = uninstallPackage("requests");
+      const res = uninstallPackage(validPkgName);
       await expect(res).resolves.toBeUndefined();
     };
 
     const testShowPackageInfo = async () => {
-      const res = showPackageInfo("requests");
+      const res = showPackageInfo(validPkgName);
       await expect(res).resolves.toBeNull();
     };
 
