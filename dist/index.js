@@ -460,13 +460,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = exports.PackageInfo = void 0;
 const io = __importStar(__nccwpck_require__(7436));
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(7757));
-// import log from "../../log";  temporarily disabled
+const log_1 = __importDefault(__nccwpck_require__(3817));
 function determineBinLocation(siteLocation) {
     let iterLocation = siteLocation;
     while (true) {
@@ -583,7 +586,7 @@ async function showPackageInfo(packageName) {
             }
         }
         else {
-            // log.warning(`Invalid line: ${strs}`);
+            log_1.default.warning(`Invalid line: ${strs}`);
         }
     }
     return packageInfo;

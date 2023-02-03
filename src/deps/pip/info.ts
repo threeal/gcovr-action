@@ -2,7 +2,7 @@ import * as io from "@actions/io";
 import * as fs from "fs";
 import * as path from "path";
 import * as exec from "../../exec";
-// import log from "../../log";  temporarily disabled
+import log from "../../log";
 
 function determineBinLocation(siteLocation: string): string {
   let iterLocation = siteLocation;
@@ -115,7 +115,7 @@ export async function showPackageInfo(
           break;
       }
     } else {
-      // log.warning(`Invalid line: ${strs}`);
+      log.warning(`Invalid line: ${strs}`);
     }
   }
   return packageInfo;
