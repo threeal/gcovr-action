@@ -1,9 +1,13 @@
-import { describe, expect, test } from "@jest/globals";
+import { beforeEach, describe, expect, test } from "@jest/globals";
 import { PackageInfo, showPackageInfo } from "./info";
-import { installPackage } from "./install";
+import { installPackage, uninstallPackage } from "./install";
 
 describe("test install a pip package", () => {
   describe("install a valid package (requests)", () => {
+    beforeEach(async () => {
+      await uninstallPackage("requests");
+    });
+
     test("should be resolved", async () => {
       const res = installPackage("requests");
       await expect(res).resolves.toBeUndefined();
