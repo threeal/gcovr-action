@@ -470,20 +470,6 @@ const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(7757));
 const log_1 = __importDefault(__nccwpck_require__(3817));
-function determineBinLocation(siteLocation) {
-    let iterLocation = siteLocation;
-    while (true) {
-        const parsedPath = path.parse(iterLocation);
-        if (parsedPath.root === parsedPath.dir) {
-            throw new Error(`Failed to determine bin location of '${siteLocation}'`);
-        }
-        const binLocation = path.join(iterLocation, "bin");
-        if (fs.existsSync(binLocation)) {
-            return binLocation;
-        }
-        iterLocation = path.join(iterLocation, "..");
-    }
-}
 function isPackageDirectory(directory, pacageName) {
     return directory.toLowerCase().includes(pacageName.toLowerCase());
 }
@@ -494,25 +480,6 @@ class PackageInfo {
         this.location = "";
         this.dependencies = [];
         this.files = [];
-    }
-    absoluteFiles() {
-        const absFiles = [];
-        let binLocation = null;
-        for (let i = 0; i < this.files.length; ++i) {
-            let file = this.files[i];
-            let filePath = path.parse(file);
-            if (filePath.dir.toLowerCase().startsWith(this.name.toLowerCase())) {
-                absFiles.push(path.join(this.location, file));
-            }
-            else {
-                // it's a binary file
-                if (binLocation === null) {
-                    binLocation = determineBinLocation(this.location);
-                }
-                absFiles.push(path.join(binLocation, filePath.base));
-            }
-        }
-        return absFiles;
     }
     directories() {
         const dirs = [];

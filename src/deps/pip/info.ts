@@ -4,21 +4,6 @@ import * as path from "path";
 import * as exec from "../../exec";
 import log from "../../log";
 
-function determineBinLocation(siteLocation: string): string {
-  let iterLocation = siteLocation;
-  while (true) {
-    const parsedPath = path.parse(iterLocation);
-    if (parsedPath.root === parsedPath.dir) {
-      throw new Error(`Failed to determine bin location of '${siteLocation}'`);
-    }
-    const binLocation = path.join(iterLocation, "bin");
-    if (fs.existsSync(binLocation)) {
-      return binLocation;
-    }
-    iterLocation = path.join(iterLocation, "..");
-  }
-}
-
 function isPackageDirectory(directory: string, pacageName: string): boolean {
   return directory.toLowerCase().includes(pacageName.toLowerCase());
 }
@@ -29,25 +14,6 @@ export class PackageInfo {
   location: string = "";
   dependencies: string[] = [];
   files: string[] = [];
-
-  absoluteFiles(): string[] {
-    const absFiles: string[] = [];
-    let binLocation: string | null = null;
-    for (let i = 0; i < this.files.length; ++i) {
-      let file = this.files[i];
-      let filePath = path.parse(file);
-      if (filePath.dir.toLowerCase().startsWith(this.name.toLowerCase())) {
-        absFiles.push(path.join(this.location, file));
-      } else {
-        // it's a binary file
-        if (binLocation === null) {
-          binLocation = determineBinLocation(this.location);
-        }
-        absFiles.push(path.join(binLocation, filePath.base));
-      }
-    }
-    return absFiles;
-  }
 
   directories(): string[] {
     const dirs: string[] = [];
