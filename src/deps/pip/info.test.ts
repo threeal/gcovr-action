@@ -1,7 +1,7 @@
-import { describe, expect, test } from "@jest/globals";
+import { beforeAll, describe, expect, test } from "@jest/globals";
 import * as fs from "fs";
-import * as os from "os";
 import { PackageInfo, showPackageInfo } from "./info";
+import { installPackage } from "./install";
 
 function expectPathExist(path: string) {
   if (!fs.existsSync(path)) {
@@ -20,17 +20,21 @@ function appendInfo(err: unknown, info: { [key: string]: any }): unknown {
 }
 
 describe("test show info of a pip package", () => {
-  describe("show info of a valid package (pip)", () => {
+  describe("show info of a valid package (rsa)", () => {
+    beforeAll(async () => {
+      await installPackage("rsa");
+    });
+
     let pkgInfo: PackageInfo;
     test("should be valid", async () => {
-      const res = showPackageInfo("pip");
+      const res = showPackageInfo("rsa");
       await expect(res).resolves.toBeInstanceOf(PackageInfo);
       pkgInfo = (await res) as PackageInfo;
     });
 
     describe("check contents of the package info", () => {
       test("name should be valid", () => {
-        expect(pkgInfo.name).toBe("pip");
+        expect(pkgInfo.name).toBe("rsa");
       });
       test("version should be valid", () => {
         expect(pkgInfo.version).toMatch(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
@@ -42,7 +46,7 @@ describe("test show info of a pip package", () => {
       test("dependencies should be valid", () => {
         const deps = pkgInfo.dependencies;
         try {
-          expect(deps.length).toBe(0);
+          expect(deps.length).toBe(1);
         } catch (err) {
           throw appendInfo(err, { deps: deps });
         }
@@ -72,7 +76,7 @@ describe("test show info of a pip package", () => {
       test("executables should be exist", async () => {
         const execs = await pkgInfo.executables();
         try {
-          expect(execs.length).toBe(os.type() === "Windows_NT" ? 4 : 3);
+          expect(execs.length).toBe(6);
           for (const exec of execs) {
             expectPathExist(exec);
           }
