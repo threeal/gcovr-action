@@ -1,13 +1,7 @@
-import { beforeAll, describe, expect, test } from "@jest/globals";
-import * as fs from "fs";
+import { beforeAll, describe, test } from "@jest/globals";
+import expect from "../../expect";
 import { PackageInfo, showPackageInfo } from "./info";
 import { installPackage } from "./install";
-
-function expectPathExist(path: string) {
-  if (!fs.existsSync(path)) {
-    throw new Error(`Expect ${path} to be exist`);
-  }
-}
 
 function appendInfo(err: unknown, info: { [key: string]: any }): unknown {
   if (err instanceof Error) {
@@ -40,7 +34,7 @@ describe("test show info of a pip package", () => {
         expect(pkgInfo.version).toMatch(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
       });
       test("location should be exist", () => {
-        expectPathExist(pkgInfo.location);
+        expect(pkgInfo.location).pathToBeExist();
       });
 
       test("dependencies should be valid", () => {
@@ -66,7 +60,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(dirs.length).toBe(2);
           for (const dir of dirs) {
-            expectPathExist(dir);
+            expect(dir).pathToBeExist();
           }
         } catch (err) {
           throw appendInfo(err, { dirs: dirs });
@@ -78,7 +72,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(execs.length).toBe(6);
           for (const exec of execs) {
-            expectPathExist(exec);
+            expect(exec).pathToBeExist();
           }
         } catch (err) {
           throw appendInfo(err, { execs: execs });
