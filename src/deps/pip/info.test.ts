@@ -1,5 +1,5 @@
 import { beforeAll, describe, test } from "@jest/globals";
-import expect from "../../expect";
+import { expect } from "../../testing";
 import { PackageInfo, showPackageInfo } from "./info";
 import { installPackage } from "./install";
 
@@ -34,7 +34,7 @@ describe("test show info of a pip package", () => {
         expect(pkgInfo.version).toMatch(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
       });
       test("location should be exist", () => {
-        expect(pkgInfo.location).pathToBeExist();
+        expect(pkgInfo.location).toBeExist();
       });
 
       test("dependencies should be valid", () => {
@@ -60,7 +60,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(dirs.length).toBe(2);
           for (const dir of dirs) {
-            expect(dir).pathToBeExist();
+            expect(dir).toBeExist();
           }
         } catch (err) {
           throw appendInfo(err, { dirs: dirs });
@@ -72,7 +72,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(execs.length).toBe(6);
           for (const exec of execs) {
-            expect(exec).pathToBeExist();
+            expect(exec).toBeExist();
           }
         } catch (err) {
           throw appendInfo(err, { execs: execs });

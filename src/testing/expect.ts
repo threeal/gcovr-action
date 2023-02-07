@@ -4,7 +4,7 @@ import * as fs from "fs";
 const expect = Object.assign(jestExpect);
 
 expect.extend({
-  pathToBeExist(received: string) {
+  toBeExist(received: string) {
     if (fs.existsSync(received)) {
       return {
         message: () => `expected path '${received}' to be exist`,
