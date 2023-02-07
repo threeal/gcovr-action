@@ -1,17 +1,7 @@
 import { beforeAll, describe, test } from "@jest/globals";
-import { expect } from "../../testing";
+import { errorAppend, expect } from "../../testing";
 import { PackageInfo, showPackageInfo } from "./info";
 import { installPackage } from "./install";
-
-function appendInfo(err: unknown, info: { [key: string]: any }): unknown {
-  if (err instanceof Error) {
-    for (const [key, value] of Object.entries(info)) {
-      const str = JSON.stringify(value, null, 2);
-      err.message = `${err.message}\n${key}: ${str}`;
-    }
-  }
-  return err;
-}
 
 describe("test show info of a pip package", () => {
   describe("show info of a valid package (rsa)", () => {
@@ -42,7 +32,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(deps.length).toBe(1);
         } catch (err) {
-          throw appendInfo(err, { deps: deps });
+          throw errorAppend(err, { deps: deps });
         }
       });
 
@@ -51,7 +41,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(files.length).toBeGreaterThan(0);
         } catch (err) {
-          throw appendInfo(err, { files: files });
+          throw errorAppend(err, { files: files });
         }
       });
 
@@ -63,7 +53,7 @@ describe("test show info of a pip package", () => {
             expect(dir).toBeExist();
           }
         } catch (err) {
-          throw appendInfo(err, { dirs: dirs });
+          throw errorAppend(err, { dirs: dirs });
         }
       });
 
@@ -75,7 +65,7 @@ describe("test show info of a pip package", () => {
             expect(exec).toBeExist();
           }
         } catch (err) {
-          throw appendInfo(err, { execs: execs });
+          throw errorAppend(err, { execs: execs });
         }
       });
     });
