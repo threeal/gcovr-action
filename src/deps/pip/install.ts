@@ -14,13 +14,7 @@ function validatePackageName(packageName: string): string {
 }
 
 export async function installPackage(packageName: string) {
-  await exec.exec("python3", [
-    "-m",
-    "pip",
-    "install",
-    "--no-deps",
-    packageName,
-  ]);
+  await exec.exec("python3", ["-m", "pip", "install", packageName]);
 }
 
 export async function uninstallPackage(packageName: string) {
