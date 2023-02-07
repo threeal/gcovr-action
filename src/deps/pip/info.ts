@@ -59,6 +59,8 @@ export async function showPackageInfo(
     if (strs.length >= 1 && strs[0] === "Files") {
       for (let j = i + 1; j < lines.length; ++j) {
         const line = lines[j].trim();
+        // Check if the first line does not contain this error message
+        if (j === i + 1 && line.includes("Cannot locate")) continue;
         if (line.length > 0) packageInfo.files.push(line);
       }
       break;

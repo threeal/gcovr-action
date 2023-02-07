@@ -1,4 +1,5 @@
 import { beforeAll, describe, test } from "@jest/globals";
+import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import { getPackageCachePaths } from "./cache";
 import { installPackage } from "./install";
@@ -14,7 +15,9 @@ describe("test get cache paths of a pip package", () => {
       await expect(res).resolves.toBeInstanceOf(Array);
       const paths = await res;
       try {
-        expect(paths.length).toBe(8 + 2); // 2 from dependencies of rsa
+        // 2 from dependencies of rsa, except on Linux
+        const expected = 8 + (os.type() !== "Linux" ? 2 : 0);
+        expect(paths.length).toBe(expected);
         for (const path of paths) {
           expect(path).toBeExist();
         }
