@@ -339,11 +339,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = void 0;
+exports.restorePackage = exports.cachePackage = exports.getPackageCachePaths = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 const context_1 = __nccwpck_require__(3272);
+const info_1 = __nccwpck_require__(8414);
+async function getPackageCachePaths(packageName) {
+    const packageInfo = await (0, info_1.showPackageInfo)(packageName);
+    if (packageInfo === null) {
+        throw new Error(`Could not get cache paths of unknown package: ${packageName}`);
+    }
+    const executables = await packageInfo.executables();
+    let paths = executables.concat(packageInfo.directories());
+    for (const dep of packageInfo.dependencies) {
+        const depPaths = await getPackageCachePaths(dep);
+        paths = paths.concat(depPaths);
+    }
+    return paths;
+}
+exports.getPackageCachePaths = getPackageCachePaths;
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {

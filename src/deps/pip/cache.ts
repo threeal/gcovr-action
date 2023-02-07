@@ -2,10 +2,29 @@ import * as cache from "@actions/cache";
 import * as os from "os";
 import * as path from "path";
 import { initContext } from "./context";
+import { showPackageInfo } from "./info";
 
 interface CacheInfo {
   paths: string[];
   key: string;
+}
+
+export async function getPackageCachePaths(
+  packageName: string
+): Promise<string[]> {
+  const packageInfo = await showPackageInfo(packageName);
+  if (packageInfo === null) {
+    throw new Error(
+      `Could not get cache paths of unknown package: ${packageName}`
+    );
+  }
+  const executables = await packageInfo.executables();
+  let paths = executables.concat(packageInfo.directories());
+  for (const dep of packageInfo.dependencies) {
+    const depPaths = await getPackageCachePaths(dep);
+    paths = paths.concat(depPaths);
+  }
+  return paths;
 }
 
 async function getCacheInfo(packageName: string): Promise<CacheInfo> {
