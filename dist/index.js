@@ -339,12 +339,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.getPackageCachePaths = void 0;
+exports.restorePackage = exports.cachePackage = exports.getPackageCachePaths = exports.getPackageCacheInfo = exports.PackageCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 const context_1 = __nccwpck_require__(3272);
 const info_1 = __nccwpck_require__(8414);
+class PackageCacheInfo {
+    constructor() {
+        this.key = "";
+        this.paths = [];
+    }
+}
+exports.PackageCacheInfo = PackageCacheInfo;
+async function getPackageCacheInfo(packageName) {
+    const cacheInfo = new PackageCacheInfo();
+    cacheInfo.key = `pip-${os.type()}-info-${packageName}`;
+    cacheInfo.paths = await getPackageCachePaths(packageName);
+    return cacheInfo;
+}
+exports.getPackageCacheInfo = getPackageCacheInfo;
 async function getPackageCachePaths(packageName) {
     const packageInfo = await (0, info_1.showPackageInfo)(packageName);
     if (packageInfo === null) {

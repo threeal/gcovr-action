@@ -4,9 +4,23 @@ import * as path from "path";
 import { initContext } from "./context";
 import { showPackageInfo } from "./info";
 
+export class PackageCacheInfo {
+  key: string = "";
+  paths: string[] = [];
+}
+
 interface CacheInfo {
   paths: string[];
   key: string;
+}
+
+export async function getPackageCacheInfo(
+  packageName: string
+): Promise<PackageCacheInfo> {
+  const cacheInfo = new PackageCacheInfo();
+  cacheInfo.key = `pip-${os.type()}-info-${packageName}`;
+  cacheInfo.paths = await getPackageCachePaths(packageName);
+  return cacheInfo;
 }
 
 export async function getPackageCachePaths(
