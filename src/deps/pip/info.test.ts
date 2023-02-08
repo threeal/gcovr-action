@@ -39,7 +39,7 @@ describe("test show info of a pip package", () => {
       test("files should be valid", () => {
         const files = pkgInfo.files;
         try {
-          expect(files.length).toBeGreaterThan(0);
+          expect(files).not.toBeEmpty();
         } catch (err) {
           throw errorAppend(err, { files: files });
         }
