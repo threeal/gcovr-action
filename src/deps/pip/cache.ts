@@ -23,9 +23,7 @@ export async function getPackageCacheInfo(
   return cacheInfo;
 }
 
-export async function getPackageCachePaths(
-  packageName: string
-): Promise<string[]> {
+async function getPackageCachePaths(packageName: string): Promise<string[]> {
   const packageInfo = await showPackageInfo(packageName);
   if (packageInfo === null) {
     throw new Error(
