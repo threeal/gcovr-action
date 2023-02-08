@@ -38,6 +38,12 @@ describe("test get cache info of a pip package", () => {
           throw errorAppend(err, { paths: cacheInfo.paths });
         }
       });
+
+      test("info path should be valid", () => {
+        const infoPath = cacheInfo.infoPath();
+        expect(infoPath).toBeIncludes(os.homedir());
+        expect(infoPath).toBeIncludes(cacheInfo.key);
+      });
     });
   });
 

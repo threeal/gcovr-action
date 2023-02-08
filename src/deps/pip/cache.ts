@@ -7,6 +7,10 @@ import { showPackageInfo } from "./info";
 export class PackageCacheInfo {
   key: string = "";
   paths: string[] = [];
+
+  infoPath(): string {
+    return path.join(os.homedir(), `${this.key}.json`);
+  }
 }
 
 interface CacheInfo {
@@ -18,7 +22,7 @@ export async function getPackageCacheInfo(
   packageName: string
 ): Promise<PackageCacheInfo> {
   const cacheInfo = new PackageCacheInfo();
-  cacheInfo.key = `pip-${os.type()}-info-${packageName}`;
+  cacheInfo.key = `pip-${os.type()}-${packageName}`;
   cacheInfo.paths = await getPackageCachePaths(packageName);
   return cacheInfo;
 }

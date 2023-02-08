@@ -354,7 +354,7 @@ class PackageCacheInfo {
 exports.PackageCacheInfo = PackageCacheInfo;
 async function getPackageCacheInfo(packageName) {
     const cacheInfo = new PackageCacheInfo();
-    cacheInfo.key = `pip-${os.type()}-info-${packageName}`;
+    cacheInfo.key = `pip-${os.type()}-${packageName}`;
     cacheInfo.paths = await getPackageCachePaths(packageName);
     return cacheInfo;
 }
@@ -372,6 +372,8 @@ async function getPackageCachePaths(packageName) {
     }
     return paths;
 }
+// export async function savePackageCacheInfo(cacheInfo: PackageCacheInfo) {
+// }
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {
