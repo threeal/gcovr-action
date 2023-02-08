@@ -1,7 +1,7 @@
 import { describe, test } from "@jest/globals";
 import * as tmp from "tmp";
 import { expect } from "../testing";
-import { writeJson } from "./json";
+import { readJson, writeJson } from "./json";
 
 describe("test write and read JSON", () => {
   describe("write and read JSON object", () => {
@@ -11,7 +11,7 @@ describe("test write and read JSON", () => {
       age: 27,
     };
 
-    describe("write JSOn object to a file", () => {
+    describe("write JSON object to a file", () => {
       test("should not error", () => {
         expect(() => writeJson(path, obj)).not.toThrow();
       });
@@ -20,6 +20,19 @@ describe("test write and read JSON", () => {
     describe("check the file", () => {
       test("should be exist", () => {
         expect(path).toBeExist();
+      });
+    });
+
+    let readObj = {};
+    describe("read JSON object from the file", () => {
+      test("should not error", () => {
+        expect(() => readObj = readJson(path)).not.toThrow();
+      });
+    });
+
+    describe("compare the JSON objects", () => {
+      test("should be equal", () => {
+        expect(obj).toEqual(readObj);
       });
     });
   });
