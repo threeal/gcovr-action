@@ -22,8 +22,8 @@ describe("test get cache info of a pip package", () => {
     describe("check contents of the cache info", () => {
       test("key should be valid", () => {
         expect(cacheInfo.key).not.toBeEmpty();
-        expect(cacheInfo.key).toBeIncludes(os.type());
-        expect(cacheInfo.key).toBeIncludes(validPkgName);
+        expect(cacheInfo.key).toIncludes(os.type());
+        expect(cacheInfo.key).toIncludes(validPkgName);
       });
 
       test("paths should be exist", () => {
@@ -41,8 +41,8 @@ describe("test get cache info of a pip package", () => {
 
       test("info path should be valid", () => {
         const infoPath = cacheInfo.infoPath();
-        expect(infoPath).toBeIncludes(os.homedir());
-        expect(infoPath).toBeIncludes(cacheInfo.key);
+        expect(infoPath).toIncludes(os.homedir());
+        expect(infoPath).toIncludes(cacheInfo.key);
       });
     });
   });

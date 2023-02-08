@@ -26,7 +26,7 @@ describe("test write and read JSON", () => {
     let readObj = {};
     describe("read JSON object from the file", () => {
       test("should not error", () => {
-        expect(() => readObj = readJson(path)).not.toThrow();
+        expect(() => (readObj = readJson(path))).not.toThrow();
       });
     });
 

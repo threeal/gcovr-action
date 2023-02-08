@@ -23,7 +23,7 @@ function notPass(message: string): Result {
 }
 
 expect.extend({
-  toBeIncludes(received: string, substring: string): Result {
+  toIncludes(received: string, substring: string): Result {
     return received.includes(substring)
       ? pass(`expected '${received}' to be includes ${substring}`)
       : notPass(`expected '${received}' not to be includes ${substring}`);

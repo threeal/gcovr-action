@@ -350,6 +350,9 @@ class PackageCacheInfo {
         this.key = "";
         this.paths = [];
     }
+    infoPath() {
+        return path.join(os.homedir(), `${this.key}.json`);
+    }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
 async function getPackageCacheInfo(packageName) {
@@ -372,8 +375,6 @@ async function getPackageCachePaths(packageName) {
     }
     return paths;
 }
-// export async function savePackageCacheInfo(cacheInfo: PackageCacheInfo) {
-// }
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {
