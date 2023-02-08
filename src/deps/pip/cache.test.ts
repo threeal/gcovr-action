@@ -4,15 +4,17 @@ import { errorAppend, expect } from "../../testing";
 import { getPackageCacheInfo, PackageCacheInfo } from "./cache";
 import { installPackage } from "./install";
 
+const validPkgName = "rsa";
+
 describe("test get cache info of a pip package", () => {
-  describe("get cache info of a valid package (rsa)", () => {
+  describe(`get cache info of a valid package (${validPkgName})`, () => {
     beforeAll(async () => {
-      await installPackage("rsa");
+      await installPackage(validPkgName);
     });
 
     let cacheInfo: PackageCacheInfo;
     test("should be valid", async () => {
-      const res = getPackageCacheInfo("rsa");
+      const res = getPackageCacheInfo(validPkgName);
       await expect(res).resolves.toBeInstanceOf(PackageCacheInfo);
       cacheInfo = await res;
     });
@@ -20,6 +22,8 @@ describe("test get cache info of a pip package", () => {
     describe("check contents of the cache info", () => {
       test("key should be valid", () => {
         expect(cacheInfo.key).not.toBeEmpty();
+        expect(cacheInfo.key).toBeIncludes(os.type());
+        expect(cacheInfo.key).toBeIncludes(validPkgName);
       });
 
       test("paths should be exist", () => {

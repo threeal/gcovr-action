@@ -23,6 +23,11 @@ function notPass(message: string): Result {
 }
 
 expect.extend({
+  toBeIncludes(received: string, substring: string): Result {
+    return received.includes(substring)
+      ? pass(`expected '${received}' to be includes ${substring}`)
+      : notPass(`expected '${received}' not to be includes ${substring}`);
+  },
   toBeEmpty(received: string | Array<unknown>): Result {
     return received.length > 0
       ? notPass(`expected not to be empty`)
@@ -31,7 +36,7 @@ expect.extend({
   toBeExist(received: string): Result {
     return fs.existsSync(received)
       ? pass(`expected path '${received}' to be exist`)
-      : notPass(`expected path ${received} not to be exist`);
+      : notPass(`expected path '${received}' not to be exist`);
   },
 });
 
