@@ -7,10 +7,6 @@ import { showPackageInfo } from "./info";
 export class PackageCacheInfo {
   key: string = "";
   paths: string[] = [];
-
-  infoPath(): string {
-    return path.join(os.homedir(), `${this.key}.json`);
-  }
 }
 
 interface CacheInfo {
@@ -41,6 +37,10 @@ async function getPackageCachePaths(packageName: string): Promise<string[]> {
     paths = paths.concat(depPaths);
   }
   return paths;
+}
+
+export function getPackageCacheInfoPath(packageName: string): string {
+  return path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`);
 }
 
 async function getCacheInfo(packageName: string): Promise<CacheInfo> {

@@ -1,7 +1,11 @@
 import { beforeAll, describe, test } from "@jest/globals";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
-import { getPackageCacheInfo, PackageCacheInfo } from "./cache";
+import {
+  getPackageCacheInfo,
+  getPackageCacheInfoPath,
+  PackageCacheInfo,
+} from "./cache";
 import { installPackage } from "./install";
 
 const validPkgName = "rsa";
@@ -38,12 +42,6 @@ describe("test get cache info of a pip package", () => {
           throw errorAppend(err, { paths: cacheInfo.paths });
         }
       });
-
-      test("info path should be valid", () => {
-        const infoPath = cacheInfo.infoPath();
-        expect(infoPath).toIncludes(os.homedir());
-        expect(infoPath).toIncludes(cacheInfo.key);
-      });
     });
   });
 
@@ -51,6 +49,16 @@ describe("test get cache info of a pip package", () => {
     test("should be rejected", async () => {
       const res = getPackageCacheInfo("an-invalid-package");
       await expect(res).rejects.toThrow();
+    });
+  });
+});
+
+describe("test get cache info path of a pip package", () => {
+  describe(`get cache info path of a valid package (${validPkgName})`, () => {
+    const infoPath = getPackageCacheInfoPath(validPkgName);
+    test("should be valid", () => {
+      expect(infoPath).toIncludes(os.homedir());
+      expect(infoPath).toIncludes(validPkgName);
     });
   });
 });

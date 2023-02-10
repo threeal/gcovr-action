@@ -339,7 +339,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.getPackageCacheInfo = exports.PackageCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.getPackageCacheInfoPath = exports.getPackageCacheInfo = exports.PackageCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
@@ -349,9 +349,6 @@ class PackageCacheInfo {
     constructor() {
         this.key = "";
         this.paths = [];
-    }
-    infoPath() {
-        return path.join(os.homedir(), `${this.key}.json`);
     }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
@@ -375,6 +372,10 @@ async function getPackageCachePaths(packageName) {
     }
     return paths;
 }
+function getPackageCacheInfoPath(packageName) {
+    return path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`);
+}
+exports.getPackageCacheInfoPath = getPackageCacheInfoPath;
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {
