@@ -347,6 +347,7 @@ const context_1 = __nccwpck_require__(3272);
 const info_1 = __nccwpck_require__(8414);
 class PackageCacheInfo {
     constructor() {
+        this.name = "";
         this.key = "";
         this.paths = [];
     }
@@ -354,6 +355,7 @@ class PackageCacheInfo {
 exports.PackageCacheInfo = PackageCacheInfo;
 async function getPackageCacheInfo(packageName) {
     const cacheInfo = new PackageCacheInfo();
+    cacheInfo.name = packageName;
     cacheInfo.key = `pip-${os.type()}-${packageName}`;
     cacheInfo.paths = await getPackageCachePaths(packageName);
     return cacheInfo;

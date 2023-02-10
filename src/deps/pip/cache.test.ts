@@ -24,6 +24,11 @@ describe("test get cache info of a pip package", () => {
     });
 
     describe("check contents of the cache info", () => {
+      test("name should be valid", () => {
+        expect(cacheInfo.name).not.toBeEmpty();
+        expect(cacheInfo.name.toLowerCase()).toBe(validPkgName.toLowerCase());
+      });
+
       test("key should be valid", () => {
         expect(cacheInfo.key).not.toBeEmpty();
         expect(cacheInfo.key).toIncludes(os.type());

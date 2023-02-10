@@ -5,6 +5,7 @@ import { initContext } from "./context";
 import { showPackageInfo } from "./info";
 
 export class PackageCacheInfo {
+  name: string = "";
   key: string = "";
   paths: string[] = [];
 }
@@ -18,6 +19,7 @@ export async function getPackageCacheInfo(
   packageName: string
 ): Promise<PackageCacheInfo> {
   const cacheInfo = new PackageCacheInfo();
+  cacheInfo.name = packageName;
   cacheInfo.key = `pip-${os.type()}-${packageName}`;
   cacheInfo.paths = await getPackageCachePaths(packageName);
   return cacheInfo;
