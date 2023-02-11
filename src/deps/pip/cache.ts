@@ -18,6 +18,10 @@ export class PackageCacheInfoCacheInfo {
     this.path = path.join(root, `${packageName}.json`);
   }
 
+  async accumulateContent(): Promise<PackageCacheInfo> {
+    return PackageCacheInfo.accumulate(this.name);
+  }
+
   static root(): string {
     return path.join(os.homedir(), ".pip_cache_info");
   }
@@ -32,6 +36,30 @@ export class PackageCacheInfo {
   name: string = "";
   key: string = "";
   paths: string[] = [];
+
+  static async accumulate(packageName: string): Promise<PackageCacheInfo> {
+    const cacheInfo = new PackageCacheInfo();
+    cacheInfo.name = packageName;
+    cacheInfo.key = `pip-${os.type()}-${packageName}`;
+    cacheInfo.paths = await PackageCacheInfo.accumulatePaths(packageName);
+    return cacheInfo;
+  }
+
+  static async accumulatePaths(packageName: string): Promise<string[]> {
+    const packageInfo = await showPackageInfo(packageName);
+    if (packageInfo === null) {
+      throw new Error(
+        `Could not get cache paths of unknown package: ${packageName}`
+      );
+    }
+    const executables = await packageInfo.executables();
+    let paths = executables.concat(packageInfo.directories());
+    for (const dep of packageInfo.dependencies) {
+      const depPaths = await PackageCacheInfo.accumulatePaths(dep);
+      paths = paths.concat(depPaths);
+    }
+    return paths;
+  }
 }
 
 interface CacheInfo {
@@ -39,36 +67,10 @@ interface CacheInfo {
   key: string;
 }
 
-export async function getPackageCacheInfo(
-  packageName: string
-): Promise<PackageCacheInfo> {
-  const cacheInfo = new PackageCacheInfo();
-  cacheInfo.name = packageName;
-  cacheInfo.key = `pip-${os.type()}-${packageName}`;
-  cacheInfo.paths = await getPackageCachePaths(packageName);
-  return cacheInfo;
-}
-
-async function getPackageCachePaths(packageName: string): Promise<string[]> {
-  const packageInfo = await showPackageInfo(packageName);
-  if (packageInfo === null) {
-    throw new Error(
-      `Could not get cache paths of unknown package: ${packageName}`
-    );
-  }
-  const executables = await packageInfo.executables();
-  let paths = executables.concat(packageInfo.directories());
-  for (const dep of packageInfo.dependencies) {
-    const depPaths = await getPackageCachePaths(dep);
-    paths = paths.concat(depPaths);
-  }
-  return paths;
-}
-
 export async function savePackageCacheInfoCache(
   cacheInfo: PackageCacheInfoCacheInfo
 ) {
-  const data = await getPackageCacheInfo(cacheInfo.name);
+  const data = await cacheInfo.accumulateContent();
   PackageCacheInfoCacheInfo.createRoot();
   io.writeJson(cacheInfo.path, data);
   await cache.saveCache([cacheInfo.path], cacheInfo.key);

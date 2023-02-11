@@ -3,7 +3,6 @@ import * as fs from "fs";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import {
-  getPackageCacheInfo,
   PackageCacheInfo,
   PackageCacheInfoCacheInfo,
   savePackageCacheInfoCache,
@@ -51,7 +50,7 @@ describe("test get cache info of a pip package cache info", () => {
       });
 
       test("key should be different from package cache info's", async () => {
-        const packageCacheInfo = await getPackageCacheInfo(validPkgName);
+        const packageCacheInfo = await cacheInfo.accumulateContent();
         expect(cacheInfo.key).not.toBe(packageCacheInfo.key);
       });
 
@@ -72,7 +71,7 @@ describe("test get cache info of a pip package", () => {
 
     let cacheInfo: PackageCacheInfo;
     test("should be valid", async () => {
-      const res = getPackageCacheInfo(validPkgName);
+      const res = PackageCacheInfo.accumulate(validPkgName);
       await expect(res).resolves.toBeInstanceOf(PackageCacheInfo);
       cacheInfo = await res;
     });
@@ -103,7 +102,7 @@ describe("test get cache info of a pip package", () => {
 
   describe("get cache info of an invalid package", () => {
     test("should be rejected", async () => {
-      const res = getPackageCacheInfo("an-invalid-package");
+      const res = PackageCacheInfo.accumulate("an-invalid-package");
       await expect(res).rejects.toThrow();
     });
   });

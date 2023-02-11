@@ -339,7 +339,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.getPackageCacheInfo = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
@@ -357,6 +357,9 @@ class PackageCacheInfoCacheInfo {
         const root = PackageCacheInfoCacheInfo.root();
         this.path = path.join(root, `${packageName}.json`);
     }
+    async accumulateContent() {
+        return PackageCacheInfo.accumulate(this.name);
+    }
     static root() {
         return path.join(os.homedir(), ".pip_cache_info");
     }
@@ -373,31 +376,30 @@ class PackageCacheInfo {
         this.key = "";
         this.paths = [];
     }
+    static async accumulate(packageName) {
+        const cacheInfo = new PackageCacheInfo();
+        cacheInfo.name = packageName;
+        cacheInfo.key = `pip-${os.type()}-${packageName}`;
+        cacheInfo.paths = await PackageCacheInfo.accumulatePaths(packageName);
+        return cacheInfo;
+    }
+    static async accumulatePaths(packageName) {
+        const packageInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (packageInfo === null) {
+            throw new Error(`Could not get cache paths of unknown package: ${packageName}`);
+        }
+        const executables = await packageInfo.executables();
+        let paths = executables.concat(packageInfo.directories());
+        for (const dep of packageInfo.dependencies) {
+            const depPaths = await PackageCacheInfo.accumulatePaths(dep);
+            paths = paths.concat(depPaths);
+        }
+        return paths;
+    }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
-async function getPackageCacheInfo(packageName) {
-    const cacheInfo = new PackageCacheInfo();
-    cacheInfo.name = packageName;
-    cacheInfo.key = `pip-${os.type()}-${packageName}`;
-    cacheInfo.paths = await getPackageCachePaths(packageName);
-    return cacheInfo;
-}
-exports.getPackageCacheInfo = getPackageCacheInfo;
-async function getPackageCachePaths(packageName) {
-    const packageInfo = await (0, info_1.showPackageInfo)(packageName);
-    if (packageInfo === null) {
-        throw new Error(`Could not get cache paths of unknown package: ${packageName}`);
-    }
-    const executables = await packageInfo.executables();
-    let paths = executables.concat(packageInfo.directories());
-    for (const dep of packageInfo.dependencies) {
-        const depPaths = await getPackageCachePaths(dep);
-        paths = paths.concat(depPaths);
-    }
-    return paths;
-}
 async function savePackageCacheInfoCache(cacheInfo) {
-    const data = await getPackageCacheInfo(cacheInfo.name);
+    const data = await cacheInfo.accumulateContent();
     PackageCacheInfoCacheInfo.createRoot();
     io.writeJson(cacheInfo.path, data);
     await cache.saveCache([cacheInfo.path], cacheInfo.key);
