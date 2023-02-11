@@ -10,6 +10,13 @@ export class PackageCacheInfoCacheInfo {
   name: string = "";
   key: string = "";
   path: string = "";
+
+  constructor(packageName: string) {
+    this.name = packageName;
+    this.key = `pip-${os.type()}-${packageName}-cache-info`;
+    const root = getPackageCacheInfoCacheRoot();
+    this.path = path.join(root, `${packageName}.json`);
+  }
 }
 
 export class PackageCacheInfo {
@@ -21,17 +28,6 @@ export class PackageCacheInfo {
 interface CacheInfo {
   paths: string[];
   key: string;
-}
-
-export function getPackageCacheInfoCacheInfo(
-  packageName: string
-): PackageCacheInfoCacheInfo {
-  const cacheInfo = new PackageCacheInfoCacheInfo();
-  cacheInfo.name = packageName;
-  cacheInfo.key = `pip-${os.type()}-${packageName}-cache-info`;
-  const root = getPackageCacheInfoCacheRoot();
-  cacheInfo.path = path.join(root, `${packageName}.json`);
-  return cacheInfo;
 }
 
 export function getPackageCacheInfoCacheRoot(): string {

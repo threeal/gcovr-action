@@ -339,7 +339,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.getPackageCacheInfo = exports.getPackageCacheInfoCacheRoot = exports.getPackageCacheInfoCacheInfo = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.getPackageCacheInfo = exports.getPackageCacheInfoCacheRoot = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
@@ -348,10 +348,14 @@ const io = __importStar(__nccwpck_require__(3709));
 const context_1 = __nccwpck_require__(3272);
 const info_1 = __nccwpck_require__(8414);
 class PackageCacheInfoCacheInfo {
-    constructor() {
+    constructor(packageName) {
         this.name = "";
         this.key = "";
         this.path = "";
+        this.name = packageName;
+        this.key = `pip-${os.type()}-${packageName}-cache-info`;
+        const root = getPackageCacheInfoCacheRoot();
+        this.path = path.join(root, `${packageName}.json`);
     }
 }
 exports.PackageCacheInfoCacheInfo = PackageCacheInfoCacheInfo;
@@ -363,15 +367,6 @@ class PackageCacheInfo {
     }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
-function getPackageCacheInfoCacheInfo(packageName) {
-    const cacheInfo = new PackageCacheInfoCacheInfo();
-    cacheInfo.name = packageName;
-    cacheInfo.key = `pip-${os.type()}-${packageName}-cache-info`;
-    const root = getPackageCacheInfoCacheRoot();
-    cacheInfo.path = path.join(root, `${packageName}.json`);
-    return cacheInfo;
-}
-exports.getPackageCacheInfoCacheInfo = getPackageCacheInfoCacheInfo;
 function getPackageCacheInfoCacheRoot() {
     return path.join(os.homedir(), ".pip_cache_info");
 }

@@ -4,7 +4,6 @@ import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import {
   getPackageCacheInfo,
-  getPackageCacheInfoCacheInfo,
   getPackageCacheInfoCacheRoot,
   PackageCacheInfo,
   PackageCacheInfoCacheInfo,
@@ -34,7 +33,7 @@ describe("test get cache info of a pip package cache info", () => {
     let cacheInfo: PackageCacheInfoCacheInfo;
     test("should not error", async () => {
       expect(() => {
-        cacheInfo = getPackageCacheInfoCacheInfo(validPkgName);
+        cacheInfo = new PackageCacheInfoCacheInfo(validPkgName);
       }).not.toThrow();
       expect(cacheInfo).toBeInstanceOf(PackageCacheInfoCacheInfo);
     });
@@ -122,7 +121,7 @@ describe("test save and restore cache of a pip package cache info", () => {
     describe("get the cache info", () => {
       test("should not error", () => {
         expect(() => {
-          cacheInfo = getPackageCacheInfoCacheInfo(validPkgName);
+          cacheInfo = new PackageCacheInfoCacheInfo(validPkgName);
         }).not.toThrow();
       });
     });
