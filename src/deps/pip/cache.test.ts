@@ -76,6 +76,11 @@ describe("test get cache info of a pip package content", () => {
         expectValidCacheInfoKey(cacheInfo.key, validPkgName);
       });
 
+      test("key should be different from package cache info", () => {
+        const packageCacheInfo = getPackageCacheInfo(validPkgName);
+        expect(cacheInfo.key).not.toBe(packageCacheInfo.key);
+      });
+
       test("paths should be exist", () => {
         try {
           // 2 from dependencies of rsa, except on Linux
