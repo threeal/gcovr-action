@@ -2,11 +2,7 @@ import { afterAll, beforeAll, describe, test } from "@jest/globals";
 import * as fs from "fs";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
-import {
-  PackageCacheInfo,
-  PackageCacheInfoCacheInfo,
-  savePackageCacheInfoCache,
-} from "./cache";
+import { PackageCacheInfo, PackageCacheInfoCacheInfo } from "./cache";
 import { installPackage } from "./install";
 
 const validPkgName = "rsa";
@@ -132,7 +128,7 @@ describe("test save and restore cache of a pip package cache info", () => {
 
     describe("save the cache", () => {
       test("should be resolved", async () => {
-        const res = savePackageCacheInfoCache(cacheInfo);
+        const res = cacheInfo.saveContent();
         await expect(res).resolves.toBeUndefined();
       });
     });

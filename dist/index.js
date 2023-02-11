@@ -339,7 +339,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
@@ -359,6 +359,12 @@ class PackageCacheInfoCacheInfo {
     }
     async accumulateContent() {
         return PackageCacheInfo.accumulate(this.name);
+    }
+    async saveContent() {
+        const data = await this.accumulateContent();
+        PackageCacheInfoCacheInfo.createRoot();
+        io.writeJson(this.path, data);
+        await cache.saveCache([this.path], this.key);
     }
     static root() {
         return path.join(os.homedir(), ".pip_cache_info");
@@ -398,13 +404,6 @@ class PackageCacheInfo {
     }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
-async function savePackageCacheInfoCache(cacheInfo) {
-    const data = await cacheInfo.accumulateContent();
-    PackageCacheInfoCacheInfo.createRoot();
-    io.writeJson(cacheInfo.path, data);
-    await cache.saveCache([cacheInfo.path], cacheInfo.key);
-}
-exports.savePackageCacheInfoCache = savePackageCacheInfoCache;
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {

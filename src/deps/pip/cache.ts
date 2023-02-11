@@ -22,6 +22,13 @@ export class PackageCacheInfoCacheInfo {
     return PackageCacheInfo.accumulate(this.name);
   }
 
+  async saveContent() {
+    const data = await this.accumulateContent();
+    PackageCacheInfoCacheInfo.createRoot();
+    io.writeJson(this.path, data);
+    await cache.saveCache([this.path], this.key);
+  }
+
   static root(): string {
     return path.join(os.homedir(), ".pip_cache_info");
   }
@@ -65,15 +72,6 @@ export class PackageCacheInfo {
 interface CacheInfo {
   paths: string[];
   key: string;
-}
-
-export async function savePackageCacheInfoCache(
-  cacheInfo: PackageCacheInfoCacheInfo
-) {
-  const data = await cacheInfo.accumulateContent();
-  PackageCacheInfoCacheInfo.createRoot();
-  io.writeJson(cacheInfo.path, data);
-  await cache.saveCache([cacheInfo.path], cacheInfo.key);
 }
 
 async function getCacheInfo(packageName: string): Promise<CacheInfo> {
