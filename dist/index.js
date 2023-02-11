@@ -339,12 +339,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.getPackageContentCacheInfo = exports.getPackageCacheInfo = exports.PackageCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.getPackageCacheInfo = exports.getPackageCacheInfoCacheInfo = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 const context_1 = __nccwpck_require__(3272);
 const info_1 = __nccwpck_require__(8414);
+class PackageCacheInfoCacheInfo {
+    constructor() {
+        this.name = "";
+        this.key = "";
+        this.path = "";
+    }
+}
+exports.PackageCacheInfoCacheInfo = PackageCacheInfoCacheInfo;
 class PackageCacheInfo {
     constructor() {
         this.name = "";
@@ -353,23 +361,22 @@ class PackageCacheInfo {
     }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
-function getPackageCacheInfo(packageName) {
+function getPackageCacheInfoCacheInfo(packageName) {
+    const cacheInfo = new PackageCacheInfoCacheInfo();
+    cacheInfo.name = packageName;
+    cacheInfo.key = `pip-${os.type()}-${packageName}-cache-info`;
+    cacheInfo.path = path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`);
+    return cacheInfo;
+}
+exports.getPackageCacheInfoCacheInfo = getPackageCacheInfoCacheInfo;
+async function getPackageCacheInfo(packageName) {
     const cacheInfo = new PackageCacheInfo();
     cacheInfo.name = packageName;
     cacheInfo.key = `pip-${os.type()}-${packageName}`;
-    cacheInfo.paths = [
-        path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`),
-    ];
-    return cacheInfo;
-}
-exports.getPackageCacheInfo = getPackageCacheInfo;
-async function getPackageContentCacheInfo(packageName) {
-    const cacheInfo = getPackageCacheInfo(packageName);
-    cacheInfo.key = `${cacheInfo.key}-content`;
     cacheInfo.paths = await getPackageCachePaths(packageName);
     return cacheInfo;
 }
-exports.getPackageContentCacheInfo = getPackageContentCacheInfo;
+exports.getPackageCacheInfo = getPackageCacheInfo;
 async function getPackageCachePaths(packageName) {
     const packageInfo = await (0, info_1.showPackageInfo)(packageName);
     if (packageInfo === null) {

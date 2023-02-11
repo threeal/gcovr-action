@@ -4,6 +4,12 @@ import * as path from "path";
 import { initContext } from "./context";
 import { showPackageInfo } from "./info";
 
+export class PackageCacheInfoCacheInfo {
+  name: string = "";
+  key: string = "";
+  path: string = "";
+}
+
 export class PackageCacheInfo {
   name: string = "";
   key: string = "";
@@ -15,21 +21,26 @@ interface CacheInfo {
   key: string;
 }
 
-export function getPackageCacheInfo(packageName: string): PackageCacheInfo {
-  const cacheInfo = new PackageCacheInfo();
+export function getPackageCacheInfoCacheInfo(
+  packageName: string
+): PackageCacheInfoCacheInfo {
+  const cacheInfo = new PackageCacheInfoCacheInfo();
   cacheInfo.name = packageName;
-  cacheInfo.key = `pip-${os.type()}-${packageName}`;
-  cacheInfo.paths = [
-    path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`),
-  ];
+  cacheInfo.key = `pip-${os.type()}-${packageName}-cache-info`;
+  cacheInfo.path = path.join(
+    os.homedir(),
+    ".pip_cache_info",
+    `${packageName}.json`
+  );
   return cacheInfo;
 }
 
-export async function getPackageContentCacheInfo(
+export async function getPackageCacheInfo(
   packageName: string
 ): Promise<PackageCacheInfo> {
-  const cacheInfo = getPackageCacheInfo(packageName);
-  cacheInfo.key = `${cacheInfo.key}-content`;
+  const cacheInfo = new PackageCacheInfo();
+  cacheInfo.name = packageName;
+  cacheInfo.key = `pip-${os.type()}-${packageName}`;
   cacheInfo.paths = await getPackageCachePaths(packageName);
   return cacheInfo;
 }
