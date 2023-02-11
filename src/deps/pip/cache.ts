@@ -22,11 +22,12 @@ export class PackageCacheInfo {
     return await PackageContentCacheInfo.accumulate(this.name);
   }
 
-  async saveContentInfo() {
-    const data = await this.accumulateContentInfo();
+  async saveContentInfo(): Promise<PackageContentCacheInfo> {
+    const contentInfo = await this.accumulateContentInfo();
     PackageCacheInfo.createRoot();
-    io.writeJson(this.path, data);
+    io.writeJson(this.path, contentInfo);
     await cache.saveCache([this.path], this.key);
+    return contentInfo;
   }
 
   static root(): string {

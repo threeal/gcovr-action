@@ -116,10 +116,12 @@ describe("test save and restore cache of a pip package content info", () => {
       });
     });
 
+    let contentInfo: PackageContentCacheInfo;
     describe("save the cache", () => {
       test("should be resolved", async () => {
-        const res = cacheInfo.saveContentInfo();
-        await expect(res).resolves.toBeUndefined();
+        const prom = cacheInfo.saveContentInfo();
+        await expect(prom).resolves.toBeInstanceOf(PackageContentCacheInfo);
+        contentInfo = await prom;
       });
     });
 

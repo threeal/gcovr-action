@@ -361,10 +361,11 @@ class PackageCacheInfo {
         return await PackageContentCacheInfo.accumulate(this.name);
     }
     async saveContentInfo() {
-        const data = await this.accumulateContentInfo();
+        const contentInfo = await this.accumulateContentInfo();
         PackageCacheInfo.createRoot();
-        io.writeJson(this.path, data);
+        io.writeJson(this.path, contentInfo);
         await cache.saveCache([this.path], this.key);
+        return contentInfo;
     }
     static root() {
         return path.join(os.homedir(), ".pip_cache_info");
