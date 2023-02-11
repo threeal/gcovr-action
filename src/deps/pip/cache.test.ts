@@ -4,7 +4,6 @@ import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import {
   getPackageCacheInfo,
-  getPackageCacheInfoCacheRoot,
   PackageCacheInfo,
   PackageCacheInfoCacheInfo,
   savePackageCacheInfoCache,
@@ -25,7 +24,7 @@ function expectValidCacheInfoKey(key: string, packageName: string) {
 }
 
 function removePackageCacheInfoCacheRoot() {
-  fs.rmSync(getPackageCacheInfoCacheRoot(), { recursive: true, force: true });
+  fs.rmSync(PackageCacheInfoCacheInfo.root(), { recursive: true, force: true });
 }
 
 describe("test get cache info of a pip package cache info", () => {

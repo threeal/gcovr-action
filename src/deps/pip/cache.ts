@@ -14,8 +14,17 @@ export class PackageCacheInfoCacheInfo {
   constructor(packageName: string) {
     this.name = packageName;
     this.key = `pip-${os.type()}-${packageName}-cache-info`;
-    const root = getPackageCacheInfoCacheRoot();
+    const root = PackageCacheInfoCacheInfo.root();
     this.path = path.join(root, `${packageName}.json`);
+  }
+
+  static root(): string {
+    return path.join(os.homedir(), ".pip_cache_info");
+  }
+
+  static createRoot() {
+    const root = PackageCacheInfoCacheInfo.root();
+    if (!fs.existsSync(root)) fs.mkdirSync(root);
   }
 }
 
@@ -28,10 +37,6 @@ export class PackageCacheInfo {
 interface CacheInfo {
   paths: string[];
   key: string;
-}
-
-export function getPackageCacheInfoCacheRoot(): string {
-  return path.join(os.homedir(), ".pip_cache_info");
 }
 
 export async function getPackageCacheInfo(
@@ -60,16 +65,11 @@ async function getPackageCachePaths(packageName: string): Promise<string[]> {
   return paths;
 }
 
-function createPackageCacheInfoCacheRoot() {
-  const root = getPackageCacheInfoCacheRoot();
-  if (!fs.existsSync(root)) fs.mkdirSync(root);
-}
-
 export async function savePackageCacheInfoCache(
   cacheInfo: PackageCacheInfoCacheInfo
 ) {
   const data = await getPackageCacheInfo(cacheInfo.name);
-  createPackageCacheInfoCacheRoot();
+  PackageCacheInfoCacheInfo.createRoot();
   io.writeJson(cacheInfo.path, data);
   await cache.saveCache([cacheInfo.path], cacheInfo.key);
 }

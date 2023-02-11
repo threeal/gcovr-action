@@ -339,7 +339,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.getPackageCacheInfo = exports.getPackageCacheInfoCacheRoot = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.getPackageCacheInfo = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
@@ -354,8 +354,16 @@ class PackageCacheInfoCacheInfo {
         this.path = "";
         this.name = packageName;
         this.key = `pip-${os.type()}-${packageName}-cache-info`;
-        const root = getPackageCacheInfoCacheRoot();
+        const root = PackageCacheInfoCacheInfo.root();
         this.path = path.join(root, `${packageName}.json`);
+    }
+    static root() {
+        return path.join(os.homedir(), ".pip_cache_info");
+    }
+    static createRoot() {
+        const root = PackageCacheInfoCacheInfo.root();
+        if (!fs.existsSync(root))
+            fs.mkdirSync(root);
     }
 }
 exports.PackageCacheInfoCacheInfo = PackageCacheInfoCacheInfo;
@@ -367,10 +375,6 @@ class PackageCacheInfo {
     }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
-function getPackageCacheInfoCacheRoot() {
-    return path.join(os.homedir(), ".pip_cache_info");
-}
-exports.getPackageCacheInfoCacheRoot = getPackageCacheInfoCacheRoot;
 async function getPackageCacheInfo(packageName) {
     const cacheInfo = new PackageCacheInfo();
     cacheInfo.name = packageName;
@@ -392,14 +396,9 @@ async function getPackageCachePaths(packageName) {
     }
     return paths;
 }
-function createPackageCacheInfoCacheRoot() {
-    const root = getPackageCacheInfoCacheRoot();
-    if (!fs.existsSync(root))
-        fs.mkdirSync(root);
-}
 async function savePackageCacheInfoCache(cacheInfo) {
     const data = await getPackageCacheInfo(cacheInfo.name);
-    createPackageCacheInfoCacheRoot();
+    PackageCacheInfoCacheInfo.createRoot();
     io.writeJson(cacheInfo.path, data);
     await cache.saveCache([cacheInfo.path], cacheInfo.key);
 }
