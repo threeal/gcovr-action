@@ -15,12 +15,21 @@ interface CacheInfo {
   key: string;
 }
 
-export async function getPackageCacheInfo(
-  packageName: string
-): Promise<PackageCacheInfo> {
+export function getPackageCacheInfo(packageName: string): PackageCacheInfo {
   const cacheInfo = new PackageCacheInfo();
   cacheInfo.name = packageName;
   cacheInfo.key = `pip-${os.type()}-${packageName}`;
+  cacheInfo.paths = [
+    path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`),
+  ];
+  return cacheInfo;
+}
+
+export async function getPackageContentCacheInfo(
+  packageName: string
+): Promise<PackageCacheInfo> {
+  const cacheInfo = getPackageCacheInfo(packageName);
+  cacheInfo.key = `${cacheInfo.key}-content`;
   cacheInfo.paths = await getPackageCachePaths(packageName);
   return cacheInfo;
 }
@@ -39,10 +48,6 @@ async function getPackageCachePaths(packageName: string): Promise<string[]> {
     paths = paths.concat(depPaths);
   }
   return paths;
-}
-
-export function getPackageCacheInfoPath(packageName: string): string {
-  return path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`);
 }
 
 async function getCacheInfo(packageName: string): Promise<CacheInfo> {

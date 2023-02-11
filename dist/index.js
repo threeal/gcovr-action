@@ -339,7 +339,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.getPackageCacheInfoPath = exports.getPackageCacheInfo = exports.PackageCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.getPackageContentCacheInfo = exports.getPackageCacheInfo = exports.PackageCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
@@ -353,14 +353,23 @@ class PackageCacheInfo {
     }
 }
 exports.PackageCacheInfo = PackageCacheInfo;
-async function getPackageCacheInfo(packageName) {
+function getPackageCacheInfo(packageName) {
     const cacheInfo = new PackageCacheInfo();
     cacheInfo.name = packageName;
     cacheInfo.key = `pip-${os.type()}-${packageName}`;
-    cacheInfo.paths = await getPackageCachePaths(packageName);
+    cacheInfo.paths = [
+        path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`),
+    ];
     return cacheInfo;
 }
 exports.getPackageCacheInfo = getPackageCacheInfo;
+async function getPackageContentCacheInfo(packageName) {
+    const cacheInfo = getPackageCacheInfo(packageName);
+    cacheInfo.key = `${cacheInfo.key}-content`;
+    cacheInfo.paths = await getPackageCachePaths(packageName);
+    return cacheInfo;
+}
+exports.getPackageContentCacheInfo = getPackageContentCacheInfo;
 async function getPackageCachePaths(packageName) {
     const packageInfo = await (0, info_1.showPackageInfo)(packageName);
     if (packageInfo === null) {
@@ -374,10 +383,6 @@ async function getPackageCachePaths(packageName) {
     }
     return paths;
 }
-function getPackageCacheInfoPath(packageName) {
-    return path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`);
-}
-exports.getPackageCacheInfoPath = getPackageCacheInfoPath;
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {

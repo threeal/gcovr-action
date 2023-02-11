@@ -3,36 +3,77 @@ import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import {
   getPackageCacheInfo,
-  getPackageCacheInfoPath,
+  getPackageContentCacheInfo,
   PackageCacheInfo,
 } from "./cache";
 import { installPackage } from "./install";
 
 const validPkgName = "rsa";
 
+function expectValidCacheInfoName(name: string, packageName: string) {
+  expect(name).not.toBeEmpty();
+  expect(name.toLowerCase()).toBe(packageName.toLowerCase());
+}
+
+function expectValidCacheInfoKey(key: string, packageName: string) {
+  expect(key).not.toBeEmpty();
+  expect(key).toIncludes(os.type());
+  expect(key).toIncludes(packageName);
+}
+
 describe("test get cache info of a pip package", () => {
   describe(`get cache info of a valid package (${validPkgName})`, () => {
+    let cacheInfo: PackageCacheInfo;
+    test("should not error", async () => {
+      const call = () => (cacheInfo = getPackageCacheInfo(validPkgName));
+      expect(call).not.toThrow();
+      expect(cacheInfo).toBeInstanceOf(PackageCacheInfo);
+    });
+
+    describe("check contents of the cache info", () => {
+      test("name should be valid", () => {
+        expectValidCacheInfoName(cacheInfo.name, validPkgName);
+      });
+
+      test("key should be valid", () => {
+        expectValidCacheInfoKey(cacheInfo.key, validPkgName);
+      });
+
+      test("paths should be valid", () => {
+        try {
+          expect(cacheInfo.paths.length).toBe(1);
+          for (const path of cacheInfo.paths) {
+            expect(path).toIncludes(os.homedir());
+            expect(path).toIncludes(validPkgName);
+          }
+        } catch (err) {
+          throw errorAppend(err, { paths: cacheInfo.paths });
+        }
+      });
+    });
+  });
+});
+
+describe("test get cache info of a pip package content", () => {
+  describe(`get cache info of a valid package content (${validPkgName})`, () => {
     beforeAll(async () => {
       await installPackage(validPkgName);
     });
 
     let cacheInfo: PackageCacheInfo;
     test("should be valid", async () => {
-      const res = getPackageCacheInfo(validPkgName);
+      const res = getPackageContentCacheInfo(validPkgName);
       await expect(res).resolves.toBeInstanceOf(PackageCacheInfo);
       cacheInfo = await res;
     });
 
     describe("check contents of the cache info", () => {
       test("name should be valid", () => {
-        expect(cacheInfo.name).not.toBeEmpty();
-        expect(cacheInfo.name.toLowerCase()).toBe(validPkgName.toLowerCase());
+        expectValidCacheInfoName(cacheInfo.name, validPkgName);
       });
 
       test("key should be valid", () => {
-        expect(cacheInfo.key).not.toBeEmpty();
-        expect(cacheInfo.key).toIncludes(os.type());
-        expect(cacheInfo.key).toIncludes(validPkgName);
+        expectValidCacheInfoKey(cacheInfo.key, validPkgName);
       });
 
       test("paths should be exist", () => {
@@ -50,20 +91,10 @@ describe("test get cache info of a pip package", () => {
     });
   });
 
-  describe("get cache info of an invalid package", () => {
+  describe("get cache info of an invalid package content", () => {
     test("should be rejected", async () => {
-      const res = getPackageCacheInfo("an-invalid-package");
+      const res = getPackageContentCacheInfo("an-invalid-package");
       await expect(res).rejects.toThrow();
-    });
-  });
-});
-
-describe("test get cache info path of a pip package", () => {
-  describe(`get cache info path of a valid package (${validPkgName})`, () => {
-    const infoPath = getPackageCacheInfoPath(validPkgName);
-    test("should be valid", () => {
-      expect(infoPath).toIncludes(os.homedir());
-      expect(infoPath).toIncludes(validPkgName);
     });
   });
 });
