@@ -30,7 +30,6 @@ jobs:
           name: project
           path: |
             *
-            !lib/
             !node_modules/
 
   check-distribution:
