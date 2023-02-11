@@ -1,11 +1,14 @@
-import { beforeAll, describe, test } from "@jest/globals";
+import { afterAll, beforeAll, describe, test } from "@jest/globals";
+import * as fs from "fs";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import {
   getPackageCacheInfo,
   getPackageCacheInfoCacheInfo,
+  getPackageCacheInfoCacheRoot,
   PackageCacheInfo,
   PackageCacheInfoCacheInfo,
+  savePackageCacheInfoCache,
 } from "./cache";
 import { installPackage } from "./install";
 
@@ -20,6 +23,10 @@ function expectValidCacheInfoKey(key: string, packageName: string) {
   expect(key).not.toBeEmpty();
   expect(key).toIncludes(os.type());
   expect(key).toIncludes(packageName);
+}
+
+function removePackageCacheInfoCacheRoot() {
+  fs.rmSync(getPackageCacheInfoCacheRoot(), { recursive: true, force: true });
 }
 
 describe("test get cache info of a pip package cache info", () => {
@@ -100,6 +107,47 @@ describe("test get cache info of a pip package", () => {
     test("should be rejected", async () => {
       const res = getPackageCacheInfo("an-invalid-package");
       await expect(res).rejects.toThrow();
+    });
+  });
+});
+
+describe("test save and restore cache of a pip package cache info", () => {
+  describe(`using valid package (${validPkgName})`, () => {
+    beforeAll(async () => {
+      await installPackage(validPkgName);
+      removePackageCacheInfoCacheRoot();
+    });
+
+    let cacheInfo: PackageCacheInfoCacheInfo;
+    describe("get the cache info", () => {
+      test("should not error", () => {
+        expect(() => {
+          cacheInfo = getPackageCacheInfoCacheInfo(validPkgName);
+        }).not.toThrow();
+      });
+    });
+
+    describe("check the cache", () => {
+      test("cache info file should not be exist", async () => {
+        expect(cacheInfo.path).not.toBeExist();
+      });
+    });
+
+    describe("save the cache", () => {
+      test("should be resolved", async () => {
+        const res = savePackageCacheInfoCache(cacheInfo);
+        await expect(res).resolves.toBeUndefined();
+      });
+    });
+
+    describe("check again the cache", () => {
+      test("cache info file should be exist", async () => {
+        expect(cacheInfo.path).toBeExist();
+      });
+    });
+
+    afterAll(() => {
+      removePackageCacheInfoCacheRoot();
     });
   });
 });

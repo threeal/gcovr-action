@@ -1,6 +1,8 @@
 import * as cache from "@actions/cache";
+import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import * as io from "../../io";
 import { initContext } from "./context";
 import { showPackageInfo } from "./info";
 
@@ -27,12 +29,13 @@ export function getPackageCacheInfoCacheInfo(
   const cacheInfo = new PackageCacheInfoCacheInfo();
   cacheInfo.name = packageName;
   cacheInfo.key = `pip-${os.type()}-${packageName}-cache-info`;
-  cacheInfo.path = path.join(
-    os.homedir(),
-    ".pip_cache_info",
-    `${packageName}.json`
-  );
+  const root = getPackageCacheInfoCacheRoot();
+  cacheInfo.path = path.join(root, `${packageName}.json`);
   return cacheInfo;
+}
+
+export function getPackageCacheInfoCacheRoot(): string {
+  return path.join(os.homedir(), ".pip_cache_info");
 }
 
 export async function getPackageCacheInfo(
@@ -59,6 +62,20 @@ async function getPackageCachePaths(packageName: string): Promise<string[]> {
     paths = paths.concat(depPaths);
   }
   return paths;
+}
+
+function createPackageCacheInfoCacheRoot() {
+  const root = getPackageCacheInfoCacheRoot();
+  if (!fs.existsSync(root)) fs.mkdirSync(root);
+}
+
+export async function savePackageCacheInfoCache(
+  cacheInfo: PackageCacheInfoCacheInfo
+) {
+  const data = await getPackageCacheInfo(cacheInfo.name);
+  createPackageCacheInfoCacheRoot();
+  io.writeJson(cacheInfo.path, data);
+  await cache.saveCache([cacheInfo.path], cacheInfo.key);
 }
 
 async function getCacheInfo(packageName: string): Promise<CacheInfo> {

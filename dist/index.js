@@ -339,10 +339,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.getPackageCacheInfo = exports.getPackageCacheInfoCacheInfo = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.savePackageCacheInfoCache = exports.getPackageCacheInfo = exports.getPackageCacheInfoCacheRoot = exports.getPackageCacheInfoCacheInfo = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
+const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
+const io = __importStar(__nccwpck_require__(3709));
 const context_1 = __nccwpck_require__(3272);
 const info_1 = __nccwpck_require__(8414);
 class PackageCacheInfoCacheInfo {
@@ -365,10 +367,15 @@ function getPackageCacheInfoCacheInfo(packageName) {
     const cacheInfo = new PackageCacheInfoCacheInfo();
     cacheInfo.name = packageName;
     cacheInfo.key = `pip-${os.type()}-${packageName}-cache-info`;
-    cacheInfo.path = path.join(os.homedir(), ".pip_cache_info", `${packageName}.json`);
+    const root = getPackageCacheInfoCacheRoot();
+    cacheInfo.path = path.join(root, `${packageName}.json`);
     return cacheInfo;
 }
 exports.getPackageCacheInfoCacheInfo = getPackageCacheInfoCacheInfo;
+function getPackageCacheInfoCacheRoot() {
+    return path.join(os.homedir(), ".pip_cache_info");
+}
+exports.getPackageCacheInfoCacheRoot = getPackageCacheInfoCacheRoot;
 async function getPackageCacheInfo(packageName) {
     const cacheInfo = new PackageCacheInfo();
     cacheInfo.name = packageName;
@@ -390,6 +397,18 @@ async function getPackageCachePaths(packageName) {
     }
     return paths;
 }
+function createPackageCacheInfoCacheRoot() {
+    const root = getPackageCacheInfoCacheRoot();
+    if (!fs.existsSync(root))
+        fs.mkdirSync(root);
+}
+async function savePackageCacheInfoCache(cacheInfo) {
+    const data = await getPackageCacheInfo(cacheInfo.name);
+    createPackageCacheInfoCacheRoot();
+    io.writeJson(cacheInfo.path, data);
+    await cache.saveCache([cacheInfo.path], cacheInfo.key);
+}
+exports.savePackageCacheInfoCache = savePackageCacheInfoCache;
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {
@@ -904,6 +923,65 @@ async function postForm(url, form) {
     });
 }
 exports.postForm = postForm;
+
+
+/***/ }),
+
+/***/ 3709:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.writeJson = exports.readJson = void 0;
+var json_1 = __nccwpck_require__(9499);
+Object.defineProperty(exports, "readJson", ({ enumerable: true, get: function () { return json_1.readJson; } }));
+Object.defineProperty(exports, "writeJson", ({ enumerable: true, get: function () { return json_1.writeJson; } }));
+
+
+/***/ }),
+
+/***/ 9499:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.readJson = exports.writeJson = void 0;
+const fs = __importStar(__nccwpck_require__(7147));
+function writeJson(file, data) {
+    const str = JSON.stringify(data);
+    fs.writeFileSync(file, str);
+}
+exports.writeJson = writeJson;
+function readJson(file) {
+    const buf = fs.readFileSync(file);
+    return JSON.parse(buf.toString());
+}
+exports.readJson = readJson;
 
 
 /***/ }),
