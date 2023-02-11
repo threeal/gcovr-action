@@ -339,7 +339,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = exports.PackageCacheInfo = exports.PackageCacheInfoCacheInfo = void 0;
+exports.restorePackage = exports.cachePackage = exports.PackageContentCacheInfo = exports.PackageCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
@@ -347,22 +347,22 @@ const path = __importStar(__nccwpck_require__(1017));
 const io = __importStar(__nccwpck_require__(3709));
 const context_1 = __nccwpck_require__(3272);
 const info_1 = __nccwpck_require__(8414);
-class PackageCacheInfoCacheInfo {
+class PackageCacheInfo {
     constructor(packageName) {
         this.name = "";
         this.key = "";
         this.path = "";
         this.name = packageName;
         this.key = `pip-${os.type()}-${packageName}-cache-info`;
-        const root = PackageCacheInfoCacheInfo.root();
+        const root = PackageCacheInfo.root();
         this.path = path.join(root, `${packageName}.json`);
     }
-    async accumulateContent() {
-        return PackageCacheInfo.accumulate(this.name);
+    async accumulateContentInfo() {
+        return await PackageContentCacheInfo.accumulate(this.name);
     }
-    async saveContent() {
-        const data = await this.accumulateContent();
-        PackageCacheInfoCacheInfo.createRoot();
+    async saveContentInfo() {
+        const data = await this.accumulateContentInfo();
+        PackageCacheInfo.createRoot();
         io.writeJson(this.path, data);
         await cache.saveCache([this.path], this.key);
     }
@@ -370,23 +370,23 @@ class PackageCacheInfoCacheInfo {
         return path.join(os.homedir(), ".pip_cache_info");
     }
     static createRoot() {
-        const root = PackageCacheInfoCacheInfo.root();
+        const root = PackageCacheInfo.root();
         if (!fs.existsSync(root))
             fs.mkdirSync(root);
     }
 }
-exports.PackageCacheInfoCacheInfo = PackageCacheInfoCacheInfo;
-class PackageCacheInfo {
+exports.PackageCacheInfo = PackageCacheInfo;
+class PackageContentCacheInfo {
     constructor() {
         this.name = "";
         this.key = "";
         this.paths = [];
     }
     static async accumulate(packageName) {
-        const cacheInfo = new PackageCacheInfo();
+        const cacheInfo = new PackageContentCacheInfo();
         cacheInfo.name = packageName;
         cacheInfo.key = `pip-${os.type()}-${packageName}`;
-        cacheInfo.paths = await PackageCacheInfo.accumulatePaths(packageName);
+        cacheInfo.paths = await PackageContentCacheInfo.accumulatePaths(packageName);
         return cacheInfo;
     }
     static async accumulatePaths(packageName) {
@@ -397,13 +397,13 @@ class PackageCacheInfo {
         const executables = await packageInfo.executables();
         let paths = executables.concat(packageInfo.directories());
         for (const dep of packageInfo.dependencies) {
-            const depPaths = await PackageCacheInfo.accumulatePaths(dep);
+            const depPaths = await PackageContentCacheInfo.accumulatePaths(dep);
             paths = paths.concat(depPaths);
         }
         return paths;
     }
 }
-exports.PackageCacheInfo = PackageCacheInfo;
+exports.PackageContentCacheInfo = PackageContentCacheInfo;
 async function getCacheInfo(packageName) {
     const context = await (0, context_1.initContext)();
     return {

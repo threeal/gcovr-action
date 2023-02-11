@@ -2,10 +2,10 @@ import { afterAll, beforeAll, describe, test } from "@jest/globals";
 import * as fs from "fs";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
-import { PackageCacheInfo, PackageCacheInfoCacheInfo } from "./cache";
+import { PackageCacheInfo, PackageContentCacheInfo } from "./cache";
 import { installPackage } from "./install";
 
-const validPkgName = "rsa";
+const validPackageName = "rsa";
 
 function expectValidCacheInfoName(name: string, packageName: string) {
   expect(name).not.toBeEmpty();
@@ -18,129 +18,119 @@ function expectValidCacheInfoKey(key: string, packageName: string) {
   expect(key).toIncludes(packageName);
 }
 
-function removePackageCacheInfoCacheRoot() {
-  fs.rmSync(PackageCacheInfoCacheInfo.root(), { recursive: true, force: true });
+function packageCacheInfoRemoveRoot() {
+  fs.rmSync(PackageCacheInfo.root(), { recursive: true, force: true });
 }
 
-describe("test get cache info of a pip package cache info", () => {
-  describe(`get cache info of a valid package cache info (${validPkgName})`, () => {
-    let cacheInfo: PackageCacheInfoCacheInfo;
-    test("should not error", async () => {
+describe("test create cache info of a pip package", () => {
+  describe(`using any package name`, () => {
+    const packageName = "any-package-name";
+    let res: PackageCacheInfo;
+    test("should not error", () => {
       expect(() => {
-        cacheInfo = new PackageCacheInfoCacheInfo(validPkgName);
+        res = new PackageCacheInfo(packageName);
       }).not.toThrow();
-      expect(cacheInfo).toBeInstanceOf(PackageCacheInfoCacheInfo);
+      expect(res).toBeInstanceOf(PackageCacheInfo);
     });
 
-    describe("check contents of the cache info", () => {
-      beforeAll(async () => {
-        await installPackage(validPkgName);
-      });
-
+    describe("check the result", () => {
       test("name should be valid", () => {
-        expectValidCacheInfoName(cacheInfo.name, validPkgName);
+        expectValidCacheInfoName(res.name, packageName);
       });
 
       test("key should be valid", () => {
-        expectValidCacheInfoKey(cacheInfo.key, validPkgName);
+        expectValidCacheInfoKey(res.key, packageName);
       });
 
-      test("key should be different from package cache info's", async () => {
-        const packageCacheInfo = await cacheInfo.accumulateContent();
-        expect(cacheInfo.key).not.toBe(packageCacheInfo.key);
-      });
-
-      test("paths should be valid", () => {
-        expect(cacheInfo.path).not.toBeEmpty();
-        expect(cacheInfo.path).toIncludes(os.homedir());
-        expect(cacheInfo.path).toIncludes(validPkgName);
+      test("path should be valid", () => {
+        expect(res.path).not.toBeEmpty();
+        expect(res.path).toIncludes(PackageCacheInfo.root());
+        expect(res.path).toIncludes(packageName);
       });
     });
   });
 });
 
-describe("test get cache info of a pip package", () => {
-  describe(`get cache info of a valid package (${validPkgName})`, () => {
+describe("test accumulate content info of a pip package cache info", () => {
+  describe(`using a valid package (${validPackageName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPackageName);
     beforeAll(async () => {
-      await installPackage(validPkgName);
+      await installPackage(cacheInfo.name);
     });
 
-    let cacheInfo: PackageCacheInfo;
-    test("should be valid", async () => {
-      const res = PackageCacheInfo.accumulate(validPkgName);
-      await expect(res).resolves.toBeInstanceOf(PackageCacheInfo);
-      cacheInfo = await res;
+    let res: PackageContentCacheInfo;
+    test("should be resolved", async () => {
+      const prom = cacheInfo.accumulateContentInfo();
+      await expect(prom).resolves.toBeInstanceOf(PackageContentCacheInfo);
+      res = await prom;
     });
 
-    describe("check contents of the cache info", () => {
+    describe("check the result", () => {
       test("name should be valid", () => {
-        expectValidCacheInfoName(cacheInfo.name, validPkgName);
+        expectValidCacheInfoName(res.name, cacheInfo.name);
       });
 
       test("key should be valid", () => {
-        expectValidCacheInfoKey(cacheInfo.key, validPkgName);
+        expectValidCacheInfoKey(res.key, cacheInfo.name);
+      });
+
+      test("key should be different from cache info's", async () => {
+        expect(res.key).not.toBe(cacheInfo.key);
       });
 
       test("paths should be exist", () => {
         try {
           // 2 from dependencies of rsa, except on Linux
           const expected = 8 + (os.type() !== "Linux" ? 2 : 0);
-          expect(cacheInfo.paths.length).toBe(expected);
-          for (const path of cacheInfo.paths) {
+          expect(res.paths.length).toBe(expected);
+          for (const path of res.paths) {
             expect(path).toBeExist();
           }
         } catch (err) {
-          throw errorAppend(err, { paths: cacheInfo.paths });
+          throw errorAppend(err, { paths: res.paths });
         }
       });
     });
   });
 
-  describe("get cache info of an invalid package", () => {
+  describe("using an invalid package", () => {
+    const cacheInfo = new PackageCacheInfo("some-invalid-package");
     test("should be rejected", async () => {
-      const res = PackageCacheInfo.accumulate("an-invalid-package");
+      const res = cacheInfo.accumulateContentInfo();
       await expect(res).rejects.toThrow();
     });
   });
 });
 
-describe("test save and restore cache of a pip package cache info", () => {
-  describe(`using valid package (${validPkgName})`, () => {
+describe("test save and restore cache of a pip package content info", () => {
+  describe(`using a valid package (${validPackageName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPackageName);
     beforeAll(async () => {
-      await installPackage(validPkgName);
-      removePackageCacheInfoCacheRoot();
-    });
-
-    let cacheInfo: PackageCacheInfoCacheInfo;
-    describe("get the cache info", () => {
-      test("should not error", () => {
-        expect(() => {
-          cacheInfo = new PackageCacheInfoCacheInfo(validPkgName);
-        }).not.toThrow();
-      });
+      await installPackage(cacheInfo.name);
+      packageCacheInfoRemoveRoot();
     });
 
     describe("check the cache", () => {
-      test("cache info file should not be exist", async () => {
+      test("content info file should not be exist", async () => {
         expect(cacheInfo.path).not.toBeExist();
       });
     });
 
     describe("save the cache", () => {
       test("should be resolved", async () => {
-        const res = cacheInfo.saveContent();
+        const res = cacheInfo.saveContentInfo();
         await expect(res).resolves.toBeUndefined();
       });
     });
 
     describe("check again the cache", () => {
-      test("cache info file should be exist", async () => {
+      test("content info file should be exist", async () => {
         expect(cacheInfo.path).toBeExist();
       });
     });
 
     afterAll(() => {
-      removePackageCacheInfoCacheRoot();
+      packageCacheInfoRemoveRoot();
     });
   });
 });

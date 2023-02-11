@@ -6,7 +6,7 @@ import * as io from "../../io";
 import { initContext } from "./context";
 import { showPackageInfo } from "./info";
 
-export class PackageCacheInfoCacheInfo {
+export class PackageCacheInfo {
   name: string = "";
   key: string = "";
   path: string = "";
@@ -14,17 +14,17 @@ export class PackageCacheInfoCacheInfo {
   constructor(packageName: string) {
     this.name = packageName;
     this.key = `pip-${os.type()}-${packageName}-cache-info`;
-    const root = PackageCacheInfoCacheInfo.root();
+    const root = PackageCacheInfo.root();
     this.path = path.join(root, `${packageName}.json`);
   }
 
-  async accumulateContent(): Promise<PackageCacheInfo> {
-    return PackageCacheInfo.accumulate(this.name);
+  async accumulateContentInfo(): Promise<PackageContentCacheInfo> {
+    return await PackageContentCacheInfo.accumulate(this.name);
   }
 
-  async saveContent() {
-    const data = await this.accumulateContent();
-    PackageCacheInfoCacheInfo.createRoot();
+  async saveContentInfo() {
+    const data = await this.accumulateContentInfo();
+    PackageCacheInfo.createRoot();
     io.writeJson(this.path, data);
     await cache.saveCache([this.path], this.key);
   }
@@ -34,21 +34,25 @@ export class PackageCacheInfoCacheInfo {
   }
 
   static createRoot() {
-    const root = PackageCacheInfoCacheInfo.root();
+    const root = PackageCacheInfo.root();
     if (!fs.existsSync(root)) fs.mkdirSync(root);
   }
 }
 
-export class PackageCacheInfo {
+export class PackageContentCacheInfo {
   name: string = "";
   key: string = "";
   paths: string[] = [];
 
-  static async accumulate(packageName: string): Promise<PackageCacheInfo> {
-    const cacheInfo = new PackageCacheInfo();
+  static async accumulate(
+    packageName: string
+  ): Promise<PackageContentCacheInfo> {
+    const cacheInfo = new PackageContentCacheInfo();
     cacheInfo.name = packageName;
     cacheInfo.key = `pip-${os.type()}-${packageName}`;
-    cacheInfo.paths = await PackageCacheInfo.accumulatePaths(packageName);
+    cacheInfo.paths = await PackageContentCacheInfo.accumulatePaths(
+      packageName
+    );
     return cacheInfo;
   }
 
@@ -62,7 +66,7 @@ export class PackageCacheInfo {
     const executables = await packageInfo.executables();
     let paths = executables.concat(packageInfo.directories());
     for (const dep of packageInfo.dependencies) {
-      const depPaths = await PackageCacheInfo.accumulatePaths(dep);
+      const depPaths = await PackageContentCacheInfo.accumulatePaths(dep);
       paths = paths.concat(depPaths);
     }
     return paths;
