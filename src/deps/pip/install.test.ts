@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from "@jest/globals";
+import { afterAll, beforeAll, describe, expect, test } from "@jest/globals";
 import { PackageInfo, showPackageInfo } from "./info";
 import { installPackage, uninstallPackage } from "./install";
 
@@ -32,6 +32,10 @@ describe("test install a pip package", () => {
 
     describe("show the package info again", () => {
       test("should be valid", testShowPackageInfo);
+    });
+
+    afterAll(async () => {
+      await uninstallPackage(validPkgName);
     });
   });
 
@@ -71,6 +75,10 @@ describe("test uninstall a pip package", () => {
 
     describe("show the package info again", () => {
       test("should be null", testShowPackageInfo);
+    });
+
+    afterAll(async () => {
+      await uninstallPackage(validPkgName);
     });
   });
 

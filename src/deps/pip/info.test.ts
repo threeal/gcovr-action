@@ -1,24 +1,26 @@
-import { beforeAll, describe, test } from "@jest/globals";
+import { afterAll, beforeAll, describe, test } from "@jest/globals";
 import { errorAppend, expect } from "../../testing";
 import { PackageInfo, showPackageInfo } from "./info";
-import { installPackage } from "./install";
+import { installPackage, uninstallPackage } from "./install";
+
+const validPkgName = "rsa";
 
 describe("test show info of a pip package", () => {
-  describe("show info of a valid package (rsa)", () => {
+  describe(`show info of a valid package (${validPkgName})`, () => {
     beforeAll(async () => {
-      await installPackage("rsa");
+      await installPackage(validPkgName);
     });
 
     let pkgInfo: PackageInfo;
     test("should be valid", async () => {
-      const res = showPackageInfo("rsa");
+      const res = showPackageInfo(validPkgName);
       await expect(res).resolves.toBeInstanceOf(PackageInfo);
       pkgInfo = (await res) as PackageInfo;
     });
 
     describe("check contents of the package info", () => {
       test("name should be valid", () => {
-        expect(pkgInfo.name).toBe("rsa");
+        expect(pkgInfo.name).toBe(validPkgName);
       });
       test("version should be valid", () => {
         expect(pkgInfo.version).toMatch(/^(\d+\.)?(\d+\.)?(\*|\d+)$/);
@@ -68,6 +70,10 @@ describe("test show info of a pip package", () => {
           throw errorAppend(err, { execs: execs });
         }
       });
+    });
+
+    afterAll(async () => {
+      await uninstallPackage(validPkgName);
     });
   });
 

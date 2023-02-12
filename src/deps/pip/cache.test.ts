@@ -5,7 +5,7 @@ import { errorAppend, expect } from "../../testing";
 import { PackageCacheInfo, PackageContentCacheInfo } from "./cache";
 import { installPackage, uninstallPackage } from "./install";
 
-const validPackageName = "rsa";
+const validPkgName = "rsa";
 
 function expectValidCacheInfoName(name: string, packageName: string) {
   expect(name).not.toBeEmpty();
@@ -52,8 +52,8 @@ describe("test create cache info of a pip package", () => {
 });
 
 describe("test accumulate content info of a pip package cache info", () => {
-  describe(`using a valid package (${validPackageName})`, () => {
-    const cacheInfo = new PackageCacheInfo(validPackageName);
+  describe(`using a valid package (${validPkgName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPkgName);
     beforeAll(async () => {
       await installPackage(cacheInfo.name);
     });
@@ -74,7 +74,7 @@ describe("test accumulate content info of a pip package cache info", () => {
         expectValidCacheInfoKey(res.key, cacheInfo.name);
       });
 
-      test("key should be different from cache info's", async () => {
+      test("key should be different from cache info's", () => {
         expect(res.key).not.toBe(cacheInfo.key);
       });
 
@@ -91,6 +91,10 @@ describe("test accumulate content info of a pip package cache info", () => {
         }
       });
     });
+
+    afterAll(async () => {
+      await uninstallPackage(cacheInfo.name);
+    });
   });
 
   describe("using an invalid package", () => {
@@ -103,8 +107,8 @@ describe("test accumulate content info of a pip package cache info", () => {
 });
 
 describe("test save cache of a pip package content info", () => {
-  describe(`using a valid package (${validPackageName})`, () => {
-    const cacheInfo = new PackageCacheInfo(validPackageName);
+  describe(`using a valid package (${validPkgName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPkgName);
     beforeAll(async () => {
       await installPackage(cacheInfo.name);
       packageCacheInfoRemoveRoot();
@@ -137,8 +141,8 @@ describe("test save cache of a pip package content info", () => {
 });
 
 describe("test restore cache of a pip package content info", () => {
-  describe(`using a valid package (${validPackageName})`, () => {
-    const cacheInfo = new PackageCacheInfo(validPackageName);
+  describe(`using a valid package (${validPkgName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPkgName);
     let source: PackageContentCacheInfo;
     beforeAll(async () => {
       await installPackage(cacheInfo.name);
