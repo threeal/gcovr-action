@@ -138,6 +138,14 @@ describe("test save cache of a pip package content info", () => {
       packageCacheInfoRemoveRoot();
     });
   });
+
+  describe("using an invalid package", () => {
+    const cacheInfo = new PackageCacheInfo("some-invalid-package");
+    test("should be rejected", async () => {
+      const prom = cacheInfo.saveContentInfo();
+      await expect(prom).rejects.toThrow();
+    });
+  });
 });
 
 describe("test restore cache of a pip package content info", () => {
@@ -190,6 +198,14 @@ describe("test restore cache of a pip package content info", () => {
 
     afterAll(() => {
       packageCacheInfoRemoveRoot();
+    });
+  });
+
+  describe("using an invalid package", () => {
+    const cacheInfo = new PackageCacheInfo("some-invalid-package");
+    test("should be resolved with undefined", async () => {
+      const prom = cacheInfo.restoreContentInfo();
+      await expect(prom).resolves.toBeUndefined();
     });
   });
 });
