@@ -367,6 +367,14 @@ class PackageCacheInfo {
         await cache.saveCache([this.path], this.key);
         return contentInfo;
     }
+    async restoreContentInfo() {
+        const restoreKey = await cache.restoreCache([this.path], this.key);
+        if (restoreKey === undefined)
+            return undefined;
+        const contentInfo = new PackageContentCacheInfo();
+        Object.assign(contentInfo, io.readJson(this.path));
+        return contentInfo;
+    }
     static root() {
         return path.join(os.homedir(), ".pip_cache_info");
     }

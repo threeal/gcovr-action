@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import { PackageCacheInfo, PackageContentCacheInfo } from "./cache";
-import { installPackage } from "./install";
+import { installPackage, uninstallPackage } from "./install";
 
 const validPackageName = "rsa";
 
@@ -102,7 +102,7 @@ describe("test accumulate content info of a pip package cache info", () => {
   });
 });
 
-describe("test save and restore cache of a pip package content info", () => {
+describe("test save cache of a pip package content info", () => {
   describe(`using a valid package (${validPackageName})`, () => {
     const cacheInfo = new PackageCacheInfo(validPackageName);
     beforeAll(async () => {
@@ -116,12 +116,10 @@ describe("test save and restore cache of a pip package content info", () => {
       });
     });
 
-    let source: PackageContentCacheInfo;
     describe("save the cache", () => {
       test("should be resolved", async () => {
         const prom = cacheInfo.saveContentInfo();
         await expect(prom).resolves.toBeInstanceOf(PackageContentCacheInfo);
-        source = await prom;
       });
     });
 
@@ -131,12 +129,42 @@ describe("test save and restore cache of a pip package content info", () => {
       });
     });
 
+    afterAll(async () => {
+      await uninstallPackage(cacheInfo.name);
+      packageCacheInfoRemoveRoot();
+    });
+  });
+});
+
+describe("test restore cache of a pip package content info", () => {
+  describe(`using a valid package (${validPackageName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPackageName);
+    let source: PackageContentCacheInfo;
+    beforeAll(async () => {
+      await installPackage(cacheInfo.name);
+      source = await cacheInfo.saveContentInfo();
+      await uninstallPackage(cacheInfo.name);
+      packageCacheInfoRemoveRoot();
+    });
+
+    describe("check the cache", () => {
+      test("content info file should not be exist", () => {
+        expect(cacheInfo.path).not.toBeExist();
+      });
+    });
+
     let res: PackageContentCacheInfo;
     describe("restore the cache", () => {
       test("should be resolved", async () => {
         const prom = cacheInfo.restoreContentInfo();
         await expect(prom).resolves.toBeInstanceOf(PackageContentCacheInfo);
         res = (await prom) as PackageContentCacheInfo;
+      });
+    });
+
+    describe("check again the cache", () => {
+      test("content info file should be exist", () => {
+        expect(cacheInfo.path).toBeExist();
       });
     });
 
