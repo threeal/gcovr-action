@@ -30,6 +30,14 @@ export class PackageCacheInfo {
     return contentInfo;
   }
 
+  async restoreContentInfo(): Promise<PackageContentCacheInfo | undefined> {
+    const restoreKey = await cache.restoreCache([this.path], this.key);
+    if (restoreKey === undefined) return undefined;
+    const contentInfo = new PackageContentCacheInfo();
+    Object.assign(contentInfo, io.readJson(this.path));
+    return contentInfo;
+  }
+
   static root(): string {
     return path.join(os.homedir(), ".pip_cache_info");
   }

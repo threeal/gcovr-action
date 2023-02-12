@@ -111,23 +111,48 @@ describe("test save and restore cache of a pip package content info", () => {
     });
 
     describe("check the cache", () => {
-      test("content info file should not be exist", async () => {
+      test("content info file should not be exist", () => {
         expect(cacheInfo.path).not.toBeExist();
       });
     });
 
-    let contentInfo: PackageContentCacheInfo;
+    let source: PackageContentCacheInfo;
     describe("save the cache", () => {
       test("should be resolved", async () => {
         const prom = cacheInfo.saveContentInfo();
         await expect(prom).resolves.toBeInstanceOf(PackageContentCacheInfo);
-        contentInfo = await prom;
+        source = await prom;
       });
     });
 
     describe("check again the cache", () => {
-      test("content info file should be exist", async () => {
+      test("content info file should be exist", () => {
         expect(cacheInfo.path).toBeExist();
+      });
+    });
+
+    let res: PackageContentCacheInfo;
+    describe("restore the cache", () => {
+      test("should be resolved", async () => {
+        const prom = cacheInfo.restoreContentInfo();
+        await expect(prom).resolves.toBeInstanceOf(PackageContentCacheInfo);
+        res = (await prom) as PackageContentCacheInfo;
+      });
+    });
+
+    describe("compare the results", () => {
+      test("name should be equal", () => {
+        expect(res.name).toBe(source.name);
+      });
+      test("key should be equal", () => {
+        expect(res.key).toBe(source.key);
+      });
+      test("paths should be equal", () => {
+        expect(res.paths.length).toBe(source.paths.length);
+        const length = Math.min(res.paths.length, source.paths.length);
+        for (let i = 0; i < length; ++i) {
+          expect(res.paths[i]).toBe(source.paths[i]);
+        }
       });
     });
 
