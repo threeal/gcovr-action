@@ -18,7 +18,7 @@ async function restorePackage(packageName: string): Promise<boolean> {
     }
     log.info("Validating package...");
     const pkgInfo = await showPackageInfo(packageName);
-    if (pkgInfo === null) {
+    if (pkgInfo === undefined) {
       log.error("Invalid package! Cache probably is corrupted");
       return false;
     }
@@ -45,7 +45,7 @@ async function savePackage(packageName: string) {
 
 export async function restoreOrInstallPackage(packageName: string) {
   const pkgInfo = await showPackageInfo(packageName);
-  if (pkgInfo !== null) return;
+  if (pkgInfo !== undefined) return;
   await log.group(
     `Installing ${log.emph(packageName)} package...`,
     async () => {
@@ -57,7 +57,7 @@ export async function restoreOrInstallPackage(packageName: string) {
       savePackage(packageName);
       log.info("Validating package...");
       const pkgInfo = await showPackageInfo(packageName);
-      if (pkgInfo === null) {
+      if (pkgInfo === undefined) {
         log.error("Invalid package! Installation probably is corrupted");
         throw new Error("Invalid package");
       }

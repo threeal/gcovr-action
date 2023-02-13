@@ -48,10 +48,10 @@ export class PackageInfo {
 
 export async function showPackageInfo(
   packageName: string
-): Promise<PackageInfo | null> {
+): Promise<PackageInfo | undefined> {
   const args = ["-m", "pip", "show", "-f", packageName];
   const [out, ok] = await exec.execOutCheck("python3", args);
-  if (!ok) return null;
+  if (!ok) return undefined;
   const lines = out.split("\n");
   let packageInfo = new PackageInfo();
   for (let i = 0; i < lines.length - 1; ++i) {

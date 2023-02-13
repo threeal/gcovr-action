@@ -64,7 +64,7 @@ export class PackageContentCacheInfo {
 
   static async accumulatePaths(packageName: string): Promise<string[]> {
     const packageInfo = await showPackageInfo(packageName);
-    if (packageInfo === null) {
+    if (packageInfo === undefined) {
       throw new Error(
         `Could not get cache paths of unknown package: ${packageName}`
       );

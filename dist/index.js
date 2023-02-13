@@ -397,7 +397,7 @@ class PackageContentCacheInfo {
     }
     static async accumulatePaths(packageName) {
         const packageInfo = await (0, info_1.showPackageInfo)(packageName);
-        if (packageInfo === null) {
+        if (packageInfo === undefined) {
             throw new Error(`Could not get cache paths of unknown package: ${packageName}`);
         }
         const executables = await packageInfo.executables();
@@ -449,7 +449,7 @@ async function restorePackage(packageName) {
         }
         log_1.default.info("Validating package...");
         const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-        if (pkgInfo === null) {
+        if (pkgInfo === undefined) {
             log_1.default.error("Invalid package! Cache probably is corrupted");
             return false;
         }
@@ -476,7 +476,7 @@ async function savePackage(packageName) {
 }
 async function restoreOrInstallPackage(packageName) {
     const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-    if (pkgInfo !== null)
+    if (pkgInfo !== undefined)
         return;
     await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
         log_1.default.info("Restoring package from cache...");
@@ -488,7 +488,7 @@ async function restoreOrInstallPackage(packageName) {
         savePackage(packageName);
         log_1.default.info("Validating package...");
         const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-        if (pkgInfo === null) {
+        if (pkgInfo === undefined) {
             log_1.default.error("Invalid package! Installation probably is corrupted");
             throw new Error("Invalid package");
         }
@@ -588,7 +588,7 @@ async function showPackageInfo(packageName) {
     const args = ["-m", "pip", "show", "-f", packageName];
     const [out, ok] = await exec.execOutCheck("python3", args);
     if (!ok)
-        return null;
+        return undefined;
     const lines = out.split("\n");
     let packageInfo = new PackageInfo();
     for (let i = 0; i < lines.length - 1; ++i) {

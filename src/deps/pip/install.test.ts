@@ -60,13 +60,13 @@ describe("test uninstall a pip package", () => {
 
     const testShowPackageInfo = async () => {
       const res = showPackageInfo(validPkgName);
-      await expect(res).resolves.toBeNull();
+      await expect(res).resolves.toBeUndefined();
     };
 
     test("should be resolved", testUninstallPackage);
 
     describe("show the package info", () => {
-      test("should be null", testShowPackageInfo);
+      test("should be undefined", testShowPackageInfo);
     });
 
     describe("uninstall the package again", () => {
@@ -74,7 +74,7 @@ describe("test uninstall a pip package", () => {
     });
 
     describe("show the package info again", () => {
-      test("should be null", testShowPackageInfo);
+      test("should be undefined", testShowPackageInfo);
     });
 
     afterAll(async () => {

@@ -78,9 +78,9 @@ describe("test show info of a pip package", () => {
   });
 
   describe("show info of an invalid package", () => {
-    test("should be null", async () => {
+    test("should be undefined", async () => {
       const pkgInfo = showPackageInfo("an-invalid-package");
-      await expect(pkgInfo).resolves.toBeNull();
+      await expect(pkgInfo).resolves.toBeUndefined();
     });
   });
 });

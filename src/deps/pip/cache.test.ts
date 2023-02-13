@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import { PackageCacheInfo, PackageContentCacheInfo } from "./cache";
-import { showPackageInfo } from "./info";
+import { PackageInfo, showPackageInfo } from "./info";
 import { installPackage, uninstallPackage } from "./install";
 
 const validPkgName = "rsa";
@@ -264,7 +264,7 @@ describe("test restore cache of a pip package content", () => {
     describe("check the package", () => {
       test("should not be installed", async () => {
         const prom = showPackageInfo(cacheInfo.name);
-        await expect(prom).resolves.toBeNull();
+        await expect(prom).resolves.toBeUndefined();
       });
       test("files should not be exist", () => {
         try {
@@ -287,7 +287,7 @@ describe("test restore cache of a pip package content", () => {
     describe("check again the package", () => {
       test("should be installed", async () => {
         const prom = showPackageInfo(cacheInfo.name);
-        await expect(prom).resolves.not.toBeNull();
+        await expect(prom).resolves.toBeInstanceOf(PackageInfo);
       });
       test("files should be exist", () => {
         try {
