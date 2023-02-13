@@ -1,7 +1,7 @@
 import * as exec from "../../exec";
 import log from "../../log";
-import { PackageInfo, showPackageInfo } from "./info";
-import { cachePackage, restorePackage } from "./cache";
+import { showPackageInfo } from "./info";
+import { PackageCacheInfo } from "./cache";
 
 function validatePackageName(packageName: string): string {
   switch (packageName.toLowerCase()) {
@@ -22,39 +22,48 @@ export async function uninstallPackage(packageName: string) {
 }
 
 export async function installCachedPackage(packageName: string) {
-  let pkgInfo = await showPackageInfo(packageName);
-  if (pkgInfo === null) {
-    packageName = validatePackageName(packageName);
-    pkgInfo = await log.group(
-      `Installing ${log.emph(packageName)} package...`,
-      async (): Promise<PackageInfo> => {
+  const pkgInfo = await showPackageInfo(packageName);
+  if (pkgInfo !== null) return;
+  packageName = validatePackageName(packageName);
+  await log.group(
+    `Installing ${log.emph(packageName)} package...`,
+    async () => {
+      log.info("Checking for cache...");
+      const cacheInfo = new PackageCacheInfo(packageName);
+      const contentInfo = await cacheInfo.restoreContentInfo();
+      if (contentInfo !== undefined) {
         log.info("Restoring package from cache...");
-        if (await restorePackage(packageName)) {
+        const key = await contentInfo.restore();
+        if (key !== undefined) {
           log.info("Validating package...");
           const pkgInfo = await showPackageInfo(packageName);
           if (pkgInfo !== null) {
             log.info("Package is valid");
-            return pkgInfo;
+            return;
           }
-          log.warning("Invalid package. Cache probably is corrupted!");
+          log.warning("Invalid package! Cache probably is corrupted");
+        } else {
+          log.warning("Could not restore package from cache!");
         }
-        log.info("Installing package using pip...");
-        installPackage(packageName);
-        log.info("Saving package to cache...");
-        await cachePackage(packageName);
-        log.info("Validating package...");
-        const pkgInfo = await showPackageInfo(packageName);
-        if (pkgInfo === null) {
-          throw new Error(
-            "Invalid package. Installation probably is corrupted!"
-          );
-        }
-        log.info("Package is valid");
-        return pkgInfo;
       }
-    );
-  }
-  for (const dependency of pkgInfo.dependencies) {
-    await installCachedPackage(dependency);
-  }
+      log.info("Installing package using pip...");
+      await installPackage(packageName);
+      log.info("Saving package to cache...");
+      try {
+        const contentInfo = await cacheInfo.accumulateContentInfo();
+        await contentInfo.save();
+        await cacheInfo.saveContentInfo();
+      } catch (err) {
+        const errMsg = err instanceof Error ? err.message : "unknown error";
+        log.warning(`Could not save package to cache! ${errMsg}`);
+      }
+      log.info("Validating package...");
+      const pkgInfo = await showPackageInfo(packageName);
+      if (pkgInfo === null) {
+        log.error("Invalid package! Installation probably is corrupted");
+        throw new Error("Invalid package");
+      }
+      log.info("Package is valid");
+    }
+  );
 }
