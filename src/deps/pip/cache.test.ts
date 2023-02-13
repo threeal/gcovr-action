@@ -209,3 +209,38 @@ describe("test restore cache of a pip package content info", () => {
     });
   });
 });
+
+describe("test save cache of a pip package content", () => {
+  describe(`using a valid package (${validPkgName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPkgName);
+    let contentInfo: PackageContentCacheInfo;
+    beforeAll(async () => {
+      await installPackage(cacheInfo.name);
+      contentInfo = await cacheInfo.saveContentInfo();
+    });
+
+    describe("check the package files", () => {
+      test("should be exist", () => {
+        try {
+          // 2 from dependencies of rsa, except on Linux
+          for (const path of contentInfo.paths) {
+            expect(path).toBeExist();
+          }
+        } catch (err) {
+          throw errorAppend(err, { paths: contentInfo.paths });
+        }
+      });
+    });
+
+    describe("save the cache", () => {
+      test("should be resolved", async () => {
+        const prom = contentInfo.save();
+        await expect(prom).resolves.toBeUndefined();
+      });
+    });
+
+    afterAll(async () => {
+      await uninstallPackage(cacheInfo.name);
+    });
+  });
+});

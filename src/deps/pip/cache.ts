@@ -80,6 +80,10 @@ export class PackageContentCacheInfo {
     }
     return paths;
   }
+
+  async save() {
+    await cache.saveCache(this.paths, this.key);
+  }
 }
 
 interface CacheInfo {
