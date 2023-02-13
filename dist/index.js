@@ -414,6 +414,9 @@ class PackageContentCacheInfo {
     async save() {
         await cache.saveCache(this.paths, this.key);
     }
+    async restore() {
+        return await cache.restoreCache(this.paths, this.key);
+    }
 }
 exports.PackageContentCacheInfo = PackageContentCacheInfo;
 async function getCacheInfo(packageName) {

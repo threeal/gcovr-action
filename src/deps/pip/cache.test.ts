@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as os from "os";
 import { errorAppend, expect } from "../../testing";
 import { PackageCacheInfo, PackageContentCacheInfo } from "./cache";
+import { showPackageInfo } from "./info";
 import { installPackage, uninstallPackage } from "./install";
 
 const validPkgName = "rsa";
@@ -219,10 +220,9 @@ describe("test save cache of a pip package content", () => {
       contentInfo = await cacheInfo.saveContentInfo();
     });
 
-    describe("check the package files", () => {
-      test("should be exist", () => {
+    describe("check the package", () => {
+      test("files should be exist", () => {
         try {
-          // 2 from dependencies of rsa, except on Linux
           for (const path of contentInfo.paths) {
             expect(path).toBeExist();
           }
@@ -236,6 +236,71 @@ describe("test save cache of a pip package content", () => {
       test("should be resolved", async () => {
         const prom = contentInfo.save();
         await expect(prom).resolves.toBeUndefined();
+      });
+    });
+
+    describe("check the cache", () => {
+      test("should be saved", async () => {
+        const prom = contentInfo.restore();
+        await expect(prom).resolves.not.toBeUndefined();
+      });
+    });
+
+    afterAll(async () => {
+      await uninstallPackage(cacheInfo.name);
+    });
+  });
+});
+
+describe("test restore cache of a pip package content", () => {
+  describe(`using a valid package (${validPkgName})`, () => {
+    const cacheInfo = new PackageCacheInfo(validPkgName);
+    let contentInfo: PackageContentCacheInfo;
+    beforeAll(async () => {
+      await installPackage(cacheInfo.name);
+      contentInfo = await cacheInfo.accumulateContentInfo();
+      await contentInfo.save();
+      await uninstallPackage(cacheInfo.name);
+      // TODO: automatically uninstall dependencies
+      await uninstallPackage("pyasn1");
+    });
+
+    describe("check the package", () => {
+      test("should not be installed", async () => {
+        const prom = showPackageInfo(cacheInfo.name);
+        await expect(prom).resolves.toBeNull();
+      });
+      test("files should not be exist", () => {
+        try {
+          for (const path of contentInfo.paths) {
+            expect(path).not.toBeExist();
+          }
+        } catch (err) {
+          throw errorAppend(err, { paths: contentInfo.paths });
+        }
+      });
+    });
+
+    describe("restore the cache", () => {
+      test("should be resolved", async () => {
+        const prom = contentInfo.restore();
+        await expect(prom).resolves.not.toBeUndefined();
+      });
+    });
+
+    describe("check again the package", () => {
+      test("should be installed", async () => {
+        const prom = showPackageInfo(cacheInfo.name);
+        await expect(prom).resolves.not.toBeNull();
+      });
+      test("files should be exist", () => {
+        try {
+          for (const path of contentInfo.paths) {
+            expect(path).toBeExist();
+          }
+        } catch (err) {
+          throw errorAppend(err, { paths: contentInfo.paths });
+        }
       });
     });
 

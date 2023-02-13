@@ -84,6 +84,10 @@ export class PackageContentCacheInfo {
   async save() {
     await cache.saveCache(this.paths, this.key);
   }
+
+  async restore(): Promise<string | undefined> {
+    return await cache.restoreCache(this.paths, this.key);
+  }
 }
 
 interface CacheInfo {
