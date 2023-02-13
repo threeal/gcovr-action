@@ -423,14 +423,75 @@ exports.PackageContentCacheInfo = PackageContentCacheInfo;
 /***/ }),
 
 /***/ 9875:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.installCachedPackage = void 0;
-var install_1 = __nccwpck_require__(1450);
-Object.defineProperty(exports, "installCachedPackage", ({ enumerable: true, get: function () { return install_1.installCachedPackage; } }));
+const log_1 = __importDefault(__nccwpck_require__(3817));
+const cache_1 = __nccwpck_require__(143);
+const info_1 = __nccwpck_require__(8414);
+const install_1 = __nccwpck_require__(1450);
+function validatePackageName(packageName) {
+    switch (packageName.toLowerCase()) {
+        case "jinja2":
+            return "Jinja2";
+        case "pygments":
+            return "Pygments";
+    }
+    return packageName;
+}
+async function installCachedPackage(packageName) {
+    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+    if (pkgInfo !== null)
+        return;
+    packageName = validatePackageName(packageName);
+    await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
+        log_1.default.info("Checking for cache...");
+        const cacheInfo = new cache_1.PackageCacheInfo(packageName);
+        const contentInfo = await cacheInfo.restoreContentInfo();
+        if (contentInfo !== undefined) {
+            log_1.default.info("Restoring package from cache...");
+            const key = await contentInfo.restore();
+            if (key !== undefined) {
+                log_1.default.info("Validating package...");
+                const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+                if (pkgInfo !== null) {
+                    log_1.default.info("Package is valid");
+                    return;
+                }
+                log_1.default.warning("Invalid package! Cache probably is corrupted");
+            }
+            else {
+                log_1.default.warning("Could not restore package from cache!");
+            }
+        }
+        log_1.default.info("Installing package using pip...");
+        await (0, install_1.installPackage)(packageName);
+        log_1.default.info("Saving package to cache...");
+        try {
+            const contentInfo = await cacheInfo.accumulateContentInfo();
+            await contentInfo.save();
+            await cacheInfo.saveContentInfo();
+        }
+        catch (err) {
+            const errMsg = err instanceof Error ? err.message : "unknown error";
+            log_1.default.warning(`Could not save package to cache! ${errMsg}`);
+        }
+        log_1.default.info("Validating package...");
+        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (pkgInfo === null) {
+            log_1.default.error("Invalid package! Installation probably is corrupted");
+            throw new Error("Invalid package");
+        }
+        log_1.default.info("Package is valid");
+    });
+}
+exports.installCachedPackage = installCachedPackage;
 
 
 /***/ }),
@@ -597,24 +658,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.installCachedPackage = exports.uninstallPackage = exports.installPackage = void 0;
+exports.uninstallPackage = exports.installPackage = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
-const log_1 = __importDefault(__nccwpck_require__(3817));
-const info_1 = __nccwpck_require__(8414);
-const cache_1 = __nccwpck_require__(143);
-function validatePackageName(packageName) {
-    switch (packageName.toLowerCase()) {
-        case "jinja2":
-            return "Jinja2";
-        case "pygments":
-            return "Pygments";
-    }
-    return packageName;
-}
 async function installPackage(packageName) {
     await exec.exec("python3", ["-m", "pip", "install", packageName]);
 }
@@ -623,53 +669,6 @@ async function uninstallPackage(packageName) {
     await exec.exec("python3", ["-m", "pip", "uninstall", "-y", packageName]);
 }
 exports.uninstallPackage = uninstallPackage;
-async function installCachedPackage(packageName) {
-    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-    if (pkgInfo !== null)
-        return;
-    packageName = validatePackageName(packageName);
-    await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
-        log_1.default.info("Checking for cache...");
-        const cacheInfo = new cache_1.PackageCacheInfo(packageName);
-        const contentInfo = await cacheInfo.restoreContentInfo();
-        if (contentInfo !== undefined) {
-            log_1.default.info("Restoring package from cache...");
-            const key = await contentInfo.restore();
-            if (key !== undefined) {
-                log_1.default.info("Validating package...");
-                const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-                if (pkgInfo !== null) {
-                    log_1.default.info("Package is valid");
-                    return;
-                }
-                log_1.default.warning("Invalid package! Cache probably is corrupted");
-            }
-            else {
-                log_1.default.warning("Could not restore package from cache!");
-            }
-        }
-        log_1.default.info("Installing package using pip...");
-        await installPackage(packageName);
-        log_1.default.info("Saving package to cache...");
-        try {
-            const contentInfo = await cacheInfo.accumulateContentInfo();
-            await contentInfo.save();
-            await cacheInfo.saveContentInfo();
-        }
-        catch (err) {
-            const errMsg = err instanceof Error ? err.message : "unknown error";
-            log_1.default.warning(`Could not save package to cache! ${errMsg}`);
-        }
-        log_1.default.info("Validating package...");
-        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-        if (pkgInfo === null) {
-            log_1.default.error("Invalid package! Installation probably is corrupted");
-            throw new Error("Invalid package");
-        }
-        log_1.default.info("Package is valid");
-    });
-}
-exports.installCachedPackage = installCachedPackage;
 
 
 /***/ }),
