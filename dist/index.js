@@ -359,12 +359,10 @@ class PackageCacheInfo {
     async accumulateContentInfo() {
         return await PackageContentCacheInfo.accumulate(this.name);
     }
-    async saveContentInfo() {
-        const contentInfo = await this.accumulateContentInfo();
+    async saveContentInfo(contentInfo) {
         PackageCacheInfo.createRoot();
         io.writeJson(this.path, contentInfo);
         await cache.saveCache([this.path], this.key);
-        return contentInfo;
     }
     async restoreContentInfo() {
         const restoreKey = await cache.restoreCache([this.path], this.key);
@@ -469,7 +467,7 @@ async function savePackage(packageName) {
     try {
         const contentInfo = await cacheInfo.accumulateContentInfo();
         await contentInfo.save();
-        await cacheInfo.saveContentInfo();
+        await cacheInfo.saveContentInfo(contentInfo);
     }
     catch (err) {
         const errMsg = err instanceof Error ? err.message : "unknown error";

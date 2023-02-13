@@ -36,7 +36,7 @@ async function savePackage(packageName: string) {
   try {
     const contentInfo = await cacheInfo.accumulateContentInfo();
     await contentInfo.save();
-    await cacheInfo.saveContentInfo();
+    await cacheInfo.saveContentInfo(contentInfo);
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : "unknown error";
     log.error(`Could not save package to cache! ${errMsg}`);

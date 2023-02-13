@@ -110,8 +110,10 @@ describe("test accumulate content info of a pip package cache info", () => {
 describe("test save cache of a pip package content info", () => {
   describe(`using a valid package (${validPkgName})`, () => {
     const cacheInfo = new PackageCacheInfo(validPkgName);
+    let contentInfo: PackageContentCacheInfo;
     beforeAll(async () => {
       await installPackage(cacheInfo.name);
+      contentInfo = await cacheInfo.accumulateContentInfo();
       packageCacheInfoRemoveRoot();
     });
 
@@ -123,8 +125,8 @@ describe("test save cache of a pip package content info", () => {
 
     describe("save the cache", () => {
       test("should be resolved", async () => {
-        const prom = cacheInfo.saveContentInfo();
-        await expect(prom).resolves.toBeInstanceOf(PackageContentCacheInfo);
+        const prom = cacheInfo.saveContentInfo(contentInfo);
+        await expect(prom).resolves.toBeUndefined();
       });
     });
 
@@ -139,14 +141,6 @@ describe("test save cache of a pip package content info", () => {
       packageCacheInfoRemoveRoot();
     });
   });
-
-  describe("using an invalid package", () => {
-    const cacheInfo = new PackageCacheInfo("some-invalid-package");
-    test("should be rejected", async () => {
-      const prom = cacheInfo.saveContentInfo();
-      await expect(prom).rejects.toThrow();
-    });
-  });
 });
 
 describe("test restore cache of a pip package content info", () => {
@@ -155,7 +149,8 @@ describe("test restore cache of a pip package content info", () => {
     let source: PackageContentCacheInfo;
     beforeAll(async () => {
       await installPackage(cacheInfo.name);
-      source = await cacheInfo.saveContentInfo();
+      source = await cacheInfo.accumulateContentInfo();
+      await cacheInfo.saveContentInfo(source);
       await uninstallPackage(cacheInfo.name);
       packageCacheInfoRemoveRoot();
     });
@@ -217,7 +212,8 @@ describe("test save cache of a pip package content", () => {
     let contentInfo: PackageContentCacheInfo;
     beforeAll(async () => {
       await installPackage(cacheInfo.name);
-      contentInfo = await cacheInfo.saveContentInfo();
+      contentInfo = await cacheInfo.accumulateContentInfo();
+      await cacheInfo.saveContentInfo(contentInfo);
     });
 
     describe("check the package", () => {

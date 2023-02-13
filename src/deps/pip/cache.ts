@@ -21,12 +21,10 @@ export class PackageCacheInfo {
     return await PackageContentCacheInfo.accumulate(this.name);
   }
 
-  async saveContentInfo(): Promise<PackageContentCacheInfo> {
-    const contentInfo = await this.accumulateContentInfo();
+  async saveContentInfo(contentInfo: PackageContentCacheInfo) {
     PackageCacheInfo.createRoot();
     io.writeJson(this.path, contentInfo);
     await cache.saveCache([this.path], this.key);
-    return contentInfo;
   }
 
   async restoreContentInfo(): Promise<PackageContentCacheInfo | undefined> {
