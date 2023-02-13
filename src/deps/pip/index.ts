@@ -3,20 +3,9 @@ import { PackageCacheInfo } from "./cache";
 import { showPackageInfo } from "./info";
 import { installPackage } from "./install";
 
-function validatePackageName(packageName: string): string {
-  switch (packageName.toLowerCase()) {
-    case "jinja2":
-      return "Jinja2";
-    case "pygments":
-      return "Pygments";
-  }
-  return packageName;
-}
-
 export async function installCachedPackage(packageName: string) {
   const pkgInfo = await showPackageInfo(packageName);
   if (pkgInfo !== null) return;
-  packageName = validatePackageName(packageName);
   await log.group(
     `Installing ${log.emph(packageName)} package...`,
     async () => {

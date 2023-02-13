@@ -436,20 +436,10 @@ const log_1 = __importDefault(__nccwpck_require__(3817));
 const cache_1 = __nccwpck_require__(143);
 const info_1 = __nccwpck_require__(8414);
 const install_1 = __nccwpck_require__(1450);
-function validatePackageName(packageName) {
-    switch (packageName.toLowerCase()) {
-        case "jinja2":
-            return "Jinja2";
-        case "pygments":
-            return "Pygments";
-    }
-    return packageName;
-}
 async function installCachedPackage(packageName) {
     const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
     if (pkgInfo !== null)
         return;
-    packageName = validatePackageName(packageName);
     await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
         log_1.default.info("Checking for cache...");
         const cacheInfo = new cache_1.PackageCacheInfo(packageName);
