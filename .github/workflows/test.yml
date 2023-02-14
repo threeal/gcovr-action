@@ -9,11 +9,11 @@ jobs:
       - name: Checkout this repository
         uses: actions/checkout@v3.3.0
 
-      - name: Setup Node project
-        uses: actions/setup-node@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3.2.5
         with:
-          node-version: 16
-          cache: 'npm'
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
         run: npm install
@@ -63,11 +63,11 @@ jobs:
         with:
           name: project
 
-      - name: Setup Node project
-        uses: actions/setup-node@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3.2.5
         with:
-          node-version: 16
-          cache: 'npm'
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
         run: npm install
