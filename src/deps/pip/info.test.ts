@@ -30,7 +30,7 @@ describe("test show info of a pip package", () => {
       });
 
       test("dependencies should be valid", () => {
-        const deps = pkgInfo.dependencies;
+        const deps = pkgInfo.requires;
         try {
           expect(deps.length).toBe(1);
         } catch (err) {

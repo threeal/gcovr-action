@@ -12,7 +12,7 @@ export class PackageInfo {
   name: string = "";
   version: string = "";
   location: string = "";
-  dependencies: string[] = [];
+  requires: string[] = [];
   files: string[] = [];
 
   directories(): string[] {
@@ -76,7 +76,7 @@ export async function showPackageInfo(
           packageInfo.location = strs[1].trim();
           break;
         case "Requires":
-          packageInfo.dependencies = strs[1]
+          packageInfo.requires = strs[1]
             .split(",")
             .map((str) => str.trim())
             .filter((str) => str.length > 0);

@@ -402,7 +402,7 @@ class PackageContentCacheInfo {
         }
         const executables = await packageInfo.executables();
         let paths = executables.concat(packageInfo.directories());
-        for (const dep of packageInfo.dependencies) {
+        for (const dep of packageInfo.requires) {
             const depPaths = await PackageContentCacheInfo.accumulatePaths(dep);
             paths = paths.concat(depPaths);
         }
@@ -546,7 +546,7 @@ class PackageInfo {
         this.name = "";
         this.version = "";
         this.location = "";
-        this.dependencies = [];
+        this.requires = [];
         this.files = [];
     }
     directories() {
@@ -616,7 +616,7 @@ async function showPackageInfo(packageName) {
                     packageInfo.location = strs[1].trim();
                     break;
                 case "Requires":
-                    packageInfo.dependencies = strs[1]
+                    packageInfo.requires = strs[1]
                         .split(",")
                         .map((str) => str.trim())
                         .filter((str) => str.length > 0);

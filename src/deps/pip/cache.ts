@@ -71,7 +71,7 @@ export class PackageContentCacheInfo {
     }
     const executables = await packageInfo.executables();
     let paths = executables.concat(packageInfo.directories());
-    for (const dep of packageInfo.dependencies) {
+    for (const dep of packageInfo.requires) {
       const depPaths = await PackageContentCacheInfo.accumulatePaths(dep);
       paths = paths.concat(depPaths);
     }
