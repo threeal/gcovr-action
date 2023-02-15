@@ -9,6 +9,12 @@ jobs:
       - name: Checkout this repository
         uses: actions/checkout@v3.3.0
 
+      - name: Cache dependencies
+        uses: actions/cache@v3.2.5
+        with:
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install dependencies
         run: npm install
 
@@ -30,7 +36,6 @@ jobs:
           name: project
           path: |
             *
-            !lib/
             !node_modules/
 
   check-distribution:
@@ -45,8 +50,33 @@ jobs:
       - name: Check if the distribution is up to date
         run: git diff --exit-code HEAD
 
-  standard-usage:
+  unit-tests:
     needs: distribute
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows, ubuntu, macos]
+    steps:
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: project
+
+      - name: Cache dependencies
+        uses: actions/cache@v3.2.5
+        with:
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test
+
+  standard-usage:
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -79,7 +109,7 @@ jobs:
         uses: ./
 
   llvm-usage:
-    needs: distribute
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -106,7 +136,7 @@ jobs:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   exclusion-usage:
-    needs: distribute
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false

@@ -286,7 +286,7 @@ async function smartInstall(pkg) {
 async function checkGcovr() {
     log_1.default.info(`Checking ${log_1.default.emph("gcovr")}...`);
     if (await isMissing("gcovr")) {
-        await pip.installPackage("gcovr");
+        await pip.restoreOrInstallPackage("gcovr");
     }
 }
 async function checkLlvm() {
@@ -339,95 +339,163 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.restorePackage = exports.cachePackage = void 0;
+exports.PackageContentCacheInfo = exports.PackageCacheInfo = void 0;
 const cache = __importStar(__nccwpck_require__(7799));
+const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-const context_1 = __nccwpck_require__(3272);
-async function getCacheInfo(packageName) {
-    const context = await (0, context_1.initContext)();
-    return {
-        paths: [
-            path.join(context.userSitePackage, `${packageName.toLowerCase()}*`),
-            path.join(context.userSitePackage, `${packageName}*`),
-        ],
-        key: `pip-${os.type()}-${packageName}`,
-    };
-}
-async function cachePackage(packageName) {
-    const info = await getCacheInfo(packageName);
-    await cache.saveCache(info.paths, info.key);
-}
-exports.cachePackage = cachePackage;
-async function restorePackage(packageName) {
-    const info = await getCacheInfo(packageName);
-    const key = await cache.restoreCache(info.paths, info.key);
-    return key !== undefined;
-}
-exports.restorePackage = restorePackage;
-
-
-/***/ }),
-
-/***/ 3272:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
+const io = __importStar(__nccwpck_require__(3709));
+const info_1 = __nccwpck_require__(8414);
+class PackageCacheInfo {
+    constructor(packageName) {
+        this.name = "";
+        this.key = "";
+        this.path = "";
+        this.name = packageName;
+        this.key = `pip-${os.type()}-${packageName}-cache-info`;
+        const root = PackageCacheInfo.root();
+        this.path = path.join(root, `${packageName}.json`);
     }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.initContext = void 0;
-const exec = __importStar(__nccwpck_require__(7757));
-let gContext = null;
-async function getUserSitePackages() {
-    const cmd = "import site; print(site.getusersitepackages())";
-    const out = await exec.execOut("python3", ["-c", cmd]);
-    return out.trim();
-}
-async function initContext() {
-    if (gContext === null) {
-        gContext = {
-            userSitePackage: await getUserSitePackages(),
-        };
+    async accumulateContentInfo() {
+        return await PackageContentCacheInfo.accumulate(this.name);
     }
-    return gContext;
+    async saveContentInfo(contentInfo) {
+        PackageCacheInfo.createRoot();
+        io.writeJson(this.path, contentInfo);
+        await cache.saveCache([this.path], this.key);
+    }
+    async restoreContentInfo() {
+        const restoreKey = await cache.restoreCache([this.path], this.key);
+        if (restoreKey === undefined)
+            return undefined;
+        const contentInfo = new PackageContentCacheInfo();
+        Object.assign(contentInfo, io.readJson(this.path));
+        return contentInfo;
+    }
+    static root() {
+        return path.join(os.homedir(), ".pip_cache_info");
+    }
+    static createRoot() {
+        const root = PackageCacheInfo.root();
+        if (!fs.existsSync(root))
+            fs.mkdirSync(root);
+    }
 }
-exports.initContext = initContext;
+exports.PackageCacheInfo = PackageCacheInfo;
+class PackageContentCacheInfo {
+    constructor() {
+        this.name = "";
+        this.key = "";
+        this.paths = [];
+    }
+    static async accumulate(packageName) {
+        const cacheInfo = new PackageContentCacheInfo();
+        cacheInfo.name = packageName;
+        cacheInfo.key = `pip-${os.type()}-${packageName}`;
+        cacheInfo.paths = await PackageContentCacheInfo.accumulatePaths(packageName);
+        return cacheInfo;
+    }
+    static async accumulatePaths(packageName) {
+        const packageInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (packageInfo === undefined) {
+            throw new Error(`Could not get cache paths of unknown package: ${packageName}`);
+        }
+        const executables = await packageInfo.executables();
+        let paths = executables.concat(packageInfo.directories());
+        for (const dep of packageInfo.requires) {
+            const depPaths = await PackageContentCacheInfo.accumulatePaths(dep);
+            paths = paths.concat(depPaths);
+        }
+        return paths;
+    }
+    async save() {
+        await cache.saveCache(this.paths, this.key);
+    }
+    async restore() {
+        return await cache.restoreCache(this.paths, this.key);
+    }
+}
+exports.PackageContentCacheInfo = PackageContentCacheInfo;
 
 
 /***/ }),
 
 /***/ 9875:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.installPackage = void 0;
-var install_1 = __nccwpck_require__(1450);
-Object.defineProperty(exports, "installPackage", ({ enumerable: true, get: function () { return install_1.installPackage; } }));
+exports.restoreOrInstallPackage = void 0;
+const log_1 = __importDefault(__nccwpck_require__(3817));
+const cache_1 = __nccwpck_require__(143);
+const info_1 = __nccwpck_require__(8414);
+const install_1 = __nccwpck_require__(1450);
+async function restorePackage(packageName) {
+    try {
+        const cacheInfo = new cache_1.PackageCacheInfo(packageName);
+        const contentInfo = await cacheInfo.restoreContentInfo();
+        if (contentInfo === undefined) {
+            log_1.default.warning("Cache does not exist!");
+            return false;
+        }
+        const key = await contentInfo.restore();
+        if (key === undefined) {
+            log_1.default.warning("Content cache does not exist");
+            return false;
+        }
+        log_1.default.info("Validating package...");
+        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (pkgInfo === undefined) {
+            log_1.default.error("Invalid package! Cache probably is corrupted");
+            return false;
+        }
+        log_1.default.info("Package is valid");
+        return true;
+    }
+    catch (err) {
+        const errMsg = err instanceof Error ? err.message : "unknown error";
+        log_1.default.error(`Could not restore package from cache! ${errMsg}`);
+        return false;
+    }
+}
+async function savePackage(packageName) {
+    const cacheInfo = new cache_1.PackageCacheInfo(packageName);
+    try {
+        const contentInfo = await cacheInfo.accumulateContentInfo();
+        await contentInfo.save();
+        await cacheInfo.saveContentInfo(contentInfo);
+    }
+    catch (err) {
+        const errMsg = err instanceof Error ? err.message : "unknown error";
+        log_1.default.error(`Could not save package to cache! ${errMsg}`);
+    }
+}
+async function restoreOrInstallPackage(packageName) {
+    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+    if (pkgInfo !== undefined)
+        return;
+    await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
+        log_1.default.info("Restoring package from cache...");
+        if (await restorePackage(packageName))
+            return;
+        log_1.default.info("Installing package using pip...");
+        await (0, install_1.installPackage)(packageName);
+        log_1.default.info("Saving package to cache...");
+        savePackage(packageName);
+        log_1.default.info("Validating package...");
+        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        if (pkgInfo === undefined) {
+            log_1.default.error("Invalid package! Installation probably is corrupted");
+            throw new Error("Invalid package");
+        }
+        log_1.default.info("Package is valid");
+    });
+}
+exports.restoreOrInstallPackage = restoreOrInstallPackage;
 
 
 /***/ }),
@@ -464,33 +532,102 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.showPackageInfo = void 0;
+exports.showPackageInfo = exports.PackageInfo = void 0;
+const io = __importStar(__nccwpck_require__(7436));
+const fs = __importStar(__nccwpck_require__(7147));
+const path = __importStar(__nccwpck_require__(1017));
 const exec = __importStar(__nccwpck_require__(7757));
 const log_1 = __importDefault(__nccwpck_require__(3817));
+function isPackageDirectory(directory, pacageName) {
+    return directory.toLowerCase().includes(pacageName.toLowerCase());
+}
+class PackageInfo {
+    constructor() {
+        this.name = "";
+        this.version = "";
+        this.location = "";
+        this.requires = [];
+        this.files = [];
+    }
+    directories() {
+        const dirs = [];
+        for (const file of this.files) {
+            const strs = file.split(path.sep);
+            if (strs.length < 1)
+                continue;
+            const dir = strs[0];
+            if (dirs.includes(dir))
+                continue;
+            if (isPackageDirectory(dir, this.name))
+                dirs.push(dir);
+        }
+        const absDirs = [];
+        for (const dir of dirs) {
+            const absDir = path.join(this.location, dir);
+            if (fs.existsSync(absDir))
+                absDirs.push(absDir);
+        }
+        return absDirs;
+    }
+    async executables() {
+        const execs = [];
+        for (const file of this.files) {
+            const strs = file.split(path.sep);
+            // check if it's package directory
+            if (strs.length > 0 && isPackageDirectory(strs[0], this.name))
+                continue;
+            const exec = path.basename(file);
+            const absExec = await io.which(exec, true);
+            execs.push(absExec);
+        }
+        return execs;
+    }
+}
+exports.PackageInfo = PackageInfo;
 async function showPackageInfo(packageName) {
-    const args = ["-m", "pip", "show", packageName];
+    const args = ["-m", "pip", "show", "-f", packageName];
     const [out, ok] = await exec.execOutCheck("python3", args);
     if (!ok)
-        return null;
+        return undefined;
     const lines = out.split("\n");
-    const info = {};
+    let packageInfo = new PackageInfo();
     for (let i = 0; i < lines.length - 1; ++i) {
         const strs = lines[i].split(/:(.*)/s);
-        if (strs.length >= 2) {
-            info[strs[0].trim()] = strs[1].trim();
+        if (strs.length >= 1 && strs[0] === "Files") {
+            for (let j = i + 1; j < lines.length; ++j) {
+                const line = lines[j].trim();
+                // Check if the first line does not contain this error message
+                if (j === i + 1 && line.includes("Cannot locate"))
+                    continue;
+                if (line.length > 0)
+                    packageInfo.files.push(line);
+            }
+            break;
+        }
+        else if (strs.length >= 2) {
+            switch (strs[0]) {
+                case "Name":
+                    packageInfo.name = strs[1].trim();
+                    break;
+                case "Version":
+                    packageInfo.version = strs[1].trim();
+                    break;
+                case "Location":
+                    packageInfo.location = strs[1].trim();
+                    break;
+                case "Requires":
+                    packageInfo.requires = strs[1]
+                        .split(",")
+                        .map((str) => str.trim())
+                        .filter((str) => str.length > 0);
+                    break;
+            }
         }
         else {
             log_1.default.warning(`Invalid line: ${strs}`);
         }
     }
-    return {
-        name: info["Name"],
-        version: info["Version"],
-        dependencies: info["Requires"]
-            .split(",")
-            .map((str) => str.trim())
-            .filter((str) => str.length > 0),
-    };
+    return packageInfo;
 }
 exports.showPackageInfo = showPackageInfo;
 
@@ -525,67 +662,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.installPackage = void 0;
+exports.uninstallPackage = exports.installPackage = void 0;
 const exec = __importStar(__nccwpck_require__(7757));
-const log_1 = __importDefault(__nccwpck_require__(3817));
-const info_1 = __nccwpck_require__(8414);
-const cache_1 = __nccwpck_require__(143);
-function validatePackageName(packageName) {
-    switch (packageName.toLowerCase()) {
-        case "jinja2":
-            return "Jinja2";
-        case "pygments":
-            return "Pygments";
-    }
-    return packageName;
-}
-async function installPackageDependencies(packageInfo) {
-    for (const dependency of packageInfo.dependencies) {
-        await installPackage(dependency);
-    }
-}
 async function installPackage(packageName) {
-    let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-    if (pkgInfo === null) {
-        packageName = validatePackageName(packageName);
-        pkgInfo = await log_1.default.group(`Installing ${log_1.default.emph(packageName)} package...`, async () => {
-            log_1.default.info("Restoring package from cache...");
-            if (await (0, cache_1.restorePackage)(packageName)) {
-                log_1.default.info("Validating package...");
-                const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-                if (pkgInfo !== null) {
-                    log_1.default.info("Package is valid");
-                    return pkgInfo;
-                }
-                log_1.default.warning("Invalid package. Cache probably is corrupted!");
-            }
-            log_1.default.info("Installing package using pip...");
-            await exec.exec("python3", [
-                "-m",
-                "pip",
-                "install",
-                "--user",
-                "--no-deps",
-                packageName,
-            ]);
-            log_1.default.info("Saving package to cache...");
-            await (0, cache_1.cachePackage)(packageName);
-            log_1.default.info("Validating package...");
-            const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
-            if (pkgInfo === null) {
-                throw new Error("Invalid package. Installation probably is corrupted!");
-            }
-            log_1.default.info("Package is valid");
-            return pkgInfo;
-        });
-    }
-    await installPackageDependencies(pkgInfo);
+    await exec.exec("python3", ["-m", "pip", "install", packageName]);
 }
 exports.installPackage = installPackage;
+async function uninstallPackage(packageName) {
+    await exec.exec("python3", ["-m", "pip", "uninstall", "-y", packageName]);
+}
+exports.uninstallPackage = uninstallPackage;
 
 
 /***/ }),
@@ -791,6 +878,65 @@ async function postForm(url, form) {
     });
 }
 exports.postForm = postForm;
+
+
+/***/ }),
+
+/***/ 3709:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.writeJson = exports.readJson = void 0;
+var json_1 = __nccwpck_require__(9499);
+Object.defineProperty(exports, "readJson", ({ enumerable: true, get: function () { return json_1.readJson; } }));
+Object.defineProperty(exports, "writeJson", ({ enumerable: true, get: function () { return json_1.writeJson; } }));
+
+
+/***/ }),
+
+/***/ 9499:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.readJson = exports.writeJson = void 0;
+const fs = __importStar(__nccwpck_require__(7147));
+function writeJson(file, data) {
+    const str = JSON.stringify(data);
+    fs.writeFileSync(file, str);
+}
+exports.writeJson = writeJson;
+function readJson(file) {
+    const buf = fs.readFileSync(file);
+    return JSON.parse(buf.toString());
+}
+exports.readJson = readJson;
 
 
 /***/ }),
