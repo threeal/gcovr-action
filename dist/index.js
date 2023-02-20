@@ -340,11 +340,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PackageContentCacheInfo = exports.PackageCacheInfo = void 0;
+const io = __importStar(__nccwpck_require__(1950));
 const cache = __importStar(__nccwpck_require__(7799));
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-const io = __importStar(__nccwpck_require__(3709));
 const info_1 = __nccwpck_require__(8414);
 class PackageCacheInfo {
     constructor(packageName) {
@@ -361,7 +361,7 @@ class PackageCacheInfo {
     }
     async saveContentInfo(contentInfo) {
         PackageCacheInfo.createRoot();
-        io.writeJson(this.path, contentInfo);
+        io.writeJsonFile(this.path, contentInfo);
         await cache.saveCache([this.path], this.key);
     }
     async restoreContentInfo() {
@@ -369,7 +369,7 @@ class PackageCacheInfo {
         if (restoreKey === undefined)
             return undefined;
         const contentInfo = new PackageContentCacheInfo();
-        Object.assign(contentInfo, io.readJson(this.path));
+        Object.assign(contentInfo, io.readJsonFile(this.path));
         return contentInfo;
     }
     static root() {
@@ -882,65 +882,6 @@ exports.postForm = postForm;
 
 /***/ }),
 
-/***/ 3709:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.writeJson = exports.readJson = void 0;
-var json_1 = __nccwpck_require__(9499);
-Object.defineProperty(exports, "readJson", ({ enumerable: true, get: function () { return json_1.readJson; } }));
-Object.defineProperty(exports, "writeJson", ({ enumerable: true, get: function () { return json_1.writeJson; } }));
-
-
-/***/ }),
-
-/***/ 9499:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.readJson = exports.writeJson = void 0;
-const fs = __importStar(__nccwpck_require__(7147));
-function writeJson(file, data) {
-    const str = JSON.stringify(data);
-    fs.writeFileSync(file, str);
-}
-exports.writeJson = writeJson;
-function readJson(file) {
-    const buf = fs.readFileSync(file);
-    return JSON.parse(buf.toString());
-}
-exports.readJson = readJson;
-
-
-/***/ }),
-
 /***/ 3817:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -1061,6 +1002,65 @@ async function run() {
 }
 run();
 
+
+/***/ }),
+
+/***/ 1950:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.writeJsonFile = exports.readJsonFile = void 0;
+var json_1 = __nccwpck_require__(6149);
+Object.defineProperty(exports, "readJsonFile", ({ enumerable: true, get: function () { return json_1.readJsonFile; } }));
+Object.defineProperty(exports, "writeJsonFile", ({ enumerable: true, get: function () { return json_1.writeJsonFile; } }));
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 6149:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.readJsonFile = exports.writeJsonFile = void 0;
+const fs = __importStar(__nccwpck_require__(7147));
+function writeJsonFile(file, data) {
+    const str = JSON.stringify(data);
+    fs.writeFileSync(file, str);
+}
+exports.writeJsonFile = writeJsonFile;
+function readJsonFile(file) {
+    const buf = fs.readFileSync(file);
+    return JSON.parse(buf.toString());
+}
+exports.readJsonFile = readJsonFile;
+//# sourceMappingURL=json.js.map
 
 /***/ }),
 
