@@ -58,16 +58,16 @@ jobs:
       matrix:
         os: [windows, ubuntu, macos]
     steps:
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: project
+
       - name: Setup Python
         uses: actions/setup-python@v4.5.0
         with:
           python-version: 3.9
           cache: pip
-
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: project
 
       - name: Cache dependencies
         uses: actions/cache@v3.2.5
