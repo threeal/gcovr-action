@@ -485,7 +485,7 @@ async function restoreOrInstallPackage(packageName) {
         log_1.default.info("Installing package using pip...");
         await (0, install_1.installPackage)(packageName);
         log_1.default.info("Saving package to cache...");
-        savePackage(packageName);
+        await savePackage(packageName);
         log_1.default.info("Validating package...");
         const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
         if (pkgInfo === undefined) {
