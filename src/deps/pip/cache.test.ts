@@ -80,9 +80,7 @@ describe("test accumulate content info of a pip package cache info", () => {
 
       test("paths should be exist", () => {
         try {
-          // 2 from dependencies of rsa, except on Linux
-          const expected = 8 + (os.type() !== "Linux" ? 2 : 0);
-          expect(res.paths.length).toBe(expected);
+          expect(res.paths.length).toBe(10);
           for (const path of res.paths) {
             expect(path).toBeExist();
           }
