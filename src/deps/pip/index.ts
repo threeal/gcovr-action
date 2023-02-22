@@ -54,7 +54,7 @@ export async function restoreOrInstallPackage(packageName: string) {
       log.info("Installing package using pip...");
       await installPackage(packageName);
       log.info("Saving package to cache...");
-      savePackage(packageName);
+      await savePackage(packageName);
       log.info("Validating package...");
       const pkgInfo = await showPackageInfo(packageName);
       if (pkgInfo === undefined) {
