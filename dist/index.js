@@ -415,10 +415,10 @@ class PackageContentCacheInfo {
         return paths;
     }
     async save() {
-        await cache.saveCache(this.paths, this.key);
+        await cache.saveCache([...this.paths], this.key);
     }
     async restore() {
-        return await cache.restoreCache(this.paths, this.key);
+        return await cache.restoreCache([...this.paths], this.key);
     }
 }
 exports.PackageContentCacheInfo = PackageContentCacheInfo;
