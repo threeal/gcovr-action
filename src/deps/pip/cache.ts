@@ -1,6 +1,7 @@
 import * as io from "@actions-kit/io";
 import * as cache from "@actions/cache";
 import * as fs from "fs";
+import hash from "hash-it";
 import * as os from "os";
 import * as path from "path";
 import { showPackageInfo } from "./info";
@@ -12,7 +13,7 @@ export class PackageCacheInfo {
 
   constructor(packageName: string) {
     this.name = packageName;
-    this.key = `pip-${os.type()}-${packageName}-cache-info`;
+    this.key = `deps-pip-${os.type()}-${packageName}`;
     const root = PackageCacheInfo.root();
     this.path = path.join(root, `${packageName}.json`);
   }
@@ -55,10 +56,12 @@ export class PackageContentCacheInfo {
   ): Promise<PackageContentCacheInfo> {
     const cacheInfo = new PackageContentCacheInfo();
     cacheInfo.name = packageName;
-    cacheInfo.key = `pip-${os.type()}-${packageName}`;
     cacheInfo.paths = await PackageContentCacheInfo.accumulatePaths(
       packageName
     );
+    cacheInfo.key =
+      `deps-pip-${os.type()}-${packageName}` +
+      `-content-${hash(cacheInfo.paths)}`;
     return cacheInfo;
   }
 
@@ -79,10 +82,10 @@ export class PackageContentCacheInfo {
   }
 
   async save() {
-    await cache.saveCache(this.paths, this.key);
+    await cache.saveCache([...this.paths], this.key);
   }
 
   async restore(): Promise<string | undefined> {
-    return await cache.restoreCache(this.paths, this.key);
+    return await cache.restoreCache([...this.paths], this.key);
   }
 }

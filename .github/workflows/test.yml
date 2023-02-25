@@ -10,12 +10,14 @@ jobs:
         uses: actions/checkout@v3.3.0
 
       - name: Cache dependencies
+        id: cache-npm
         uses: actions/cache@v3.2.5
         with:
           path: node_modules
           key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
+        if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Check formatting
@@ -63,13 +65,21 @@ jobs:
         with:
           name: project
 
+      - name: Setup Python
+        uses: actions/setup-python@v4.5.0
+        with:
+          python-version: 3.9
+          cache: pip
+
       - name: Cache dependencies
+        id: cache-npm
         uses: actions/cache@v3.2.5
         with:
           path: node_modules
           key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install dependencies
+        if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Run unit tests
