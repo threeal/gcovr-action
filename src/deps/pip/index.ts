@@ -1,4 +1,4 @@
-import log from "../../log";
+import * as log from "@actions-kit/log";
 import { PackageCacheInfo } from "./cache";
 import { showPackageInfo } from "./info";
 import { installPackage } from "./install";

@@ -1,6 +1,6 @@
+import * as log from "@actions-kit/log";
 import FormData from "form-data";
 import * as fs from "fs";
-import log from "./log";
 
 type Form = { [key: string]: string | fs.ReadStream };
 
