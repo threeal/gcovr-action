@@ -1,7 +1,7 @@
-import * as io from "@actions-kit/io";
 import * as cache from "@actions/cache";
 import * as fs from "fs";
 import hash from "hash-it";
+import * as jsonfile from "jsonfile";
 import * as os from "os";
 import * as path from "path";
 import { showPackageInfo } from "./info";
@@ -24,7 +24,7 @@ export class PackageCacheInfo {
 
   async saveContentInfo(contentInfo: PackageContentCacheInfo) {
     PackageCacheInfo.createRoot();
-    io.writeJsonFile(this.path, contentInfo);
+    jsonfile.writeFileSync(this.path, contentInfo);
     await cache.saveCache([this.path], this.key);
   }
 
@@ -32,7 +32,7 @@ export class PackageCacheInfo {
     const restoreKey = await cache.restoreCache([this.path], this.key);
     if (restoreKey === undefined) return undefined;
     const contentInfo = new PackageContentCacheInfo();
-    Object.assign(contentInfo, io.readJsonFile(this.path));
+    Object.assign(contentInfo, jsonfile.readFileSync(this.path));
     return contentInfo;
   }
 
