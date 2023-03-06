@@ -30,7 +30,7 @@ jobs:
         run: npm run clean-build
 
       - name: Build this package for distribution
-        run: npm run package
+        run: npm run clean-package
 
       - name: Upload this project as an artifact
         uses: actions/upload-artifact@v3.1.2
