@@ -27,7 +27,7 @@ jobs:
         run: npm run lint
 
       - name: Build this package
-        run: npm run build
+        run: npm run clean-build
 
       - name: Build this package for distribution
         run: npm run package

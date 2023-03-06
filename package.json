@@ -6,12 +6,13 @@
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
+    "clean-build": "rm -rf lib && npm run build",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest --runInBand",
-    "all": "npm run format && npm run lint && npm run build && npm run package && npm test"
+    "all": "npm run format && npm run lint && npm run clean-build && npm run package && npm test"
   },
   "repository": {
     "type": "git",
