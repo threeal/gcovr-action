@@ -945,7 +945,7 @@ async function group(name, fn) {
         res = await fn();
     }
     catch (err) {
-        (0, log_1.error)(`Failed in ${time.elapsed()}`);
+        (0, log_1.info)(`Failed in ${time.elapsed()}`);
         core.endGroup();
         throw err;
     }
@@ -1088,7 +1088,7 @@ Object.defineProperty(exports, "info", ({ enumerable: true, get: function () { r
  * @param message warning message
  */
 function warning(message) {
-    core.info(`\u001b[33mWarning:\u001b[39m ${message}`);
+    core.warning(message);
 }
 exports.warning = warning;
 /**
@@ -1096,7 +1096,7 @@ exports.warning = warning;
  * @param message error message
  */
 function error(message) {
-    core.info(`\u001b[31mError:\u001b[39m ${message}`);
+    core.error(message);
 }
 exports.error = error;
 //# sourceMappingURL=log.js.map

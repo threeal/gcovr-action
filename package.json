@@ -30,7 +30,7 @@
   "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?302c9870debc60f9fd76e4d595ebf61340b05a63",
+    "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?dad637c6333195c333cad30cdb9f71a78faff732",
     "@actions/cache": "^3.1.4",
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
