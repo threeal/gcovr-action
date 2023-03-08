@@ -1,4 +1,4 @@
-import * as exec from "../../exec";
+import * as exec from "@actions-kit/exec";
 
 export async function installPackage(packageName: string) {
   await exec.exec("python3", ["-m", "pip", "install", packageName]);
