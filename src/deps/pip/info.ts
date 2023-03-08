@@ -1,8 +1,8 @@
+import * as exec from "@actions-kit/exec";
 import * as log from "@actions-kit/log";
 import * as io from "@actions/io";
 import * as fs from "fs";
 import * as path from "path";
-import * as exec from "../../exec";
 
 function isPackageDirectory(directory: string, pacageName: string): boolean {
   return directory.toLowerCase().includes(pacageName.toLowerCase());
