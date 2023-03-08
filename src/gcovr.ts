@@ -1,6 +1,6 @@
+import * as exec from "@actions-kit/exec";
 import * as log from "@actions-kit/log";
 import * as core from "@actions/core";
-import * as exec from "@actions/exec";
 import * as action from "./action";
 import * as coveralls from "./coveralls";
 

@@ -149,8 +149,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.check = void 0;
+const exec = __importStar(__nccwpck_require__(969));
 const log = __importStar(__nccwpck_require__(5819));
-const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
 const pip = __importStar(__nccwpck_require__(9875));
@@ -634,9 +634,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
+const exec = __importStar(__nccwpck_require__(969));
 const log = __importStar(__nccwpck_require__(5819));
 const core = __importStar(__nccwpck_require__(2186));
-const exec = __importStar(__nccwpck_require__(1514));
 const coveralls = __importStar(__nccwpck_require__(747));
 function getArgs(inputs) {
     let args = [];
