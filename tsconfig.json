@@ -1,4 +1,8 @@
 {
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts"
+  ],
   "compilerOptions": {
     "target": "es2021",
     "module": "commonjs",
@@ -7,6 +11,5 @@
     "strict": true,
     "noImplicitAny": true,
     "esModuleInterop": true
-  },
-  "exclude": ["node_modules"]
+  }
 }
