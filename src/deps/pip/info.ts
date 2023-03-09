@@ -33,16 +33,16 @@ export class PackageInfo {
   }
 
   async executables(): Promise<string[]> {
-    const execs: string[] = [];
+    const executables: string[] = [];
     for (const file of this.files) {
       const strs = file.split(path.sep);
       // check if it's package directory
       if (strs.length > 0 && isPackageDirectory(strs[0], this.name)) continue;
-      const exec = path.basename(file);
-      const absExec = await io.which(exec, true);
-      execs.push(absExec);
+      const executable = path.basename(file);
+      const absExecutable = await io.which(executable, true);
+      executables.push(absExecutable);
     }
-    return execs;
+    return executables;
   }
 }
 
@@ -53,7 +53,7 @@ export async function showPackageInfo(
   const [out, ok] = await exec.execOutCheck("python3", args);
   if (!ok) return undefined;
   const lines = out.split("\n");
-  let packageInfo = new PackageInfo();
+  const packageInfo = new PackageInfo();
   for (let i = 0; i < lines.length - 1; ++i) {
     const strs = lines[i].split(/:(.*)/s);
     if (strs.length >= 1 && strs[0] === "Files") {
