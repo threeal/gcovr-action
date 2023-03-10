@@ -34,7 +34,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(deps.length).toBe(1);
         } catch (err) {
-          throw errorAppend(err, { deps: deps });
+          throw errorAppend(err, { deps });
         }
       });
 
@@ -43,7 +43,7 @@ describe("test show info of a pip package", () => {
         try {
           expect(files).not.toBeEmpty();
         } catch (err) {
-          throw errorAppend(err, { files: files });
+          throw errorAppend(err, { files });
         }
       });
 
@@ -55,7 +55,7 @@ describe("test show info of a pip package", () => {
             expect(dir).toBeExist();
           }
         } catch (err) {
-          throw errorAppend(err, { dirs: dirs });
+          throw errorAppend(err, { dirs });
         }
       });
 
@@ -67,7 +67,7 @@ describe("test show info of a pip package", () => {
             expect(exec).toBeExist();
           }
         } catch (err) {
-          throw errorAppend(err, { execs: execs });
+          throw errorAppend(err, { execs });
         }
       });
     });

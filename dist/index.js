@@ -405,7 +405,7 @@ async function savePackage(packageName) {
     }
 }
 async function restoreOrInstallPackage(packageName) {
-    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+    let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
     if (pkgInfo !== undefined)
         return;
     await log.group(`Installing ${log.emph(packageName)} package...`, async () => {
@@ -417,7 +417,7 @@ async function restoreOrInstallPackage(packageName) {
         log.info("Saving package to cache...");
         await savePackage(packageName);
         log.info("Validating package...");
-        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        pkgInfo = await (0, info_1.showPackageInfo)(packageName);
         if (pkgInfo === undefined) {
             log.error("Invalid package! Installation probably is corrupted");
             throw new Error("Invalid package");
@@ -497,17 +497,17 @@ class PackageInfo {
         return absDirs;
     }
     async executables() {
-        const execs = [];
+        const executables = [];
         for (const file of this.files) {
             const strs = file.split(path.sep);
             // check if it's package directory
             if (strs.length > 0 && isPackageDirectory(strs[0], this.name))
                 continue;
-            const exec = path.basename(file);
-            const absExec = await io.which(exec, true);
-            execs.push(absExec);
+            const executable = path.basename(file);
+            const absExecutable = await io.which(executable, true);
+            executables.push(absExecutable);
         }
-        return execs;
+        return executables;
     }
 }
 exports.PackageInfo = PackageInfo;
@@ -517,7 +517,7 @@ async function showPackageInfo(packageName) {
     if (!ok)
         return undefined;
     const lines = out.split("\n");
-    let packageInfo = new PackageInfo();
+    const packageInfo = new PackageInfo();
     for (let i = 0; i < lines.length - 1; ++i) {
         const strs = lines[i].split(/:(.*)/s);
         if (strs.length >= 1 && strs[0] === "Files") {
