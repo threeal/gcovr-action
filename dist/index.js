@@ -788,8 +788,8 @@ async function run() {
             await coveralls.send(inputs.coverallsOut);
         }
     }
-    catch (error) {
-        log.fatal(`Action failed with error ${error}`);
+    catch (err) {
+        log.fatal(`${err instanceof Error ? err.message : err}`);
     }
 }
 run();

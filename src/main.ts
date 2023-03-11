@@ -12,8 +12,8 @@ async function run(): Promise<void> {
     if (inputs.coverallsSend && inputs.coverallsOut !== null) {
       await coveralls.send(inputs.coverallsOut);
     }
-  } catch (error) {
-    log.fatal(`Action failed with error ${error}`);
+  } catch (err) {
+    log.fatal(`${err instanceof Error ? err.message : err}`);
   }
 }
 
