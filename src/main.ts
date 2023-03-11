@@ -1,4 +1,4 @@
-import * as core from "@actions/core";
+import * as log from "@actions-kit/log";
 import * as action from "./action";
 import * as coveralls from "./coveralls";
 import * as deps from "./deps";
@@ -12,8 +12,8 @@ async function run(): Promise<void> {
     if (inputs.coverallsSend && inputs.coverallsOut !== null) {
       await coveralls.send(inputs.coverallsOut);
     }
-  } catch (error) {
-    core.setFailed(`Action failed with error ${error}`);
+  } catch (err) {
+    log.fatal(`${err instanceof Error ? err.message : err}`);
   }
 }
 

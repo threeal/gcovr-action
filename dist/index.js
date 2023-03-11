@@ -774,7 +774,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2186));
+const log = __importStar(__nccwpck_require__(5819));
 const action = __importStar(__nccwpck_require__(9139));
 const coveralls = __importStar(__nccwpck_require__(747));
 const deps = __importStar(__nccwpck_require__(4695));
@@ -788,8 +788,8 @@ async function run() {
             await coveralls.send(inputs.coverallsOut);
         }
     }
-    catch (error) {
-        core.setFailed(`Action failed with error ${error}`);
+    catch (err) {
+        log.fatal(`${err instanceof Error ? err.message : err}`);
     }
 }
 run();
@@ -1015,7 +1015,7 @@ async function group(name, fn) {
         res = await fn();
     }
     catch (err) {
-        (0, log_1.error)(`Failed in ${time.elapsed()}`);
+        (0, log_1.info)(`Failed in ${time.elapsed()}`);
         core.endGroup();
         throw err;
     }
@@ -1034,13 +1034,14 @@ exports.group = group;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.warning = exports.info = exports.error = exports.group = exports.emph = void 0;
+exports.warning = exports.info = exports.fatal = exports.error = exports.group = exports.emph = void 0;
 var emph_1 = __nccwpck_require__(2283);
 Object.defineProperty(exports, "emph", ({ enumerable: true, get: function () { return emph_1.emph; } }));
 var group_1 = __nccwpck_require__(6832);
 Object.defineProperty(exports, "group", ({ enumerable: true, get: function () { return group_1.group; } }));
 var log_1 = __nccwpck_require__(1616);
 Object.defineProperty(exports, "error", ({ enumerable: true, get: function () { return log_1.error; } }));
+Object.defineProperty(exports, "fatal", ({ enumerable: true, get: function () { return log_1.fatal; } }));
 Object.defineProperty(exports, "info", ({ enumerable: true, get: function () { return log_1.info; } }));
 Object.defineProperty(exports, "warning", ({ enumerable: true, get: function () { return log_1.warning; } }));
 //# sourceMappingURL=index.js.map
@@ -1149,7 +1150,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.error = exports.warning = exports.info = void 0;
+exports.fatal = exports.error = exports.warning = exports.info = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 var core_1 = __nccwpck_require__(2186);
 Object.defineProperty(exports, "info", ({ enumerable: true, get: function () { return core_1.info; } }));
@@ -1158,7 +1159,7 @@ Object.defineProperty(exports, "info", ({ enumerable: true, get: function () { r
  * @param message warning message
  */
 function warning(message) {
-    core.info(`\u001b[33mWarning:\u001b[39m ${message}`);
+    core.warning(message);
 }
 exports.warning = warning;
 /**
@@ -1166,9 +1167,17 @@ exports.warning = warning;
  * @param message error message
  */
 function error(message) {
-    core.info(`\u001b[31mError:\u001b[39m ${message}`);
+    core.error(message);
 }
 exports.error = error;
+/**
+ * Writes error to log with console.log and sets the action status to failed.
+ * @param message error message
+ */
+function fatal(message) {
+    core.setFailed(message);
+}
+exports.fatal = fatal;
 //# sourceMappingURL=log.js.map
 
 /***/ }),
