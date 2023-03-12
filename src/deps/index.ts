@@ -15,15 +15,30 @@ async function isMissing(tool: string): Promise<boolean> {
 }
 
 async function chocoInstall(pkg: string) {
-  await exec.exec("choco", ["install", "-y", pkg]);
+  const res = await exec.exec("choco", ["install", "-y", pkg]);
+  if (!res.isOk()) {
+    throw new Error(
+      `Failed to install Chocolatey package: ${pkg} (error code: ${res.code})`
+    );
+  }
 }
 
 async function aptInstall(pkg: string) {
-  await exec.exec("sudo", ["apt-get", "install", "-y", pkg]);
+  const res = await exec.exec("sudo", ["apt-get", "install", "-y", pkg]);
+  if (!res.isOk()) {
+    throw new Error(
+      `Failed to install APT package: ${pkg} (error code: ${res.code})`
+    );
+  }
 }
 
 async function brewInstall(pkg: string) {
-  await exec.exec("brew", ["install", pkg]);
+  const res = await exec.exec("brew", ["install", pkg]);
+  if (!res.isOk()) {
+    throw new Error(
+      `Failed to install Homebrew package: ${pkg} (error code: ${res.code})`
+    );
+  }
 }
 
 async function smartInstall(pkg: string) {

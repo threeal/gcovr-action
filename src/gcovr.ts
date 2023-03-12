@@ -32,7 +32,12 @@ export async function run(inputs: action.Inputs) {
       log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}...`);
       core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
     }
-    await exec.exec("python3", ["-m", "gcovr", ...args]);
+    const res = await exec.exec("python3", ["-m", "gcovr", ...args]);
+    if (!res.isOk()) {
+      throw new Error(
+        `Failed to generate code coverage report: unknown error (error code: ${res.code})`
+      );
+    }
     if (inputs.coverallsOut !== null) {
       log.info("Patching Coveralls API report...");
       coveralls.patch(inputs.coverallsOut);
