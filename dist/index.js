@@ -37,21 +37,27 @@ const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 function processInputs() {
     log.info("Processing the action inputs...");
-    const inputs = {
-        root: envi.getStringInput("root"),
-        gcovExecutable: envi.getStringInput("gcov-executable"),
-        exclude: envi.getStringInput("exclude"),
-        failUnderLine: envi.getNumberInput("fail-under-line"),
-        coverallsOut: envi.getStringInput("coveralls-out"),
-        coverallsSend: envi.getBooleanInput("coveralls-send"),
-        githubToken: envi.getStringInput("github-token"),
-    };
-    // Auto set coveralls output if not specified
-    if (inputs.coverallsSend && inputs.coverallsOut === null) {
-        inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-        log.info(`Auto set Coveralls output to ${log.emph(inputs.coverallsOut)}`);
+    try {
+        const inputs = {
+            root: envi.getStringInput("root"),
+            gcovExecutable: envi.getStringInput("gcov-executable"),
+            exclude: envi.getStringInput("exclude"),
+            failUnderLine: envi.getNumberInput("fail-under-line"),
+            coverallsOut: envi.getStringInput("coveralls-out"),
+            coverallsSend: envi.getBooleanInput("coveralls-send"),
+            githubToken: envi.getStringInput("github-token"),
+        };
+        // Auto set coveralls output if not specified
+        if (inputs.coverallsSend && inputs.coverallsOut === null) {
+            inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
+            log.info(`Auto set Coveralls output to ${log.emph(inputs.coverallsOut)}`);
+        }
+        return inputs;
     }
-    return inputs;
+    catch (err) {
+        const errMessage = `${err instanceof Error ? err.message : err}`;
+        throw new Error(`Failed to process the action inputs: ${errMessage}`);
+    }
 }
 exports.processInputs = processInputs;
 
