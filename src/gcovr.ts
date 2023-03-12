@@ -30,7 +30,14 @@ export async function run(inputs: action.Inputs) {
     if (inputs.githubToken !== null) {
       const label = log.emph("COVERALLS_REPO_TOKEN");
       log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}...`);
-      core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
+      try {
+        core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
+      } catch (err) {
+        const errMessage = `${err instanceof Error ? err.message : err}`;
+        throw new Error(
+          `Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`
+        );
+      }
     }
     const res = await exec.exec("python3", ["-m", "gcovr", ...args]);
     if (!res.isOk()) {
