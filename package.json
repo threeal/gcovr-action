@@ -31,7 +31,7 @@
   "license": "MIT",
   "dependencies": {
     "@actions-kit/envi": "https://gitpkg.now.sh/threeal/actions-kit/packages/envi?1778ddf93089c3038c28d0a76ed377e9ec9f4ac2",
-    "@actions-kit/exec": "https://gitpkg.now.sh/threeal/actions-kit/packages/exec?6455d7d9a5e011a7dbd61ccbdf89ad85d67726b9",
+    "@actions-kit/exec": "https://gitpkg.now.sh/threeal/actions-kit/packages/exec?9cd6bc82da94ada5c4d1433e762237907e8ff69d",
     "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118",
     "@actions/cache": "^3.1.4",
     "@actions/core": "^1.10.0",
