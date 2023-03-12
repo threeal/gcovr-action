@@ -684,7 +684,13 @@ async function run(inputs) {
         }
         if (inputs.coverallsOut !== null) {
             log.info("Patching Coveralls API report...");
-            coveralls.patch(inputs.coverallsOut);
+            try {
+                coveralls.patch(inputs.coverallsOut);
+            }
+            catch (err) {
+                const errMessage = `${err instanceof Error ? err.message : err}`;
+                throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
+            }
             log.info(`Coveralls API report outputted to ${log.emph(inputs.coverallsOut)}`);
         }
     });
