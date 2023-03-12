@@ -673,7 +673,14 @@ async function run(inputs) {
         }
         const res = await exec.exec("python3", ["-m", "gcovr", ...args]);
         if (!res.isOk()) {
-            throw new Error(`Failed to generate code coverage report: unknown error (error code: ${res.code})`);
+            let errMessage;
+            if ((res.code | 2) > 0) {
+                errMessage = `coverage is under ${inputs.failUnderLine}%`;
+            }
+            else {
+                errMessage = `unknown error (error code ${res.code})`;
+            }
+            throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }
         if (inputs.coverallsOut !== null) {
             log.info("Patching Coveralls API report...");
