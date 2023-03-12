@@ -31,30 +31,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.processInputs = void 0;
+const envi = __importStar(__nccwpck_require__(554));
 const log = __importStar(__nccwpck_require__(5819));
-const core = __importStar(__nccwpck_require__(2186));
 const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
-function getStringInput(key) {
-    const val = core.getInput(key);
-    return val.length > 0 ? val : null;
-}
-function getNumberInput(key) {
-    const val = getStringInput(key);
-    if (val === null)
-        return null;
-    return parseInt(val, 10);
-}
 function processInputs() {
     log.info("Processing the action inputs...");
     const inputs = {
-        root: getStringInput("root"),
-        gcovExecutable: getStringInput("gcov-executable"),
-        exclude: getStringInput("exclude"),
-        failUnderLine: getNumberInput("fail-under-line"),
-        coverallsOut: getStringInput("coveralls-out"),
-        coverallsSend: core.getBooleanInput("coveralls-send"),
-        githubToken: getStringInput("github-token"),
+        root: envi.getStringInput("root"),
+        gcovExecutable: envi.getStringInput("gcov-executable"),
+        exclude: envi.getStringInput("exclude"),
+        failUnderLine: envi.getNumberInput("fail-under-line"),
+        coverallsOut: envi.getStringInput("coveralls-out"),
+        coverallsSend: envi.getBooleanInput("coveralls-send"),
+        githubToken: envi.getStringInput("github-token"),
     };
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut === null) {
@@ -149,8 +139,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.check = void 0;
+const exec = __importStar(__nccwpck_require__(969));
 const log = __importStar(__nccwpck_require__(5819));
-const exec = __importStar(__nccwpck_require__(1514));
 const io = __importStar(__nccwpck_require__(7436));
 const os = __importStar(__nccwpck_require__(2037));
 const pip = __importStar(__nccwpck_require__(9875));
@@ -405,7 +395,7 @@ async function savePackage(packageName) {
     }
 }
 async function restoreOrInstallPackage(packageName) {
-    const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+    let pkgInfo = await (0, info_1.showPackageInfo)(packageName);
     if (pkgInfo !== undefined)
         return;
     await log.group(`Installing ${log.emph(packageName)} package...`, async () => {
@@ -417,7 +407,7 @@ async function restoreOrInstallPackage(packageName) {
         log.info("Saving package to cache...");
         await savePackage(packageName);
         log.info("Validating package...");
-        const pkgInfo = await (0, info_1.showPackageInfo)(packageName);
+        pkgInfo = await (0, info_1.showPackageInfo)(packageName);
         if (pkgInfo === undefined) {
             log.error("Invalid package! Installation probably is corrupted");
             throw new Error("Invalid package");
@@ -460,11 +450,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = exports.PackageInfo = void 0;
+const exec = __importStar(__nccwpck_require__(969));
 const log = __importStar(__nccwpck_require__(5819));
 const io = __importStar(__nccwpck_require__(7436));
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
-const exec = __importStar(__nccwpck_require__(7757));
 function isPackageDirectory(directory, pacageName) {
     return directory.toLowerCase().includes(pacageName.toLowerCase());
 }
@@ -497,17 +487,17 @@ class PackageInfo {
         return absDirs;
     }
     async executables() {
-        const execs = [];
+        const executables = [];
         for (const file of this.files) {
             const strs = file.split(path.sep);
             // check if it's package directory
             if (strs.length > 0 && isPackageDirectory(strs[0], this.name))
                 continue;
-            const exec = path.basename(file);
-            const absExec = await io.which(exec, true);
-            execs.push(absExec);
+            const executable = path.basename(file);
+            const absExecutable = await io.which(executable, true);
+            executables.push(absExecutable);
         }
-        return execs;
+        return executables;
     }
 }
 exports.PackageInfo = PackageInfo;
@@ -517,7 +507,7 @@ async function showPackageInfo(packageName) {
     if (!ok)
         return undefined;
     const lines = out.split("\n");
-    let packageInfo = new PackageInfo();
+    const packageInfo = new PackageInfo();
     for (let i = 0; i < lines.length - 1; ++i) {
         const strs = lines[i].split(/:(.*)/s);
         if (strs.length >= 1 && strs[0] === "Files") {
@@ -591,7 +581,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.uninstallPackage = exports.installPackage = void 0;
-const exec = __importStar(__nccwpck_require__(7757));
+const exec = __importStar(__nccwpck_require__(969));
 async function installPackage(packageName) {
     await exec.exec("python3", ["-m", "pip", "install", packageName]);
 }
@@ -600,80 +590,6 @@ async function uninstallPackage(packageName) {
     await exec.exec("python3", ["-m", "pip", "uninstall", "-y", packageName]);
 }
 exports.uninstallPackage = uninstallPackage;
-
-
-/***/ }),
-
-/***/ 7757:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.execOutCheck = exports.execCheck = exports.execOut = exports.exec = void 0;
-const actionsExec = __importStar(__nccwpck_require__(1514));
-async function exec(commandLine, args) {
-    await actionsExec.exec(commandLine, args);
-}
-exports.exec = exec;
-async function execOut(commandLine, args) {
-    let out = "";
-    await actionsExec.exec(commandLine, args, {
-        silent: true,
-        listeners: {
-            stdout: (data) => {
-                out += data.toString();
-            },
-        },
-    });
-    return out;
-}
-exports.execOut = execOut;
-async function execCheck(commandLine, args) {
-    const rc = await actionsExec.exec(commandLine, args, {
-        silent: true,
-        ignoreReturnCode: true,
-    });
-    return rc === 0;
-}
-exports.execCheck = execCheck;
-async function execOutCheck(commandLine, args) {
-    let out = "";
-    const rc = await actionsExec.exec(commandLine, args, {
-        silent: true,
-        ignoreReturnCode: true,
-        listeners: {
-            stdout: (data) => {
-                out += data.toString();
-            },
-        },
-    });
-    return [out, rc === 0];
-}
-exports.execOutCheck = execOutCheck;
 
 
 /***/ }),
@@ -708,9 +624,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.run = void 0;
+const exec = __importStar(__nccwpck_require__(969));
 const log = __importStar(__nccwpck_require__(5819));
 const core = __importStar(__nccwpck_require__(2186));
-const exec = __importStar(__nccwpck_require__(1514));
 const coveralls = __importStar(__nccwpck_require__(747));
 function getArgs(inputs) {
     let args = [];
@@ -858,7 +774,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const core = __importStar(__nccwpck_require__(2186));
+const log = __importStar(__nccwpck_require__(5819));
 const action = __importStar(__nccwpck_require__(9139));
 const coveralls = __importStar(__nccwpck_require__(747));
 const deps = __importStar(__nccwpck_require__(4695));
@@ -872,12 +788,166 @@ async function run() {
             await coveralls.send(inputs.coverallsOut);
         }
     }
-    catch (error) {
-        core.setFailed(`Action failed with error ${error}`);
+    catch (err) {
+        log.fatal(`${err instanceof Error ? err.message : err}`);
     }
 }
 run();
 
+
+/***/ }),
+
+/***/ 554:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getStringInput = exports.getNumberInput = exports.getBooleanInput = void 0;
+var input_1 = __nccwpck_require__(1295);
+Object.defineProperty(exports, "getBooleanInput", ({ enumerable: true, get: function () { return input_1.getBooleanInput; } }));
+Object.defineProperty(exports, "getNumberInput", ({ enumerable: true, get: function () { return input_1.getNumberInput; } }));
+Object.defineProperty(exports, "getStringInput", ({ enumerable: true, get: function () { return input_1.getStringInput; } }));
+//# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 1295:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getNumberInput = exports.getStringInput = exports.getBooleanInput = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+var core_1 = __nccwpck_require__(2186);
+Object.defineProperty(exports, "getBooleanInput", ({ enumerable: true, get: function () { return core_1.getBooleanInput; } }));
+function getStringInput(key) {
+    const val = core.getInput(key);
+    return val.length > 0 ? val : null;
+}
+exports.getStringInput = getStringInput;
+function getNumberInput(key) {
+    const val = getStringInput(key);
+    if (val === null)
+        return null;
+    return parseInt(val, 10);
+}
+exports.getNumberInput = getNumberInput;
+//# sourceMappingURL=input.js.map
+
+/***/ }),
+
+/***/ 295:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.execOutCheck = exports.execCheck = exports.execOut = exports.exec = void 0;
+const actionsExec = __importStar(__nccwpck_require__(1514));
+async function exec(commandLine, args) {
+    await actionsExec.exec(commandLine, args);
+}
+exports.exec = exec;
+async function execOut(commandLine, args) {
+    let out = "";
+    await actionsExec.exec(commandLine, args, {
+        silent: true,
+        listeners: {
+            stdout: (data) => {
+                out += data.toString();
+            },
+        },
+    });
+    return out;
+}
+exports.execOut = execOut;
+async function execCheck(commandLine, args) {
+    const rc = await actionsExec.exec(commandLine, args, {
+        silent: true,
+        ignoreReturnCode: true,
+    });
+    return rc === 0;
+}
+exports.execCheck = execCheck;
+async function execOutCheck(commandLine, args) {
+    let out = "";
+    const rc = await actionsExec.exec(commandLine, args, {
+        silent: true,
+        ignoreReturnCode: true,
+        listeners: {
+            stdout: (data) => {
+                out += data.toString();
+            },
+        },
+    });
+    return [out, rc === 0];
+}
+exports.execOutCheck = execOutCheck;
+//# sourceMappingURL=exec.js.map
+
+/***/ }),
+
+/***/ 969:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.execOutCheck = exports.execOut = exports.execCheck = exports.exec = void 0;
+var exec_1 = __nccwpck_require__(295);
+Object.defineProperty(exports, "exec", ({ enumerable: true, get: function () { return exec_1.exec; } }));
+Object.defineProperty(exports, "execCheck", ({ enumerable: true, get: function () { return exec_1.execCheck; } }));
+Object.defineProperty(exports, "execOut", ({ enumerable: true, get: function () { return exec_1.execOut; } }));
+Object.defineProperty(exports, "execOutCheck", ({ enumerable: true, get: function () { return exec_1.execOutCheck; } }));
+//# sourceMappingURL=index.js.map
 
 /***/ }),
 
@@ -964,13 +1034,14 @@ exports.group = group;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.warning = exports.info = exports.error = exports.group = exports.emph = void 0;
+exports.warning = exports.info = exports.fatal = exports.error = exports.group = exports.emph = void 0;
 var emph_1 = __nccwpck_require__(2283);
 Object.defineProperty(exports, "emph", ({ enumerable: true, get: function () { return emph_1.emph; } }));
 var group_1 = __nccwpck_require__(6832);
 Object.defineProperty(exports, "group", ({ enumerable: true, get: function () { return group_1.group; } }));
 var log_1 = __nccwpck_require__(1616);
 Object.defineProperty(exports, "error", ({ enumerable: true, get: function () { return log_1.error; } }));
+Object.defineProperty(exports, "fatal", ({ enumerable: true, get: function () { return log_1.fatal; } }));
 Object.defineProperty(exports, "info", ({ enumerable: true, get: function () { return log_1.info; } }));
 Object.defineProperty(exports, "warning", ({ enumerable: true, get: function () { return log_1.warning; } }));
 //# sourceMappingURL=index.js.map
@@ -1079,7 +1150,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.error = exports.warning = exports.info = void 0;
+exports.fatal = exports.error = exports.warning = exports.info = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 var core_1 = __nccwpck_require__(2186);
 Object.defineProperty(exports, "info", ({ enumerable: true, get: function () { return core_1.info; } }));
@@ -1099,6 +1170,14 @@ function error(message) {
     core.error(message);
 }
 exports.error = error;
+/**
+ * Writes error to log with console.log and sets the action status to failed.
+ * @param message error message
+ */
+function fatal(message) {
+    core.setFailed(message);
+}
+exports.fatal = fatal;
 //# sourceMappingURL=log.js.map
 
 /***/ }),
