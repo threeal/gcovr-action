@@ -37,21 +37,27 @@ const os = __importStar(__nccwpck_require__(2037));
 const path = __importStar(__nccwpck_require__(1017));
 function processInputs() {
     log.info("Processing the action inputs...");
-    const inputs = {
-        root: envi.getStringInput("root"),
-        gcovExecutable: envi.getStringInput("gcov-executable"),
-        exclude: envi.getStringInput("exclude"),
-        failUnderLine: envi.getNumberInput("fail-under-line"),
-        coverallsOut: envi.getStringInput("coveralls-out"),
-        coverallsSend: envi.getBooleanInput("coveralls-send"),
-        githubToken: envi.getStringInput("github-token"),
-    };
-    // Auto set coveralls output if not specified
-    if (inputs.coverallsSend && inputs.coverallsOut === null) {
-        inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-        log.info(`Auto set Coveralls output to ${log.emph(inputs.coverallsOut)}`);
+    try {
+        const inputs = {
+            root: envi.getStringInput("root"),
+            gcovExecutable: envi.getStringInput("gcov-executable"),
+            exclude: envi.getStringInput("exclude"),
+            failUnderLine: envi.getNumberInput("fail-under-line"),
+            coverallsOut: envi.getStringInput("coveralls-out"),
+            coverallsSend: envi.getBooleanInput("coveralls-send"),
+            githubToken: envi.getStringInput("github-token"),
+        };
+        // Auto set coveralls output if not specified
+        if (inputs.coverallsSend && inputs.coverallsOut === null) {
+            inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
+            log.info(`Auto set Coveralls output to ${log.emph(inputs.coverallsOut)}`);
+        }
+        return inputs;
     }
-    return inputs;
+    catch (err) {
+        const errMessage = `${err instanceof Error ? err.message : err}`;
+        throw new Error(`Failed to process the action inputs: ${errMessage}`);
+    }
 }
 exports.processInputs = processInputs;
 
@@ -154,13 +160,22 @@ async function isMissing(tool) {
     }
 }
 async function chocoInstall(pkg) {
-    await exec.exec("choco", ["install", "-y", pkg]);
+    const res = await exec.exec("choco", ["install", "-y", pkg]);
+    if (!res.isOk()) {
+        throw new Error(`Failed to install Chocolatey package: ${pkg} (error code: ${res.code})`);
+    }
 }
 async function aptInstall(pkg) {
-    await exec.exec("sudo", ["apt-get", "install", "-y", pkg]);
+    const res = await exec.exec("sudo", ["apt-get", "install", "-y", pkg]);
+    if (!res.isOk()) {
+        throw new Error(`Failed to install APT package: ${pkg} (error code: ${res.code})`);
+    }
 }
 async function brewInstall(pkg) {
-    await exec.exec("brew", ["install", pkg]);
+    const res = await exec.exec("brew", ["install", pkg]);
+    if (!res.isOk()) {
+        throw new Error(`Failed to install Homebrew package: ${pkg} (error code: ${res.code})`);
+    }
 }
 async function smartInstall(pkg) {
     switch (os.type()) {
@@ -503,10 +518,10 @@ class PackageInfo {
 exports.PackageInfo = PackageInfo;
 async function showPackageInfo(packageName) {
     const args = ["-m", "pip", "show", "-f", packageName];
-    const [out, ok] = await exec.execOutCheck("python3", args);
-    if (!ok)
+    const res = await exec.execOut("python3", args);
+    if (!res.isOk())
         return undefined;
-    const lines = out.split("\n");
+    const lines = res.output.split("\n");
     const packageInfo = new PackageInfo();
     for (let i = 0; i < lines.length - 1; ++i) {
         const strs = lines[i].split(/:(.*)/s);
@@ -583,11 +598,18 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.uninstallPackage = exports.installPackage = void 0;
 const exec = __importStar(__nccwpck_require__(969));
 async function installPackage(packageName) {
-    await exec.exec("python3", ["-m", "pip", "install", packageName]);
+    const res = await exec.exec("python3", ["-m", "pip", "install", packageName]);
+    if (!res.isOk()) {
+        throw new Error(`Failed to install pip package: ${packageName} (error code: ${res.code})`);
+    }
 }
 exports.installPackage = installPackage;
 async function uninstallPackage(packageName) {
-    await exec.exec("python3", ["-m", "pip", "uninstall", "-y", packageName]);
+    const args = ["-m", "pip", "uninstall", "-y", packageName];
+    const res = await exec.exec("python3", args);
+    if (!res.isOk()) {
+        throw new Error(`Failed to uninstall pip package: ${packageName} (error code: ${res.code})`);
+    }
 }
 exports.uninstallPackage = uninstallPackage;
 
@@ -653,12 +675,34 @@ async function run(inputs) {
         if (inputs.githubToken !== null) {
             const label = log.emph("COVERALLS_REPO_TOKEN");
             log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}...`);
-            core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
+            try {
+                core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
+            }
+            catch (err) {
+                const errMessage = `${err instanceof Error ? err.message : err}`;
+                throw new Error(`Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`);
+            }
         }
-        await exec.exec("python3", ["-m", "gcovr", ...args]);
+        const res = await exec.exec("python3", ["-m", "gcovr", ...args]);
+        if (!res.isOk()) {
+            let errMessage;
+            if ((res.code | 2) > 0) {
+                errMessage = `coverage is under ${inputs.failUnderLine}%`;
+            }
+            else {
+                errMessage = `unknown error (error code ${res.code})`;
+            }
+            throw new Error(`Failed to generate code coverage report: ${errMessage}`);
+        }
         if (inputs.coverallsOut !== null) {
             log.info("Patching Coveralls API report...");
-            coveralls.patch(inputs.coverallsOut);
+            try {
+                coveralls.patch(inputs.coverallsOut);
+            }
+            catch (err) {
+                const errMessage = `${err instanceof Error ? err.message : err}`;
+                throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
+            }
             log.info(`Coveralls API report outputted to ${log.emph(inputs.coverallsOut)}`);
         }
     });
@@ -890,47 +934,31 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.execOutCheck = exports.execCheck = exports.execOut = exports.exec = void 0;
+exports.execOut = exports.exec = void 0;
 const actionsExec = __importStar(__nccwpck_require__(1514));
+const result_1 = __nccwpck_require__(8004);
 async function exec(commandLine, args) {
-    await actionsExec.exec(commandLine, args);
+    const rc = await actionsExec.exec(commandLine, args, {
+        silent: true,
+        ignoreReturnCode: true,
+    });
+    return new result_1.Result(rc);
 }
 exports.exec = exec;
 async function execOut(commandLine, args) {
-    let out = "";
-    await actionsExec.exec(commandLine, args, {
+    const res = new result_1.Result();
+    res.code = await actionsExec.exec(commandLine, args, {
         silent: true,
+        ignoreReturnCode: true,
         listeners: {
             stdout: (data) => {
-                out += data.toString();
+                res.output += data.toString();
             },
         },
     });
-    return out;
+    return res;
 }
 exports.execOut = execOut;
-async function execCheck(commandLine, args) {
-    const rc = await actionsExec.exec(commandLine, args, {
-        silent: true,
-        ignoreReturnCode: true,
-    });
-    return rc === 0;
-}
-exports.execCheck = execCheck;
-async function execOutCheck(commandLine, args) {
-    let out = "";
-    const rc = await actionsExec.exec(commandLine, args, {
-        silent: true,
-        ignoreReturnCode: true,
-        listeners: {
-            stdout: (data) => {
-                out += data.toString();
-            },
-        },
-    });
-    return [out, rc === 0];
-}
-exports.execOutCheck = execOutCheck;
 //# sourceMappingURL=exec.js.map
 
 /***/ }),
@@ -941,13 +969,47 @@ exports.execOutCheck = execOutCheck;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.execOutCheck = exports.execOut = exports.execCheck = exports.exec = void 0;
+exports.Result = exports.execOut = exports.exec = void 0;
 var exec_1 = __nccwpck_require__(295);
 Object.defineProperty(exports, "exec", ({ enumerable: true, get: function () { return exec_1.exec; } }));
-Object.defineProperty(exports, "execCheck", ({ enumerable: true, get: function () { return exec_1.execCheck; } }));
 Object.defineProperty(exports, "execOut", ({ enumerable: true, get: function () { return exec_1.execOut; } }));
-Object.defineProperty(exports, "execOutCheck", ({ enumerable: true, get: function () { return exec_1.execOutCheck; } }));
+var result_1 = __nccwpck_require__(8004);
+Object.defineProperty(exports, "Result", ({ enumerable: true, get: function () { return result_1.Result; } }));
 //# sourceMappingURL=index.js.map
+
+/***/ }),
+
+/***/ 8004:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Result = void 0;
+/** A command execution result */
+class Result {
+    /**
+     * Constructs a new command execution result
+     * @param code the optional status code
+     */
+    constructor(code) {
+        /** The status code */
+        this.code = 0;
+        /** The log output */
+        this.output = "";
+        if (code !== undefined)
+            this.code = code;
+    }
+    /**
+     * Checks if the status is ok (status code is `0`)
+     * @returns `true` if the status is ok
+     */
+    isOk() {
+        return this.code === 0;
+    }
+}
+exports.Result = Result;
+//# sourceMappingURL=result.js.map
 
 /***/ }),
 

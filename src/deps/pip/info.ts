@@ -50,9 +50,9 @@ export async function showPackageInfo(
   packageName: string
 ): Promise<PackageInfo | undefined> {
   const args = ["-m", "pip", "show", "-f", packageName];
-  const [out, ok] = await exec.execOutCheck("python3", args);
-  if (!ok) return undefined;
-  const lines = out.split("\n");
+  const res = await exec.execOut("python3", args);
+  if (!res.isOk()) return undefined;
+  const lines = res.output.split("\n");
   const packageInfo = new PackageInfo();
   for (let i = 0; i < lines.length - 1; ++i) {
     const strs = lines[i].split(/:(.*)/s);
