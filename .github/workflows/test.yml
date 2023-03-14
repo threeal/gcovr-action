@@ -3,49 +3,142 @@ on:
   workflow_dispatch:
   push:
 jobs:
-  standard-usage:
+  distribute:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repository
+        uses: actions/checkout@v3.3.0
+
+      - name: Cache dependencies
+        id: cache-npm
+        uses: actions/cache@v3.3.0
+        with:
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Check formatting
+        run: npm run format-check
+
+      - name: Run static analysis
+        run: npm run lint
+
+      - name: Build this package
+        run: npm run clean-build
+
+      - name: Build this package for distribution
+        run: npm run clean-package
+
+      - name: Upload this project as an artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: project
+          path: |
+            *
+            !node_modules/
+
+  check-distribution:
+    needs: distribute
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: project
+
+      - name: Check if the distribution is up to date
+        run: git diff --exit-code HEAD
+
+  unit-tests:
+    needs: distribute
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Configure and build the test project
-        uses: threeal/cmake-action@v1.0.0
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
         with:
-          source-dir: test
+          name: project
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.5.0
+        with:
+          python-version: 3.9
+          cache: pip
+
+      - name: Cache dependencies
+        id: cache-npm
+        uses: actions/cache@v3.3.0
+        with:
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test
+
+  standard-usage:
+    needs: unit-tests
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows, ubuntu, macos]
+    steps:
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: project
+
+      - name: Configure, build, and test the sample project
+        uses: threeal/cmake-action@v1.1.0
+        with:
+          source-dir: sample
           generator: Ninja
           cxx-compiler: g++
+          run-test: true
 
-      - name: Test the test project
-        run: ctest --test-dir build
+      - name: Upload this project as an artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: project-with-build-${{ matrix.os }}
+          path: |
+            *
+            !lib/
+            !node_modules/
 
       - name: Use this action
         uses: ./
 
   llvm-usage:
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Configure and build the test project
-        uses: threeal/cmake-action@v1.0.0
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
         with:
-          source-dir: test
+          name: project
+
+      - name: Configure, build, and test the sample project
+        uses: threeal/cmake-action@v1.1.0
+        with:
+          source-dir: sample
           generator: Ninja
           c-compiler: clang
           cxx-compiler: clang++
-
-      - name: Test the test project
-        run: ctest --test-dir build
+          run-test: true
 
       - name: Use this action with llvm-cov as the gcov executable
         uses: ./
@@ -53,33 +146,33 @@ jobs:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   exclusion-usage:
+    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Configure and build the test project
-        uses: threeal/cmake-action@v1.0.0
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
         with:
-          source-dir: test
-          build-dir: test/build
+          name: project
+
+      - name: Configure, build, and test the sample project
+        uses: threeal/cmake-action@v1.1.0
+        with:
+          source-dir: sample
           generator: Ninja
           cxx-compiler: g++
           args: -DTEST_EVEN=OFF -DTEST_ODD=OFF
-
-      - name: Test the test project
-        run: ctest --test-dir test/build
+          run-test: true
 
       - name: Use this action without an exclusion
         id: failed_step
         continue-on-error: true
         uses: ./
         with:
-          root: test
+          root: sample
           fail-under-line: 100
 
       - name: Check if the previous step did fail
@@ -88,35 +181,28 @@ jobs:
       - name: Use this action without an exclusion but with a lower fail threshold
         uses: ./
         with:
-          root: test
+          root: sample
           fail-under-line: 50
 
       - name: Use this action with an exclusion
         uses: ./
         with:
-          root: test
-          exclude: test/include/*
+          root: sample
+          exclude: sample/include/*
           fail-under-line: 100
 
   coveralls-usage:
+    needs: standard-usage
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Checkout this repository
-        uses: actions/checkout@v3.3.0
-
-      - name: Configure and build the test project
-        uses: threeal/cmake-action@v1.0.0
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
         with:
-          source-dir: test
-          generator: Ninja
-          cxx-compiler: g++
-
-      - name: Test the test project
-        run: ctest --test-dir build
+          name: project-with-build-${{ matrix.os }}
 
       - name: Use this action to generate a Coveralls report
         uses: ./

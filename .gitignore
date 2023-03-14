@@ -1,1 +1,7 @@
+.*
+!.git*
+
+node_modules
+lib
+
 build
