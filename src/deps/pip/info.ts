@@ -1,8 +1,8 @@
-import * as exec from "@actions-kit/exec";
 import * as log from "@actions-kit/log";
 import * as io from "@actions/io";
 import * as fs from "fs";
 import * as path from "path";
+import { pip } from "./pip";
 
 function isPackageDirectory(directory: string, pacageName: string): boolean {
   return directory.toLowerCase().includes(pacageName.toLowerCase());
@@ -49,8 +49,7 @@ export class PackageInfo {
 export async function showPackageInfo(
   packageName: string
 ): Promise<PackageInfo | undefined> {
-  const args = ["-m", "pip", "show", "-f", packageName];
-  const res = await exec.execOut("python3", args);
+  const res = await pip.execOut("show", "-f", packageName);
   if (!res.isOk()) return undefined;
   const lines = res.output.split("\n");
   const packageInfo = new PackageInfo();
