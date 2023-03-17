@@ -465,11 +465,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.showPackageInfo = exports.PackageInfo = void 0;
-const exec = __importStar(__nccwpck_require__(969));
 const log = __importStar(__nccwpck_require__(5819));
 const io = __importStar(__nccwpck_require__(7436));
 const fs = __importStar(__nccwpck_require__(7147));
 const path = __importStar(__nccwpck_require__(1017));
+const pip_1 = __nccwpck_require__(1781);
 function isPackageDirectory(directory, pacageName) {
     return directory.toLowerCase().includes(pacageName.toLowerCase());
 }
@@ -517,8 +517,7 @@ class PackageInfo {
 }
 exports.PackageInfo = PackageInfo;
 async function showPackageInfo(packageName) {
-    const args = ["-m", "pip", "show", "-f", packageName];
-    const res = await exec.execOut("python3", ...args);
+    const res = await pip_1.pip.execOut("show", "-f", packageName);
     if (!res.isOk())
         return undefined;
     const lines = res.output.split("\n");
@@ -567,51 +566,40 @@ exports.showPackageInfo = showPackageInfo;
 /***/ }),
 
 /***/ 1450:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.uninstallPackage = exports.installPackage = void 0;
-const exec = __importStar(__nccwpck_require__(969));
+const pip_1 = __nccwpck_require__(1781);
 async function installPackage(packageName) {
-    const res = await exec.exec("python3", "-m", "pip", "install", packageName);
+    const res = await pip_1.pip.exec("install", packageName);
     if (!res.isOk()) {
         throw new Error(`Failed to install pip package: ${packageName} (error code: ${res.code})`);
     }
 }
 exports.installPackage = installPackage;
 async function uninstallPackage(packageName) {
-    const args = ["-m", "pip", "uninstall", "-y", packageName];
-    const res = await exec.exec("python3", ...args);
+    const res = await pip_1.pip.exec("uninstall", "-y", packageName);
     if (!res.isOk()) {
         throw new Error(`Failed to uninstall pip package: ${packageName} (error code: ${res.code})`);
     }
 }
 exports.uninstallPackage = uninstallPackage;
+
+
+/***/ }),
+
+/***/ 1781:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.pip = void 0;
+const exec_1 = __nccwpck_require__(969);
+exports.pip = new exec_1.Command("python3", "-m", "pip");
 
 
 /***/ }),
