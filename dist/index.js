@@ -901,14 +901,30 @@ exports.getNumberInput = getNumberInput;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Command = void 0;
 const exec_1 = __nccwpck_require__(295);
+/** A helper for executing a command */
 class Command {
+    /**
+     * Constructs a new helper for executing a command
+     * @param command command to execute
+     * @param args additional arguments for the command
+     */
     constructor(command, ...args) {
         this.command = command;
         this.args = args;
     }
+    /**
+     * Executes the command
+     * @param args additional arguments for the command
+     * @returns a command execution result
+     */
     async exec(...args) {
         return (0, exec_1.exec)(this.command, ...this.args.concat(args));
     }
+    /**
+     * Executes the command and gets the output
+     * @param args additional arguments for the command
+     * @returns a command execution result
+     */
     async execOut(...args) {
         return (0, exec_1.execOut)(this.command, ...this.args.concat(args));
     }
@@ -950,6 +966,12 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.execOut = exports.exec = void 0;
 const actionsExec = __importStar(__nccwpck_require__(1514));
 const result_1 = __nccwpck_require__(8004);
+/**
+ * Executes a command
+ * @param command command to execute
+ * @param args additional arguments for the command
+ * @returns a command execution result
+ */
 async function exec(command, ...args) {
     const rc = await actionsExec.exec(command, args, {
         silent: true,
@@ -958,6 +980,12 @@ async function exec(command, ...args) {
     return new result_1.Result(rc);
 }
 exports.exec = exec;
+/**
+ * Executes a command and gets the output
+ * @param command command to execute
+ * @param args additional arguments for the command
+ * @returns a command execution result
+ */
 async function execOut(command, ...args) {
     const res = new result_1.Result();
     res.code = await actionsExec.exec(command, args, {
