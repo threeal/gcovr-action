@@ -1,11 +1,9 @@
 import * as log from "@actions-kit/log";
-import { PackageCacheInfo } from "./cache";
-import { showPackageInfo } from "./info";
-import { installPackage } from "./install";
+import * as pip from "@actions-kit/pip";
 
 async function restorePackage(packageName: string): Promise<boolean> {
   try {
-    const cacheInfo = new PackageCacheInfo(packageName);
+    const cacheInfo = new pip.PackageCacheInfo(packageName);
     const contentInfo = await cacheInfo.restoreContentInfo();
     if (contentInfo === undefined) {
       log.warning("Cache does not exist!");
@@ -17,7 +15,7 @@ async function restorePackage(packageName: string): Promise<boolean> {
       return false;
     }
     log.info("Validating package...");
-    const pkgInfo = await showPackageInfo(packageName);
+    const pkgInfo = await pip.showPackageInfo(packageName);
     if (pkgInfo === undefined) {
       log.error("Invalid package! Cache probably is corrupted");
       return false;
@@ -32,7 +30,7 @@ async function restorePackage(packageName: string): Promise<boolean> {
 }
 
 async function savePackage(packageName: string) {
-  const cacheInfo = new PackageCacheInfo(packageName);
+  const cacheInfo = new pip.PackageCacheInfo(packageName);
   try {
     const contentInfo = await cacheInfo.accumulateContentInfo();
     await contentInfo.save();
@@ -44,7 +42,7 @@ async function savePackage(packageName: string) {
 }
 
 export async function restoreOrInstallPackage(packageName: string) {
-  let pkgInfo = await showPackageInfo(packageName);
+  let pkgInfo = await pip.showPackageInfo(packageName);
   if (pkgInfo !== undefined) return;
   await log.group(
     `Installing ${log.emph(packageName)} package...`,
@@ -52,11 +50,11 @@ export async function restoreOrInstallPackage(packageName: string) {
       log.info("Restoring package from cache...");
       if (await restorePackage(packageName)) return;
       log.info("Installing package using pip...");
-      await installPackage(packageName);
+      await pip.installPackage(packageName);
       log.info("Saving package to cache...");
       await savePackage(packageName);
       log.info("Validating package...");
-      pkgInfo = await showPackageInfo(packageName);
+      pkgInfo = await pip.showPackageInfo(packageName);
       if (pkgInfo === undefined) {
         log.error("Invalid package! Installation probably is corrupted");
         throw new Error("Invalid package");
