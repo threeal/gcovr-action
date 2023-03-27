@@ -160,19 +160,19 @@ async function isMissing(tool) {
     }
 }
 async function chocoInstall(pkg) {
-    const res = await exec.exec("choco", "install", "-y", pkg);
+    const res = await exec.run("choco", "install", "-y", pkg);
     if (!res.isOk()) {
         throw new Error(`Failed to install Chocolatey package: ${pkg} (error code: ${res.code})`);
     }
 }
 async function aptInstall(pkg) {
-    const res = await exec.exec("sudo", "apt-get", "install", "-y", pkg);
+    const res = await exec.run("sudo", "apt-get", "install", "-y", pkg);
     if (!res.isOk()) {
         throw new Error(`Failed to install APT package: ${pkg} (error code: ${res.code})`);
     }
 }
 async function brewInstall(pkg) {
-    const res = await exec.exec("brew", "install", pkg);
+    const res = await exec.run("brew", "install", pkg);
     if (!res.isOk()) {
         throw new Error(`Failed to install Homebrew package: ${pkg} (error code: ${res.code})`);
     }
@@ -384,7 +384,7 @@ async function run(inputs) {
                 throw new Error(`Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`);
             }
         }
-        const res = await exec.exec("python3", "-m", "gcovr", ...args);
+        const res = await exec.run("python3", "-m", "gcovr", ...args);
         if (!res.isOk()) {
             let errMessage;
             if ((res.code | 2) > 0) {
@@ -613,12 +613,12 @@ exports.getNumberInput = getNumberInput;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Command = void 0;
-const exec_1 = __nccwpck_require__(295);
-/** A helper for executing a command */
+const run_1 = __nccwpck_require__(5536);
+/** A helper for running a command */
 class Command {
     /**
-     * Constructs a new helper for executing a command
-     * @param command command to execute
+     * Constructs a new helper for running a command
+     * @param command a command to run
      * @param args additional arguments for the command
      */
     constructor(command, ...args) {
@@ -626,94 +626,40 @@ class Command {
         this.args = args;
     }
     /**
-     * Executes the command
+     * Runs the command
      * @param args additional arguments for the command
-     * @returns a command execution result
+     * @returns a command run result
      */
-    async exec(...args) {
-        return (0, exec_1.exec)(this.command, ...this.args.concat(args));
+    async run(...args) {
+        return (0, run_1.run)(this.command, ...this.args.concat(args));
     }
     /**
-     * Executes the command and gets the output
+     * Runs the command silently
      * @param args additional arguments for the command
-     * @returns a command execution result
+     * @returns a command run result
      */
-    async execOut(...args) {
-        return (0, exec_1.execOut)(this.command, ...this.args.concat(args));
+    async runSilently(...args) {
+        return (0, run_1.runSilently)(this.command, ...this.args.concat(args));
+    }
+    /**
+     * Runs the command and gets the output
+     * @param args additional arguments for the command
+     * @returns a command run result
+     */
+    async output(...args) {
+        return (0, run_1.output)(this.command, ...this.args.concat(args));
+    }
+    /**
+     * Runs the command silently and gets the output
+     * @param args additional arguments for the command
+     * @returns a command run result
+     */
+    async outputSilently(...args) {
+        return (0, run_1.outputSilently)(this.command, ...this.args.concat(args));
     }
 }
 exports.Command = Command;
 //# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 295:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.execOut = exports.exec = void 0;
-const actionsExec = __importStar(__nccwpck_require__(1514));
-const result_1 = __nccwpck_require__(8004);
-/**
- * Executes a command
- * @param command command to execute
- * @param args additional arguments for the command
- * @returns a command execution result
- */
-async function exec(command, ...args) {
-    const rc = await actionsExec.exec(command, args, {
-        silent: true,
-        ignoreReturnCode: true,
-    });
-    return new result_1.Result(rc);
-}
-exports.exec = exec;
-/**
- * Executes a command and gets the output
- * @param command command to execute
- * @param args additional arguments for the command
- * @returns a command execution result
- */
-async function execOut(command, ...args) {
-    const res = new result_1.Result();
-    res.code = await actionsExec.exec(command, args, {
-        silent: true,
-        ignoreReturnCode: true,
-        listeners: {
-            stdout: (data) => {
-                res.output += data.toString();
-            },
-        },
-    });
-    return res;
-}
-exports.execOut = execOut;
-//# sourceMappingURL=exec.js.map
 
 /***/ }),
 
@@ -723,14 +669,16 @@ exports.execOut = execOut;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Result = exports.execOut = exports.exec = exports.Command = void 0;
+exports.runSilently = exports.run = exports.outputSilently = exports.output = exports.Result = exports.Command = void 0;
 var command_1 = __nccwpck_require__(8565);
 Object.defineProperty(exports, "Command", ({ enumerable: true, get: function () { return command_1.Command; } }));
-var exec_1 = __nccwpck_require__(295);
-Object.defineProperty(exports, "exec", ({ enumerable: true, get: function () { return exec_1.exec; } }));
-Object.defineProperty(exports, "execOut", ({ enumerable: true, get: function () { return exec_1.execOut; } }));
 var result_1 = __nccwpck_require__(8004);
 Object.defineProperty(exports, "Result", ({ enumerable: true, get: function () { return result_1.Result; } }));
+var run_1 = __nccwpck_require__(5536);
+Object.defineProperty(exports, "output", ({ enumerable: true, get: function () { return run_1.output; } }));
+Object.defineProperty(exports, "outputSilently", ({ enumerable: true, get: function () { return run_1.outputSilently; } }));
+Object.defineProperty(exports, "run", ({ enumerable: true, get: function () { return run_1.run; } }));
+Object.defineProperty(exports, "runSilently", ({ enumerable: true, get: function () { return run_1.runSilently; } }));
 //# sourceMappingURL=index.js.map
 
 /***/ }),
@@ -766,6 +714,102 @@ class Result {
 }
 exports.Result = Result;
 //# sourceMappingURL=result.js.map
+
+/***/ }),
+
+/***/ 5536:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.outputSilently = exports.output = exports.runSilently = exports.run = void 0;
+const exec = __importStar(__nccwpck_require__(1514));
+const result_1 = __nccwpck_require__(8004);
+async function runHelper(silent, command, ...args) {
+    const rc = await exec.exec(command, args, {
+        ignoreReturnCode: true,
+        silent,
+    });
+    return new result_1.Result(rc);
+}
+/**
+ * Runs a command
+ * @param command a command to run
+ * @param args additional arguments for the command
+ * @returns a command run result
+ */
+async function run(command, ...args) {
+    return runHelper(false, command, ...args);
+}
+exports.run = run;
+/**
+ * Runs a command silently
+ * @param command a command to run
+ * @param args additional arguments for the command
+ * @returns a command run result
+ */
+async function runSilently(command, ...args) {
+    return runHelper(true, command, ...args);
+}
+exports.runSilently = runSilently;
+async function outputHelper(silent, command, ...args) {
+    const res = new result_1.Result();
+    res.code = await exec.exec(command, args, {
+        ignoreReturnCode: true,
+        listeners: {
+            stdout: (data) => {
+                res.output += data.toString();
+            },
+        },
+        silent,
+    });
+    return res;
+}
+/**
+ * Runs a command and gets the output
+ * @param command a command to run
+ * @param args additional arguments for the command
+ * @returns a command run result
+ */
+async function output(command, ...args) {
+    return outputHelper(false, command, ...args);
+}
+exports.output = output;
+/**
+ * Runs a command silently and gets the output
+ * @param command a command to run
+ * @param args additional arguments for the command
+ * @returns a command run result
+ */
+async function outputSilently(command, ...args) {
+    return outputHelper(true, command, ...args);
+}
+exports.outputSilently = outputSilently;
+//# sourceMappingURL=run.js.map
 
 /***/ }),
 

@@ -15,7 +15,7 @@ async function isMissing(tool: string): Promise<boolean> {
 }
 
 async function chocoInstall(pkg: string) {
-  const res = await exec.exec("choco", "install", "-y", pkg);
+  const res = await exec.run("choco", "install", "-y", pkg);
   if (!res.isOk()) {
     throw new Error(
       `Failed to install Chocolatey package: ${pkg} (error code: ${res.code})`
@@ -24,7 +24,7 @@ async function chocoInstall(pkg: string) {
 }
 
 async function aptInstall(pkg: string) {
-  const res = await exec.exec("sudo", "apt-get", "install", "-y", pkg);
+  const res = await exec.run("sudo", "apt-get", "install", "-y", pkg);
   if (!res.isOk()) {
     throw new Error(
       `Failed to install APT package: ${pkg} (error code: ${res.code})`
@@ -33,7 +33,7 @@ async function aptInstall(pkg: string) {
 }
 
 async function brewInstall(pkg: string) {
-  const res = await exec.exec("brew", "install", pkg);
+  const res = await exec.run("brew", "install", pkg);
   if (!res.isOk()) {
     throw new Error(
       `Failed to install Homebrew package: ${pkg} (error code: ${res.code})`
