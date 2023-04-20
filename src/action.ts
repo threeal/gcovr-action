@@ -4,13 +4,13 @@ import * as os from "os";
 import * as path from "path";
 
 export interface Inputs {
-  root: string | null;
-  gcovExecutable: string | null;
-  exclude: string | null;
-  failUnderLine: number | null;
-  coverallsOut: string | null;
-  coverallsSend: boolean;
-  githubToken: string | null;
+  root?: string;
+  gcovExecutable?: string;
+  exclude?: string;
+  failUnderLine?: number;
+  coverallsOut?: string;
+  coverallsSend?: boolean;
+  githubToken?: string;
 }
 
 export function processInputs(): Inputs {
@@ -26,7 +26,7 @@ export function processInputs(): Inputs {
       githubToken: envi.getStringInput("github-token"),
     };
     // Auto set coveralls output if not specified
-    if (inputs.coverallsSend && inputs.coverallsOut === null) {
+    if (inputs.coverallsSend && inputs.coverallsOut === undefined) {
       inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
       log.info(`Auto set Coveralls output to ${log.emph(inputs.coverallsOut)}`);
     }

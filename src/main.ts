@@ -9,7 +9,7 @@ async function run(): Promise<void> {
     const inputs = action.processInputs();
     await deps.check(inputs);
     await gcovr.run(inputs);
-    if (inputs.coverallsSend && inputs.coverallsOut !== null) {
+    if (inputs.coverallsSend && inputs.coverallsOut !== undefined) {
       await coveralls.send(inputs.coverallsOut);
     }
   } catch (err) {

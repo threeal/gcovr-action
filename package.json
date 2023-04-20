@@ -30,7 +30,7 @@
   "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions-kit/envi": "https://gitpkg.now.sh/threeal/actions-kit/packages/envi?1778ddf93089c3038c28d0a76ed377e9ec9f4ac2",
+    "@actions-kit/envi": "^0.1.0",
     "@actions-kit/exec": "^0.2.0",
     "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118",
     "@actions-kit/pip": "https://gitpkg.now.sh/threeal/actions-kit/packages/pip?0591c5edf2e4c76b7bd13ae2e346de4316c525af",
