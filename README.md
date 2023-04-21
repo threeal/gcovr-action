@@ -24,7 +24,7 @@ For more information, see [action.yml](./action.yml) and [GitHub Actions guide](
 | --- | --- | --- |
 | `root` | Path | Root directory of your source files. Defaults to current directory. File names are reported relative to this directory. |
 | `gcov-executable` | Executable name with optional arguments | Use a particular [gcov](https://gcc.gnu.org/onlinedocs/gcc/Gcov.html) executable. Must match the compiler you are using, e.g. `llvm-cov gcov` for [LLVM Clang](https://clang.llvm.org/). See [this](https://gcovr.com/en/stable/guide/compiling.html#choosing-the-right-gcov-executable). |
-| `exclude` | Regular expression | Exclude source files that match this filter. |
+| `excludes` | One or more regular expression | Exclude source files that match these filters. |
 | `fail-under-line` | 0 - 100 | Fail if the total line coverage is less than this value. |
 | `coveralls-out` | Path | Output file of the generated [Coveralls API](https://docs.coveralls.io/api-introduction) coverage report. |
 | `coveralls-send` | `true` or `false` | Send the generated Coveralls API coverage report to it's endpoint. Defaults to `false`. |

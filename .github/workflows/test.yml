@@ -191,14 +191,14 @@ jobs:
         uses: ./
         with:
           root: sample
-          exclude: sample/include/*
+          excludes: sample/include/*
           fail-under-line: 100
 
       - name: Use this action with multiple exclusions
         uses: ./
         with:
           root: sample
-          exclude: |
+          excludes: |
             sample/include/is_even.hpp
             sample/include/is_odd.hpp
           fail-under-line: 100

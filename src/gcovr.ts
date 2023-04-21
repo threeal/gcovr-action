@@ -12,7 +12,7 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.gcovExecutable !== undefined) {
     args = args.concat("--gcov-executable", inputs.gcovExecutable);
   }
-  for (const exclude of inputs.exclude) {
+  for (const exclude of inputs.excludes) {
     args = args.concat("--exclude", exclude);
   }
   if (inputs.failUnderLine !== undefined) {
