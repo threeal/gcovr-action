@@ -11,8 +11,8 @@ inputs:
   gcov-executable:
     description: Use a particular gcov executable
     required: false
-  exclude:
-    description: Exclude source files that match this filter
+  excludes:
+    description: Exclude source files that match these filters
     required: false
   fail-under-line:
     description: Fail if the total line coverage is less than this value

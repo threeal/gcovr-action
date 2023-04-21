@@ -41,7 +41,7 @@ function processInputs() {
         const inputs = {
             root: envi.getStringInput("root"),
             gcovExecutable: envi.getStringInput("gcov-executable"),
-            exclude: envi.getStringInput("exclude"),
+            excludes: envi.getMultilineInput("excludes"),
             failUnderLine: envi.getNumberInput("fail-under-line"),
             coverallsOut: envi.getStringInput("coveralls-out"),
             coverallsSend: envi.getBooleanInput("coveralls-send"),
@@ -359,8 +359,8 @@ function getArgs(inputs) {
     if (inputs.gcovExecutable !== undefined) {
         args = args.concat("--gcov-executable", inputs.gcovExecutable);
     }
-    if (inputs.exclude !== undefined) {
-        args = args.concat("--exclude", inputs.exclude);
+    for (const exclude of inputs.excludes) {
+        args = args.concat("--exclude", exclude);
     }
     if (inputs.failUnderLine !== undefined) {
         args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
