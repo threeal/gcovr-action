@@ -57,6 +57,17 @@ jobs:
 
 > Note: You can replace `@latest` with any version you like. See [this](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsuses).
 
+#### Exclude Source Files
+
+```yaml
+- name: Generate a code coverage report
+  uses: threeal/gcovr-action@latest
+  with:
+    excludes: |
+      include/internal/*
+      src/internal/*
+```
+
 #### Using LLVM Clang
 
 ```yaml
