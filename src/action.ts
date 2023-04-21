@@ -6,7 +6,7 @@ import * as path from "path";
 export interface Inputs {
   root?: string;
   gcovExecutable?: string;
-  exclude?: string;
+  exclude: string[];
   failUnderLine?: number;
   coverallsOut?: string;
   coverallsSend?: boolean;
@@ -19,7 +19,7 @@ export function processInputs(): Inputs {
     const inputs: Inputs = {
       root: envi.getStringInput("root"),
       gcovExecutable: envi.getStringInput("gcov-executable"),
-      exclude: envi.getStringInput("exclude"),
+      exclude: envi.getMultilineInput("exclude"),
       failUnderLine: envi.getNumberInput("fail-under-line"),
       coverallsOut: envi.getStringInput("coveralls-out"),
       coverallsSend: envi.getBooleanInput("coveralls-send"),
