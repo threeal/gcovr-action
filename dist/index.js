@@ -60,7 +60,7 @@ function processInputs() {
     }
 }
 exports.processInputs = processInputs;
-
+//# sourceMappingURL=action.js.map
 
 /***/ }),
 
@@ -111,7 +111,7 @@ async function send(coverallsOut) {
     });
 }
 exports.send = send;
-
+//# sourceMappingURL=coveralls.js.map
 
 /***/ }),
 
@@ -215,7 +215,7 @@ async function check(inputs) {
     }
 }
 exports.check = check;
-
+//# sourceMappingURL=index.js.map
 
 /***/ }),
 
@@ -313,7 +313,7 @@ async function restoreOrInstallPackage(packageName) {
     });
 }
 exports.restoreOrInstallPackage = restoreOrInstallPackage;
-
+//# sourceMappingURL=index.js.map
 
 /***/ }),
 
@@ -409,7 +409,7 @@ async function run(inputs) {
     });
 }
 exports.run = run;
-
+//# sourceMappingURL=gcovr.js.map
 
 /***/ }),
 
@@ -486,7 +486,7 @@ async function postForm(url, form) {
     });
 }
 exports.postForm = postForm;
-
+//# sourceMappingURL=http.js.map
 
 /***/ }),
 
@@ -538,7 +538,7 @@ async function run() {
     }
 }
 run();
-
+//# sourceMappingURL=main.js.map
 
 /***/ }),
 
