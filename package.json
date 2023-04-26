@@ -10,7 +10,7 @@
     "clean-package": "rm -rf dist && run-s package",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
-    "lint": "eslint '**/*.ts'",
+    "lint": "eslint src --ext .ts",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest --runInBand",
     "all": "run-s format lint clean-build clean-package test"
