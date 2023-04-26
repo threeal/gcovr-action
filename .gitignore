@@ -1,7 +1,9 @@
 .*
+!.eslint*
 !.git*
 
-node_modules
-lib
+lib/
+node_modules/
+tsconfig.eslint.json
 
 build
