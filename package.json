@@ -42,7 +42,7 @@
     "jsonfile": "^6.1.0"
   },
   "devDependencies": {
-    "@actions-kit/dev": "^0.1.0",
+    "@actions-kit/dev": "^0.1.1",
     "@types/fs-extra": "^11.0.1",
     "@types/node": "^18.15.13",
     "@types/tmp": "^0.2.3",
