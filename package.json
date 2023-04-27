@@ -9,7 +9,6 @@
     "clean-build": "rm -rf lib && run-s build",
     "clean-package": "rm -rf dist && run-s package",
     "format": "prettier --write \"*.{js,ts,json}\" \"src/**/*.ts\"",
-    "format-check": "prettier --check \"*.{js,ts,json}\" \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
