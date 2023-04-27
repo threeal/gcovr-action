@@ -23,8 +23,8 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm install
 
-      - name: Check formatting
-        run: npm run format-check
+      - name: Run formatter
+        run: npm run format
 
       - name: Run static analysis
         run: npm run lint
