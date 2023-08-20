@@ -96,7 +96,7 @@ jobs:
           name: project
 
       - name: Configure, build, and test the sample project
-        uses: threeal/cmake-action@v1.2.0
+        uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
           generator: Ninja
@@ -129,7 +129,7 @@ jobs:
           name: project
 
       - name: Configure, build, and test the sample project
-        uses: threeal/cmake-action@v1.2.0
+        uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
           generator: Ninja
@@ -156,7 +156,7 @@ jobs:
           name: project
 
       - name: Configure, build, and test the sample project
-        uses: threeal/cmake-action@v1.2.0
+        uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
           generator: Ninja
