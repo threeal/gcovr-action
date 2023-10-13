@@ -40,10 +40,10 @@ on:
   push:
 jobs:
   test-coverage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out this repository
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v4.1.0
 
       - name: Build and test this project
         run: |
@@ -52,16 +52,14 @@ jobs:
           ctest --test-dir build
 
       - name: Generate a code coverage report
-        uses: threeal/gcovr-action@latest
+        uses: threeal/gcovr-action@v1.0.0
 ```
-
-> Note: You can replace `@latest` with any version you like. See [this](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsuses).
 
 #### Exclude Source Files
 
 ```yaml
 - name: Generate a code coverage report
-  uses: threeal/gcovr-action@latest
+  uses: threeal/gcovr-action@v1.0.0
   with:
     excludes: |
       include/internal/*
@@ -78,7 +76,7 @@ jobs:
     ctest --test-dir build
 
 - name: Generate a code coverage report
-  uses: threeal/gcovr-action@latest
+  uses: threeal/gcovr-action@v1.0.0
   with:
     gcov-executable: llvm-cov gcov
 ```
@@ -87,7 +85,7 @@ jobs:
 
 ```yaml
 - name: Generate and send a code coverage report to Coveralls
-  uses: threeal/gcovr-action@latest
+  uses: threeal/gcovr-action@v1.0.0
   with:
     coveralls-send: true
     github-token: ${{ secrets.GITHUB_TOKEN }}
