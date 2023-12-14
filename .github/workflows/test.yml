@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4.0.0
         with:
           name: project
 
@@ -64,7 +64,7 @@ jobs:
         os: [windows, ubuntu, macos]
     steps:
       - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4.0.0
         with:
           name: project
 
@@ -91,7 +91,7 @@ jobs:
         os: [windows, ubuntu, macos]
     steps:
       - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4.0.0
         with:
           name: project
 
@@ -124,7 +124,7 @@ jobs:
         os: [windows, ubuntu, macos]
     steps:
       - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4.0.0
         with:
           name: project
 
@@ -151,7 +151,7 @@ jobs:
         os: [windows, ubuntu, macos]
     steps:
       - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4.0.0
         with:
           name: project
 
@@ -206,7 +206,7 @@ jobs:
         os: [windows, ubuntu, macos]
     steps:
       - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+        uses: actions/download-artifact@v4.0.0
         with:
           name: project-with-build-${{ matrix.os }}
 
