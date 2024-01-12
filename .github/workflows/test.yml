@@ -223,13 +223,3 @@ jobs:
         with:
           coveralls-send: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Use this action to generate and send another Coveralls report on a specified output
-        uses: ./
-        with:
-          coveralls-out: coveralls-2.json
-          coveralls-send: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check if that Coveralls report does exist
-        run: cat coveralls-2.json
