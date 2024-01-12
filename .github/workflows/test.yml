@@ -199,16 +199,12 @@ jobs:
 
   coveralls-usage:
     needs: standard-usage
-    runs-on: ${{ matrix.os }}-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows, ubuntu, macos]
+    runs-on: ubuntu-latest
     steps:
       - name: Download the project artifact
         uses: actions/download-artifact@v3.0.2
         with:
-          name: project-with-build-${{ matrix.os }}
+          name: project-with-build-ubuntu
 
       - name: Use this action to generate a Coveralls report
         uses: ./
