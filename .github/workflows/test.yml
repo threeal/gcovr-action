@@ -36,7 +36,7 @@ jobs:
         run: npm run clean-package
 
       - name: Upload this project as an artifact
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v4.2.0
         with:
           name: project
           path: |
@@ -104,7 +104,7 @@ jobs:
           run-test: true
 
       - name: Upload this project as an artifact
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v4.2.0
         with:
           name: project-with-build-${{ matrix.os }}
           path: |
