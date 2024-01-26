@@ -6,8 +6,8 @@
     "outDir": "lib",
     "sourceMap": true,
     "esModuleInterop": true,
-    "target": "es2021"
+    "target": "es2021",
   },
   "include": ["src"],
-  "exclude": ["**/*.test.ts"]
+  "exclude": ["**/*.test.ts"],
 }

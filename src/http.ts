@@ -30,7 +30,7 @@ export async function postForm(url: string, form: Form): Promise<null> {
           reject(new Error(`HTTP status code unknown: ${body.toString()}`));
         } else if (res.statusCode < 200 || res.statusCode > 299) {
           reject(
-            new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`)
+            new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`),
           );
         } else {
           log.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
