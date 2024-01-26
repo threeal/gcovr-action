@@ -18,6 +18,9 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.failUnderLine !== undefined) {
     args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
   }
+  if (inputs.xmlOut !== undefined) {
+    args = args.concat("--xml", inputs.xmlOut);
+  }
   if (inputs.coverallsOut !== undefined) {
     args = args.concat("--coveralls", inputs.coverallsOut);
   }
