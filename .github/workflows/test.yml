@@ -197,6 +197,23 @@ jobs:
             sample/include/is_odd.hpp
           fail-under-line: 100
 
+  xml-out-usage:
+    needs: standard-usage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the project artifact
+        uses: actions/download-artifact@v3.0.2
+        with:
+          name: project-with-build-ubuntu
+
+      - name: Use this action to generate an XML report
+        uses: ./
+        with:
+          xml-out: coverage.xml
+
+      - name: Check if that XML report does exist
+        run: cat coverage.xml
+
   coveralls-usage:
     needs: standard-usage
     runs-on: ubuntu-latest
