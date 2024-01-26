@@ -43,6 +43,7 @@ function processInputs() {
             gcovExecutable: envi.getStringInput("gcov-executable"),
             excludes: envi.getMultilineInput("excludes"),
             failUnderLine: envi.getNumberInput("fail-under-line"),
+            xmlOut: envi.getStringInput("xml-out"),
             coverallsOut: envi.getStringInput("coveralls-out"),
             coverallsSend: envi.getBooleanInput("coveralls-send"),
             githubToken: envi.getStringInput("github-token"),
@@ -364,6 +365,9 @@ function getArgs(inputs) {
     }
     if (inputs.failUnderLine !== undefined) {
         args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
+    }
+    if (inputs.xmlOut !== undefined) {
+        args = args.concat("--xml", inputs.xmlOut);
     }
     if (inputs.coverallsOut !== undefined) {
         args = args.concat("--coveralls", inputs.coverallsOut);

@@ -8,6 +8,7 @@ export interface Inputs {
   gcovExecutable?: string;
   excludes: string[];
   failUnderLine?: number;
+  xmlOut?: string;
   coverallsOut?: string;
   coverallsSend?: boolean;
   githubToken?: string;
@@ -21,6 +22,7 @@ export function processInputs(): Inputs {
       gcovExecutable: envi.getStringInput("gcov-executable"),
       excludes: envi.getMultilineInput("excludes"),
       failUnderLine: envi.getNumberInput("fail-under-line"),
+      xmlOut: envi.getStringInput("xml-out"),
       coverallsOut: envi.getStringInput("coveralls-out"),
       coverallsSend: envi.getBooleanInput("coveralls-send"),
       githubToken: envi.getStringInput("github-token"),
