@@ -4,14 +4,14 @@ import * as os from "os";
 import * as path from "path";
 
 export interface Inputs {
-  root?: string;
-  gcovExecutable?: string;
+  root: string | undefined;
+  gcovExecutable: string | undefined;
   excludes: string[];
-  failUnderLine?: number;
-  xmlOut?: string;
-  coverallsOut?: string;
-  coverallsSend?: boolean;
-  githubToken?: string;
+  failUnderLine: number | undefined;
+  xmlOut: string | undefined;
+  coverallsOut: string | undefined;
+  coverallsSend: boolean | undefined;
+  githubToken: string | undefined;
 }
 
 export function processInputs(): Inputs {
