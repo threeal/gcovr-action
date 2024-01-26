@@ -5,6 +5,5 @@
 coverage/
 lib/
 node_modules/
-tsconfig.eslint.json
 
 build
