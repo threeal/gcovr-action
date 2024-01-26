@@ -105,4 +105,4 @@ jobs:
 
 This project is licensed under the terms of the [MIT License](./LICENSE).
 
-Copyright © 2022-2023 [Alfi Maulana](https://github.com/threeal/)
+Copyright © 2022-2024 [Alfi Maulana](https://github.com/threeal/)
