@@ -17,6 +17,9 @@ inputs:
   fail-under-line:
     description: Fail if the total line coverage is less than this value
     required: false
+  xml-out:
+    description: Output file of the generated XML coverage report
+    required: false
   coveralls-out:
     description: Output file of the generated Coveralls API coverage report
     required: false
