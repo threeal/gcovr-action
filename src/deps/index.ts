@@ -18,7 +18,7 @@ async function chocoInstall(pkg: string) {
   const res = await exec.run("choco", "install", "-y", pkg);
   if (!res.isOk()) {
     throw new Error(
-      `Failed to install Chocolatey package: ${pkg} (error code: ${res.code})`
+      `Failed to install Chocolatey package: ${pkg} (error code: ${res.code})`,
     );
   }
 }
@@ -27,7 +27,7 @@ async function aptInstall(pkg: string) {
   const res = await exec.run("sudo", "apt-get", "install", "-y", pkg);
   if (!res.isOk()) {
     throw new Error(
-      `Failed to install APT package: ${pkg} (error code: ${res.code})`
+      `Failed to install APT package: ${pkg} (error code: ${res.code})`,
     );
   }
 }
@@ -36,7 +36,7 @@ async function brewInstall(pkg: string) {
   const res = await exec.run("brew", "install", pkg);
   if (!res.isOk()) {
     throw new Error(
-      `Failed to install Homebrew package: ${pkg} (error code: ${res.code})`
+      `Failed to install Homebrew package: ${pkg} (error code: ${res.code})`,
     );
   }
 }

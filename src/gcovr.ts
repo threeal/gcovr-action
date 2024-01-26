@@ -38,7 +38,7 @@ export async function run(inputs: action.Inputs) {
       } catch (err) {
         const errMessage = `${err instanceof Error ? err.message : err}`;
         throw new Error(
-          `Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`
+          `Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`,
         );
       }
     }
@@ -61,7 +61,7 @@ export async function run(inputs: action.Inputs) {
         throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
       }
       log.info(
-        `Coveralls API report outputted to ${log.emph(inputs.coverallsOut)}`
+        `Coveralls API report outputted to ${log.emph(inputs.coverallsOut)}`,
       );
     }
   });

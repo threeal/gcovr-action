@@ -60,6 +60,6 @@ export async function restoreOrInstallPackage(packageName: string) {
         throw new Error("Invalid package");
       }
       log.info("Package is valid");
-    }
+    },
   );
 }

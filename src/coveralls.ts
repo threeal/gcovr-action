@@ -6,7 +6,7 @@ export async function patch(coverallsOut: string) {
   let data: string = fs.readFileSync(coverallsOut).toString();
   data = data.replaceAll(
     '"service_name": "github-actions-ci"',
-    '"service_name": "github"'
+    '"service_name": "github"',
   );
   fs.writeFileSync(coverallsOut, data);
 }
