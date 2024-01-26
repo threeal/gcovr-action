@@ -3,7 +3,6 @@
     "exactOptionalPropertyTypes": true,
     "strict": true,
     "module": "node16",
-    "declaration": true,
     "outDir": "lib",
     "sourceMap": true,
     "target": "es2022",
