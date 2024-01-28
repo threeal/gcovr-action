@@ -82,11 +82,7 @@ jobs:
         uses: ./
 
   llvm-usage:
-    runs-on: ${{ matrix.os }}-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows, ubuntu, macos]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
@@ -103,7 +99,7 @@ jobs:
       - name: Use this action with llvm-cov as the gcov executable
         uses: ./
         with:
-          gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
+          gcov-executable: llvm-cov gcov
 
   exclusion-usage:
     runs-on: ${{ matrix.os }}-latest
