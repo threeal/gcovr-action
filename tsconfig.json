@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
+    "exactOptionalPropertyTypes": true,
     "strict": true,
-    "module": "commonjs",
-    "declaration": true,
+    "module": "node16",
     "outDir": "lib",
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "target": "es2021",
+    "target": "es2022",
+    "skipLibCheck": true,
   },
   "include": ["src"],
   "exclude": ["**/*.test.ts"],
