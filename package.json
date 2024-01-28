@@ -1,14 +1,13 @@
 {
   "name": "gcovr-action",
   "private": true,
-  "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
     "clean-build": "rm -rf lib && run-s build",
     "clean-package": "rm -rf dist && run-s package",
     "format": "prettier --write \"*.{js,ts,json}\" \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
-    "package": "ncc build",
+    "package": "ncc build lib/main.js",
     "test": "jest",
     "all": "run-s format lint clean-build clean-package test"
   },
