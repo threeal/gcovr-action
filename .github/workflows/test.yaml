@@ -5,7 +5,8 @@ on:
   push:
     branches: [main]
 jobs:
-  check-distribution:
+  check-package:
+    name: Check Package
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
