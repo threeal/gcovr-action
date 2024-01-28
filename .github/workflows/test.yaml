@@ -22,12 +22,6 @@ jobs:
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm install
 
-      - name: Run formatter
-        run: npm run format
-
-      - name: Run static analysis
-        run: npm run lint
-
       - name: Upload this project as an artifact
         uses: actions/upload-artifact@v3.1.3
         with:
@@ -45,8 +39,13 @@ jobs:
         with:
           name: project
 
-      - name: Check if the distribution is up to date
-        run: git diff --exit-code HEAD
+      - name: Check Format
+        run: |
+          npm run format
+          git diff --exit-code HEAD
+
+      - name: Check Lint
+        run: npm run lint
 
   unit-tests:
     needs: distribute
