@@ -69,15 +69,6 @@ jobs:
           cxx-compiler: g++
           run-test: true
 
-      - name: Upload this project as an artifact
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          name: project-with-build-${{ matrix.os }}
-          path: |
-            *
-            !lib/
-            !node_modules/
-
       - name: Use this action
         uses: ./
 
@@ -150,13 +141,16 @@ jobs:
           fail-under-line: 100
 
   xml-out-usage:
-    needs: standard-usage
     runs-on: ubuntu-latest
     steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Build and Test Sample Project
+        uses: threeal/cmake-action@v1.3.0
         with:
-          name: project-with-build-ubuntu
+          source-dir: sample
+          run-test: true
 
       - name: Use this action to generate an XML report
         uses: ./
@@ -167,13 +161,16 @@ jobs:
         run: cat coverage.xml
 
   coveralls-usage:
-    needs: standard-usage
     runs-on: ubuntu-latest
     steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Build and Test Sample Project
+        uses: threeal/cmake-action@v1.3.0
         with:
-          name: project-with-build-ubuntu
+          source-dir: sample
+          run-test: true
 
       - name: Use this action to generate a Coveralls report
         uses: ./
