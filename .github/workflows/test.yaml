@@ -5,61 +5,41 @@ on:
   push:
     branches: [main]
 jobs:
-  distribute:
+  check-package:
+    name: Check Package
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout this repository
+      - name: Checkout
         uses: actions/checkout@v4.1.1
 
-      - name: Cache dependencies
+      - name: Cache Dependencies
         id: cache-npm
         uses: actions/cache@v4.0.0
         with:
           path: node_modules
           key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Install dependencies
+      - name: Install Dependencies
         if: steps.cache-npm.outputs.cache-hit != 'true'
         run: npm install
 
-      - name: Run formatter
-        run: npm run format
+      - name: Check Format
+        run: |
+          npm run format
+          git diff --exit-code HEAD
 
-      - name: Run static analysis
+      - name: Check Lint
         run: npm run lint
 
-      - name: Upload this project as an artifact
-        uses: actions/upload-artifact@v3.1.3
-        with:
-          name: project
-          path: |
-            *
-            !node_modules/
-
-  check-distribution:
-    needs: distribute
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: project
-
-      - name: Check if the distribution is up to date
-        run: git diff --exit-code HEAD
-
   unit-tests:
-    needs: distribute
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: project
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
 
       - name: Cache dependencies
         id: cache-npm
@@ -76,17 +56,14 @@ jobs:
         run: npm test
 
   standard-usage:
-    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: project
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
 
       - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.3.0
@@ -109,17 +86,14 @@ jobs:
         uses: ./
 
   llvm-usage:
-    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: project
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
 
       - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.3.0
@@ -136,17 +110,14 @@ jobs:
           gcov-executable: ${{ matrix.os == 'macos' && 'xcrun ' || '' }}llvm-cov gcov
 
   exclusion-usage:
-    needs: unit-tests
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
         os: [windows, ubuntu, macos]
     steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
-        with:
-          name: project
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
 
       - name: Configure, build, and test the sample project
         uses: threeal/cmake-action@v1.3.0
