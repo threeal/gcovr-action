@@ -28,12 +28,6 @@ jobs:
       - name: Run static analysis
         run: npm run lint
 
-      - name: Build this package
-        run: npm run clean-build
-
-      - name: Build this package for distribution
-        run: npm run clean-package
-
       - name: Upload this project as an artifact
         uses: actions/upload-artifact@v3.1.3
         with:
