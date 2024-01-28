@@ -3,7 +3,7 @@
 [![latest version](https://img.shields.io/github/v/release/threeal/gcovr-action)](https://github.com/threeal/gcovr-action/releases/)
 [![license](https://img.shields.io/github/license/threeal/gcovr-action)](./LICENSE)
 [![build status](https://img.shields.io/github/actions/workflow/status/threeal/gcovr-action/build.yaml?branch=main)](https://github.com/threeal/gcovr-action/actions/workflows/build.yaml)
-[![test status](https://img.shields.io/github/actions/workflow/status/threeal/gcovr-action/test.yml?label=test&branch=main)](https://github.com/threeal/gcovr-action/actions/workflows/test.yml)
+[![test status](https://img.shields.io/github/actions/workflow/status/threeal/gcovr-action/test.yaml?label=test&branch=main)](https://github.com/threeal/gcovr-action/actions/workflows/test.yaml)
 
 Generate code coverage reports for a C++ project on [GitHub Actions](https://github.com/features/actions) using [gcovr](https://gcovr.com/en/stable/).
 
