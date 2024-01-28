@@ -1,33 +1,16 @@
 {
   "name": "gcovr-action",
-  "version": "1.0.0",
   "private": true,
-  "description": "Generate code coverage reports for a C++ project using gcovr",
-  "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
     "clean-build": "rm -rf lib && run-s build",
     "clean-package": "rm -rf dist && run-s package",
     "format": "prettier --write \"*.{js,ts,json}\" \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
-    "package": "ncc build",
+    "package": "ncc build lib/main.js",
     "test": "jest",
     "all": "run-s format lint clean-build clean-package test"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/threeal/gcovr-action.git"
-  },
-  "keywords": [
-    "actions",
-    "c",
-    "coverage",
-    "cpp",
-    "gcov",
-    "testing"
-  ],
-  "author": "Alfi Maulana <alfi.maulana.f@gmail.com>",
-  "license": "MIT",
   "dependencies": {
     "@actions-kit/envi": "^0.1.0",
     "@actions-kit/exec": "^0.2.0",
