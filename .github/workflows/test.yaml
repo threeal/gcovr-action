@@ -74,7 +74,7 @@ jobs:
           run-test: true
 
       - name: Upload this project as an artifact
-        uses: actions/upload-artifact@v3.1.3
+        uses: actions/upload-artifact@v4.3.0
         with:
           name: project-with-build-${{ matrix.os }}
           path: |
