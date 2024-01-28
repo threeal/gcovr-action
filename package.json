@@ -8,8 +8,7 @@
     "format": "prettier --write \"*.{js,ts,json}\" \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
     "package": "ncc build lib/main.js",
-    "test": "jest",
-    "all": "run-s format lint clean-build clean-package test"
+    "test": "jest"
   },
   "dependencies": {
     "@actions-kit/envi": "^0.1.0",
