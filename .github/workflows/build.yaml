@@ -1,0 +1,30 @@
+name: Build
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  build-package:
+    name: Build Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Cache Dependencies
+        id: cache-npm
+        uses: actions/cache@v4.0.0
+        with:
+          path: node_modules
+          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Build Package
+        run: |
+          npm run clean-build
+          npm run clean-package
+          git diff --exit-code HEAD
