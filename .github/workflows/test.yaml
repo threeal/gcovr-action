@@ -150,13 +150,16 @@ jobs:
           fail-under-line: 100
 
   xml-out-usage:
-    needs: standard-usage
     runs-on: ubuntu-latest
     steps:
-      - name: Download the project artifact
-        uses: actions/download-artifact@v3.0.2
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
+
+      - name: Build and Test Sample Project
+        uses: threeal/cmake-action@v1.3.0
         with:
-          name: project-with-build-ubuntu
+          source-dir: sample
+          run-test: true
 
       - name: Use this action to generate an XML report
         uses: ./
