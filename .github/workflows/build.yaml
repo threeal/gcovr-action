@@ -25,6 +25,5 @@ jobs:
 
       - name: Build Package
         run: |
-          npm run clean-build
-          npm run clean-package
+          npm run build
           git diff --exit-code HEAD

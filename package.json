@@ -2,14 +2,10 @@
   "name": "gcovr-action",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "clean-build": "rm -rf lib && run-s build",
-    "clean-package": "rm -rf dist && run-s package",
+    "build": "tsc && ncc build lib/main.js",
     "format": "prettier --write \"*.{js,ts,json}\" \"src/**/*.ts\"",
     "lint": "eslint src --ext .ts",
-    "package": "ncc build lib/main.js",
-    "test": "jest",
-    "all": "run-s format lint clean-build clean-package test"
+    "test": "jest"
   },
   "dependencies": {
     "@actions-kit/envi": "^0.1.0",
@@ -27,7 +23,6 @@
     "eslint-plugin-github": "^4.10.1",
     "eslint-plugin-jest": "^27.6.3",
     "jest": "^29.7.0",
-    "npm-run-all": "^4.1.5",
     "prettier": "^3.2.4",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
