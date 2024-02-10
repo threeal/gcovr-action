@@ -5,8 +5,8 @@
     "module": "node16",
     "outDir": "lib",
     "target": "es2022",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["**/*.test.ts"],
+  "exclude": ["**/*.test.ts"]
 }
