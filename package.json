@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "tsc && ncc build lib/main.js",
-    "format": "prettier --write --cache \"*.{js,ts,json}\" \"src/**/*.ts\"",
+    "format": "prettier --write --cache . !dist !README.md",
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
