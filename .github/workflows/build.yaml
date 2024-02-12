@@ -17,18 +17,10 @@ jobs:
         with:
           node-version: latest
 
-      - name: Cache Dependencies
-        id: cache-npm
-        uses: actions/cache@v4.0.0
-        with:
-          path: node_modules
-          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
       - name: Install Dependencies
-        if: steps.cache-npm.outputs.cache-hit != 'true'
-        run: npm install
+        uses: threeal/yarn-install-action@v1.0.0
 
       - name: Build Package
         run: |
-          npm run build
+          corepack yarn build
           git diff --exit-code HEAD
