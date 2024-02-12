@@ -1,16 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["dist"],
-  "rules": {
-    "camelcase": "off",
-    "i18n-text/no-en": "off",
-    "import/no-namespace": "off",
-    "no-shadow": "off"
-  },
-  "env": {
-    "es6": true,
-    "node": true
-  },
+  "extends": ["eslint:recommended"],
   "overrides": [
     {
       "files": ["**/*.ts"],
