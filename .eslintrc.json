@@ -1,5 +1,4 @@
 {
-  "extends": ["plugin:github/recommended"],
   "rules": {
     "camelcase": "off",
     "i18n-text/no-en": "off",
