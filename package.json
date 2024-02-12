@@ -3,7 +3,7 @@
   "scripts": {
     "build": "tsc && ncc build lib/main.js",
     "format": "prettier --write --cache . !dist !README.md",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint --ignore-path .gitignore ."
   },
   "dependencies": {
     "@actions-kit/envi": "^0.1.0",
