@@ -1,12 +1,5 @@
 {
-  "plugins": ["@typescript-eslint"],
   "extends": ["plugin:github/recommended"],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 9,
-    "project": "tsconfig.json",
-    "sourceType": "module"
-  },
   "rules": {
     "camelcase": "off",
     "i18n-text/no-en": "off",
@@ -17,5 +10,11 @@
     "es6": true,
     "node": true
   },
-  "ignorePatterns": ["lib/"]
+  "ignorePatterns": ["lib/"],
+  "overrides": [
+    {
+      "files": ["**/*.ts"],
+      "extends": ["plugin:@typescript-eslint/recommended"]
+    }
+  ]
 }
