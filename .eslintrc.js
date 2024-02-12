@@ -17,5 +17,5 @@ module.exports = {
     es6: true,
     node: true,
   },
-  ignorePatterns: ["jest.config.ts", "lib/"],
+  ignorePatterns: ["lib/"],
 };
