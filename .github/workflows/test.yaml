@@ -17,24 +17,16 @@ jobs:
         with:
           node-version: latest
 
-      - name: Cache Dependencies
-        id: cache-npm
-        uses: actions/cache@v4.0.0
-        with:
-          path: node_modules
-          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
       - name: Install Dependencies
-        if: steps.cache-npm.outputs.cache-hit != 'true'
-        run: npm install
+        uses: threeal/yarn-install-action@v1.0.0
 
       - name: Check Format
         run: |
-          npm run format
+          corepack yarn format
           git diff --exit-code HEAD
 
       - name: Check Lint
-        run: npm run lint
+        run: corepack yarn lint
 
   unit-tests:
     runs-on: ubuntu-latest
@@ -47,19 +39,11 @@ jobs:
         with:
           node-version: latest
 
-      - name: Cache dependencies
-        id: cache-npm
-        uses: actions/cache@v4.0.0
-        with:
-          path: node_modules
-          key: node-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-
-      - name: Install dependencies
-        if: steps.cache-npm.outputs.cache-hit != 'true'
-        run: npm install
+      - name: Install Dependencies
+        uses: threeal/yarn-install-action@v1.0.0
 
       - name: Run unit tests
-        run: npm test
+        run: corepack yarn test
 
   standard-usage:
     runs-on: ${{ matrix.os }}-latest
