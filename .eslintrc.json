@@ -1,0 +1,11 @@
+{
+  "root": true,
+  "ignorePatterns": ["dist"],
+  "extends": ["eslint:recommended"],
+  "overrides": [
+    {
+      "files": ["**/*.ts"],
+      "extends": ["plugin:@typescript-eslint/recommended"]
+    }
+  ]
+}
