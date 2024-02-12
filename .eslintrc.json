@@ -1,4 +1,5 @@
 {
+  "root": true,
   "rules": {
     "camelcase": "off",
     "i18n-text/no-en": "off",
