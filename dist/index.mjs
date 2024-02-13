@@ -84217,7 +84217,7 @@ var envi_lib = __nccwpck_require__(8613);
 var external_os_ = __nccwpck_require__(2037);
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
-;// CONCATENATED MODULE: ./lib/action.js
+;// CONCATENATED MODULE: ./lib/action.mjs
 
 
 
@@ -84252,7 +84252,7 @@ function processInputs() {
 var external_fs_ = __nccwpck_require__(7147);
 // EXTERNAL MODULE: ./.yarn/cache/form-data-npm-4.0.0-916facec2d-cb6f3ac491.zip/node_modules/form-data/lib/form_data.js
 var form_data = __nccwpck_require__(5501);
-;// CONCATENATED MODULE: ./lib/http.js
+;// CONCATENATED MODULE: ./lib/http.mjs
 
 
 async function postForm(url, form) {
@@ -84293,7 +84293,7 @@ async function postForm(url, form) {
     });
 }
 
-;// CONCATENATED MODULE: ./lib/coveralls.js
+;// CONCATENATED MODULE: ./lib/coveralls.mjs
 
 
 
@@ -84316,7 +84316,7 @@ var exec_lib = __nccwpck_require__(9450);
 var io = __nccwpck_require__(6584);
 // EXTERNAL MODULE: ./.yarn/cache/@actions-kit-pip-https-2a21246df7-a8f315c251.zip/node_modules/@actions-kit/pip/lib/index.js
 var pip_lib = __nccwpck_require__(9023);
-;// CONCATENATED MODULE: ./lib/deps/pip/index.js
+;// CONCATENATED MODULE: ./lib/deps/pip/index.mjs
 
 
 async function restorePackage(packageName) {
@@ -84381,7 +84381,7 @@ async function restoreOrInstallPackage(packageName) {
     });
 }
 
-;// CONCATENATED MODULE: ./lib/deps/index.js
+;// CONCATENATED MODULE: ./lib/deps/index.mjs
 
 
 
@@ -84454,7 +84454,7 @@ async function check(inputs) {
 
 // EXTERNAL MODULE: ./.yarn/cache/@actions-core-npm-1.10.1-3cb1000b4d-7a61446697.zip/node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(4278);
-;// CONCATENATED MODULE: ./lib/gcovr.js
+;// CONCATENATED MODULE: ./lib/gcovr.mjs
 
 
 
@@ -84520,7 +84520,7 @@ async function run(inputs) {
     });
 }
 
-;// CONCATENATED MODULE: ./lib/main.js
+;// CONCATENATED MODULE: ./lib/main.mjs
 
 
 
