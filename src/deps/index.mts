@@ -2,8 +2,8 @@ import * as exec from "@actions-kit/exec";
 import * as log from "@actions-kit/log";
 import * as io from "@actions/io";
 import * as os from "os";
-import * as action from "../action";
-import * as pip from "./pip";
+import * as action from "../action.mjs";
+import * as pip from "./pip/index.mjs";
 
 async function isMissing(tool: string): Promise<boolean> {
   try {

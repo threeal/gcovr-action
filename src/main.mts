@@ -1,8 +1,8 @@
 import * as log from "@actions-kit/log";
-import * as action from "./action";
-import * as coveralls from "./coveralls";
-import * as deps from "./deps";
-import * as gcovr from "./gcovr";
+import * as action from "./action.mjs";
+import * as coveralls from "./coveralls.mjs";
+import * as deps from "./deps/index.mjs";
+import * as gcovr from "./gcovr.mjs";
 
 async function run(): Promise<void> {
   try {

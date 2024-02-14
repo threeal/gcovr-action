@@ -1,8 +1,8 @@
 import * as exec from "@actions-kit/exec";
 import * as log from "@actions-kit/log";
 import * as core from "@actions/core";
-import * as action from "./action";
-import * as coveralls from "./coveralls";
+import * as action from "./action.mjs";
+import * as coveralls from "./coveralls.mjs";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];

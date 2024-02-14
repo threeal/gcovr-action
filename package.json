@@ -1,7 +1,8 @@
 {
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "tsc && ncc build lib/main.js",
+    "build": "tsc && ncc build lib/main.mjs",
     "format": "prettier --write --cache . !dist !README.md",
     "lint": "eslint --ignore-path .gitignore ."
   },
