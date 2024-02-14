@@ -82777,7 +82777,7 @@ async function run(inputs) {
                 throw new Error(`Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`);
             }
         }
-        const res = await exec_lib/* run */.KH("python3", "-m", "gcovr", ...args);
+        const res = await exec_lib/* run */.KH("gcovr", ...args);
         if (!res.isOk()) {
             let errMessage;
             if ((res.code | 2) > 0) {

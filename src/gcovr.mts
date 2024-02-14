@@ -42,7 +42,7 @@ export async function run(inputs: action.Inputs) {
         );
       }
     }
-    const res = await exec.run("python3", "-m", "gcovr", ...args);
+    const res = await exec.run("gcovr", ...args);
     if (!res.isOk()) {
       let errMessage: string;
       if ((res.code | 2) > 0) {
