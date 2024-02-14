@@ -4,7 +4,6 @@ import * as io from "@actions/io";
 import * as os from "os";
 import { pipxInstallAction } from "pipx-install-action";
 import * as action from "../action.mjs";
-import * as pip from "./pip/index.mjs";
 
 async function isMissing(tool: string): Promise<boolean> {
   try {
