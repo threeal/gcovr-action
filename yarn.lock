@@ -39,20 +39,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@actions-kit/pip@https://gitpkg.now.sh/threeal/actions-kit/packages/pip?0591c5edf2e4c76b7bd13ae2e346de4316c525af":
-  version: 0.1.0
-  resolution: "@actions-kit/pip@https://gitpkg.now.sh/threeal/actions-kit/packages/pip?0591c5edf2e4c76b7bd13ae2e346de4316c525af"
-  dependencies:
-    "@actions-kit/exec": "npm:^0.2.0"
-    "@actions/cache": "npm:^3.2.1"
-    "@actions/io": "npm:^1.1.3"
-    hash-it: "npm:^6.0.0"
-    jsonfile: "npm:^6.1.0"
-  checksum: 10c0/a8f315c251eafc26ec514e2965db7101075e6f1b30617e16c5f11b32b04125420f17e85b7c2666ee79caad626d6f1a50686575fef671971e370930d96f8bf2a4
-  languageName: node
-  linkType: hard
-
-"@actions/cache@npm:^3.2.1, @actions/cache@npm:^3.2.3":
+"@actions/cache@npm:^3.2.3, @actions/cache@npm:^3.2.4":
   version: 3.2.4
   resolution: "@actions/cache@npm:3.2.4"
   dependencies:
@@ -1277,7 +1264,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.6":
+"graceful-fs@npm:^4.2.6":
   version: 4.2.11
   resolution: "graceful-fs@npm:4.2.11"
   checksum: 10c0/386d011a553e02bc594ac2ca0bd6d9e4c22d7fa8cfbfc448a6d148c59ea881b092db9dbe3547ae4b88e55f1b01f7c4a2ecc53b310c042793e63aa44cf6c257f2
@@ -1295,13 +1282,6 @@ __metadata:
   version: 4.0.0
   resolution: "has-flag@npm:4.0.0"
   checksum: 10c0/2e789c61b7888d66993e14e8331449e525ef42aac53c627cc53d1c3334e768bcb6abdc4f5f0de1478a25beec6f0bd62c7549058b7ac53e924040d4f301f02fd1
-  languageName: node
-  linkType: hard
-
-"hash-it@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "hash-it@npm:6.0.0"
-  checksum: 10c0/edac58ed7b7a9e8e39e9991e89c97b5ce8235f340af4018037b4f3fb873a1e631505411543f41659888392a84b3c95b05dfc751355924b8216b8a2291775ce50
   languageName: node
   linkType: hard
 
@@ -1496,19 +1476,6 @@ __metadata:
   version: 1.0.1
   resolution: "json-stable-stringify-without-jsonify@npm:1.0.1"
   checksum: 10c0/cb168b61fd4de83e58d09aaa6425ef71001bae30d260e2c57e7d09a5fd82223e2f22a042dedaab8db23b7d9ae46854b08bb1f91675a8be11c5cffebef5fb66a5
-  languageName: node
-  linkType: hard
-
-"jsonfile@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "jsonfile@npm:6.1.0"
-  dependencies:
-    graceful-fs: "npm:^4.1.6"
-    universalify: "npm:^2.0.0"
-  dependenciesMeta:
-    graceful-fs:
-      optional: true
-  checksum: 10c0/4f95b5e8a5622b1e9e8f33c96b7ef3158122f595998114d1e7f03985649ea99cb3cd99ce1ed1831ae94c8c8543ab45ebd044207612f31a56fd08462140e46865
   languageName: node
   linkType: hard
 
@@ -1896,6 +1863,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pipx-install-action@https://github.com/threeal/pipx-install-action#dist":
+  version: 0.1.0
+  resolution: "pipx-install-action@https://github.com/threeal/pipx-install-action.git#commit=740d558bbe81839d18bd11bfbd95a4e16a43d7aa"
+  dependencies:
+    "@actions/cache": "npm:^3.2.4"
+    "@actions/core": "npm:^1.10.1"
+    "@actions/exec": "npm:^1.1.1"
+  bin:
+    pipx-install-action: src/main.mjs
+  checksum: 10c0/6266ba3f49391c8e7fc3fe5a8009a598d2b27f478ddf77658f6d0adea4e3bbdba9488a3593f8e575f4e484f9f2678bfd1472d2ec6aeb070adefb0516286bf84b
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -1989,7 +1969,6 @@ __metadata:
     "@actions-kit/envi": "npm:^0.1.0"
     "@actions-kit/exec": "npm:^0.2.0"
     "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118"
-    "@actions-kit/pip": "https://gitpkg.now.sh/threeal/actions-kit/packages/pip?0591c5edf2e4c76b7bd13ae2e346de4316c525af"
     "@actions/cache": "npm:^3.2.3"
     "@actions/core": "npm:^1.10.1"
     "@actions/io": "npm:^1.1.3"
@@ -1999,6 +1978,7 @@ __metadata:
     "@vercel/ncc": "npm:^0.38.1"
     eslint: "npm:^8.56.0"
     form-data: "npm:^4.0.0"
+    pipx-install-action: "https://github.com/threeal/pipx-install-action#dist"
     prettier: "npm:^3.2.4"
     typescript: "npm:^5.3.3"
   languageName: unknown
@@ -2304,13 +2284,6 @@ __metadata:
   dependencies:
     imurmurhash: "npm:^0.1.4"
   checksum: 10c0/cb811d9d54eb5821b81b18205750be84cb015c20a4a44280794e915f5a0a70223ce39066781a354e872df3572e8155c228f43ff0cce94c7cbf4da2cc7cbdd635
-  languageName: node
-  linkType: hard
-
-"universalify@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "universalify@npm:2.0.1"
-  checksum: 10c0/73e8ee3809041ca8b818efb141801a1004e3fc0002727f1531f4de613ea281b494a40909596dae4a042a4fb6cd385af5d4db2e137b1362e0e91384b828effd3a
   languageName: node
   linkType: hard
 
