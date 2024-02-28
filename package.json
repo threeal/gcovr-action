@@ -17,7 +17,7 @@
     "pipx-install-action": "https://github.com/threeal/pipx-install-action#dist"
   },
   "devDependencies": {
-    "@types/node": "^20.11.20",
+    "@types/node": "^20.11.22",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.2",
     "@vercel/ncc": "^0.38.1",
