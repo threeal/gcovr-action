@@ -72,7 +72,7 @@ jobs:
 
 ```yaml
 - name: Generate a code coverage report
-  uses: threeal/gcovr-action@v1.0.0
+  uses: threeal/gcovr-action@xml-out
   with:
     xml-out: coverage.xml
 ```
