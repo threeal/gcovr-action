@@ -7,29 +7,21 @@ branding:
 inputs:
   root:
     description: Root directory of your source files
-    required: false
   gcov-executable:
     description: Use a particular gcov executable
-    required: false
   excludes:
     description: Exclude source files that match these filters
-    required: false
   fail-under-line:
     description: Fail if the total line coverage is less than this value
-    required: false
   xml-out:
     description: Output file of the generated XML coverage report
-    required: false
   coveralls-out:
     description: Output file of the generated Coveralls API coverage report
-    required: false
   coveralls-send:
     description: Send the generated Coveralls API coverage report to it's endpoint (true/false)
-    required: false
     default: false
   github-token:
     description: GitHub token of your project
-    required: false
 runs:
   using: node16
   main: dist/index.mjs
