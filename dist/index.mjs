@@ -82564,11 +82564,16 @@ var exec_lib = __nccwpck_require__(7221);
 var io = __nccwpck_require__(1793);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2340);
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
+function r(r){return function(r){if("object"==typeof(e=r)&&null!==e&&"message"in e&&"string"==typeof e.message)return r;var e;try{return new Error(JSON.stringify(r))}catch(e){return new Error(String(r))}}(r).message}
+//# sourceMappingURL=index.esm.js.map
+
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-cache-npm-3.2.4-c57b047f14-10c0.zip/node_modules/@actions/cache/lib/cache.js
 var cache = __nccwpck_require__(3193);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-exec-npm-1.1.1-90973d2f96-10c0.zip/node_modules/@actions/exec/lib/exec.js
 var exec = __nccwpck_require__(4926);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-https-c5991cd929-10c0.zip/node_modules/pipx-install-action/src/pipx/environment.mjs
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/environment.js
+
 
 
 
@@ -82581,7 +82586,7 @@ async function getEnvironment(env) {
         return res.stdout;
     }
     catch (err) {
-        throw new Error(`Failed to get ${env}: ${err.message}`);
+        throw new Error(`Failed to get ${env}: ${r(err)}`);
     }
 }
 function ensurePath() {
@@ -82592,7 +82597,8 @@ function ensurePath() {
     core.addPath(binDir);
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-https-c5991cd929-10c0.zip/node_modules/pipx-install-action/src/pipx/cache.mjs
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/cache.js
+
 
 
 
@@ -82603,7 +82609,7 @@ async function savePackageCache(pkg) {
         await (0,cache.saveCache)([external_path_.join(binDir, `${pkg}*`), external_path_.join(localVenvs, pkg)], `pipx-${process.platform}-${pkg}`);
     }
     catch (err) {
-        throw new Error(`Failed to save ${pkg} cache: ${err.message}`);
+        throw new Error(`Failed to save ${pkg} cache: ${r(err)}`);
     }
 }
 async function restorePackageCache(pkg) {
@@ -82614,22 +82620,23 @@ async function restorePackageCache(pkg) {
         return key !== undefined;
     }
     catch (err) {
-        throw new Error(`Failed to restore ${pkg} cache: ${err.message}`);
+        throw new Error(`Failed to restore ${pkg} cache: ${r(err)}`);
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-https-c5991cd929-10c0.zip/node_modules/pipx-install-action/src/pipx/install.mjs
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/install.js
+
 
 async function installPackage(pkg) {
     try {
         await (0,exec.exec)("pipx", ["install", pkg]);
     }
     catch (err) {
-        throw new Error(`Failed to install ${pkg}: ${err.message}`);
+        throw new Error(`Failed to install ${pkg}: ${r(err)}`);
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-https-c5991cd929-10c0.zip/node_modules/pipx-install-action/src/pipx/index.mjs
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/index.js
 
 
 
@@ -82641,28 +82648,57 @@ async function installPackage(pkg) {
     savePackageCache: savePackageCache,
 });
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-https-c5991cd929-10c0.zip/node_modules/pipx-install-action/src/action.mjs
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/action.js
+
 
 
 async function pipxInstallAction(...pkgs) {
     core.info("Ensuring pipx path...");
-    pipx.ensurePath();
+    try {
+        pipx.ensurePath();
+    }
+    catch (err) {
+        core.setFailed(`Failed to ensure pipx path: ${r(err)}`);
+        return;
+    }
     for (const pkg of pkgs) {
-        const cacheFound = await core.group(`Restoring \u001b[34m${pkg}\u001b[39m cache...`, async () => {
-            return pipx.restorePackageCache(pkg);
-        });
+        let cacheFound;
+        core.startGroup(`Restoring \u001b[34m${pkg}\u001b[39m cache...`);
+        try {
+            cacheFound = await pipx.restorePackageCache(pkg);
+        }
+        catch (err) {
+            core.endGroup();
+            core.setFailed(`Failed to restore ${pkg} cache: ${r(err)}`);
+            return;
+        }
+        core.endGroup();
         if (!cacheFound) {
-            await core.group(`Installing \u001b[34m${pkg}\u001b[39m...`, async () => {
+            core.startGroup(`Cache not found, installing \u001b[34m${pkg}\u001b[39m...`);
+            try {
                 await pipx.installPackage(pkg);
-            });
-            await core.group(`Saving \u001b[34m${pkg}\u001b[39m cache...`, async () => {
+            }
+            catch (err) {
+                core.endGroup();
+                core.setFailed(`Failed to install ${pkg}: ${r(err)}`);
+                return;
+            }
+            core.endGroup();
+            core.startGroup(`Saving \u001b[34m${pkg}\u001b[39m cache...`);
+            try {
                 await pipx.savePackageCache(pkg);
-            });
+            }
+            catch (err) {
+                core.endGroup();
+                core.setFailed(`Failed to save ${pkg} cache: ${r(err)}`);
+                return;
+            }
+            core.endGroup();
         }
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-https-c5991cd929-10c0.zip/node_modules/pipx-install-action/src/index.mjs
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/index.js
 
 
 ;// CONCATENATED MODULE: ./lib/deps/index.mjs
