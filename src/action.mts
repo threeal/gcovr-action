@@ -8,7 +8,7 @@ export interface Inputs {
   root: string;
   gcovExecutable: string;
   excludes: string[];
-  failUnderLine: number | undefined;
+  failUnderLine: string;
   xmlOut: string;
   coverallsOut: string;
   coverallsSend: boolean;
@@ -22,7 +22,7 @@ export function processInputs(): Inputs {
       root: core.getInput("root"),
       gcovExecutable: core.getInput("gcov-executable"),
       excludes: envi.getMultilineInput("excludes"),
-      failUnderLine: envi.getNumberInput("fail-under-line"),
+      failUnderLine: core.getInput("fail-under-line"),
       xmlOut: core.getInput("xml-out"),
       coverallsOut: core.getInput("coveralls-out"),
       coverallsSend: core.getBooleanInput("coveralls-send"),

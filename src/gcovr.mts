@@ -15,8 +15,8 @@ function getArgs(inputs: action.Inputs): string[] {
   for (const exclude of inputs.excludes) {
     args = args.concat("--exclude", exclude);
   }
-  if (inputs.failUnderLine !== undefined) {
-    args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
+  if (inputs.failUnderLine.length > 0) {
+    args = args.concat("--fail-under-line", inputs.failUnderLine);
   }
   if (inputs.xmlOut.length > 0) {
     args = args.concat("--xml", inputs.xmlOut);

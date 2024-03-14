@@ -5777,11 +5777,11 @@ function copyFile(srcFile, destFile, force) {
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
-__webpack_unused_export__ = exports.AR = exports.rK = __webpack_unused_export__ = void 0;
+__webpack_unused_export__ = __webpack_unused_export__ = exports.rK = __webpack_unused_export__ = void 0;
 var input_1 = __nccwpck_require__(4499);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return input_1.getBooleanInput; } });
 Object.defineProperty(exports, "rK", ({ enumerable: true, get: function () { return input_1.getMultilineInput; } }));
-Object.defineProperty(exports, "AR", ({ enumerable: true, get: function () { return input_1.getNumberInput; } }));
+__webpack_unused_export__ = ({ enumerable: true, get: function () { return input_1.getNumberInput; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return input_1.getStringInput; } });
 //# sourceMappingURL=index.js.map
 
@@ -82480,7 +82480,7 @@ function processInputs() {
             root: core.getInput("root"),
             gcovExecutable: core.getInput("gcov-executable"),
             excludes: envi_lib/* getMultilineInput */.rK("excludes"),
-            failUnderLine: envi_lib/* getNumberInput */.AR("fail-under-line"),
+            failUnderLine: core.getInput("fail-under-line"),
             xmlOut: core.getInput("xml-out"),
             coverallsOut: core.getInput("coveralls-out"),
             coverallsSend: core.getBooleanInput("coveralls-send"),
@@ -82789,8 +82789,8 @@ function getArgs(inputs) {
     for (const exclude of inputs.excludes) {
         args = args.concat("--exclude", exclude);
     }
-    if (inputs.failUnderLine !== undefined) {
-        args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
+    if (inputs.failUnderLine.length > 0) {
+        args = args.concat("--fail-under-line", inputs.failUnderLine);
     }
     if (inputs.xmlOut.length > 0) {
         args = args.concat("--xml", inputs.xmlOut);
