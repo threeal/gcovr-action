@@ -757,6 +757,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"catched-error-message@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "catched-error-message@npm:0.0.1"
+  checksum: 10c0/1f10cd4323a73bec7a57b7495730e5dad9995120b04e85b5f654f7b40dc6a36320d95cc55e49cdf78753158e18790ef725e2ec7309ebced3acd6c9a557ac075b
+  languageName: node
+  linkType: hard
+
 "chalk@npm:^4.0.0":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
@@ -1863,16 +1870,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pipx-install-action@https://github.com/threeal/pipx-install-action#dist":
-  version: 0.1.0
-  resolution: "pipx-install-action@https://github.com/threeal/pipx-install-action.git#commit=740d558bbe81839d18bd11bfbd95a4e16a43d7aa"
+"pipx-install-action@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "pipx-install-action@npm:1.0.0"
   dependencies:
     "@actions/cache": "npm:^3.2.4"
     "@actions/core": "npm:^1.10.1"
     "@actions/exec": "npm:^1.1.1"
-  bin:
-    pipx-install-action: src/main.mjs
-  checksum: 10c0/6266ba3f49391c8e7fc3fe5a8009a598d2b27f478ddf77658f6d0adea4e3bbdba9488a3593f8e575f4e484f9f2678bfd1472d2ec6aeb070adefb0516286bf84b
+    catched-error-message: "npm:^0.0.1"
+  checksum: 10c0/a2044259a51a1e2c4fdca1b2819c5f9fd47eb7cd5ac2ee93522b639751607e720d8f381c0aa43cec5211402ea438085298641411059a3d1c5f90cdfc2bf69382
   languageName: node
   linkType: hard
 
@@ -1978,7 +1984,7 @@ __metadata:
     "@vercel/ncc": "npm:^0.38.1"
     eslint: "npm:^8.57.0"
     form-data: "npm:^4.0.0"
-    pipx-install-action: "https://github.com/threeal/pipx-install-action#dist"
+    pipx-install-action: "npm:^1.0.0"
     prettier: "npm:^3.2.4"
     typescript: "npm:^5.4.2"
   languageName: unknown
