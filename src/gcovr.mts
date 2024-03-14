@@ -6,10 +6,10 @@ import * as coveralls from "./coveralls.mjs";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];
-  if (inputs.root !== undefined) {
+  if (inputs.root.length > 0) {
     args = args.concat(["--root", inputs.root]);
   }
-  if (inputs.gcovExecutable !== undefined) {
+  if (inputs.gcovExecutable.length > 0) {
     args = args.concat("--gcov-executable", inputs.gcovExecutable);
   }
   for (const exclude of inputs.excludes) {
@@ -18,10 +18,10 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.failUnderLine !== undefined) {
     args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
   }
-  if (inputs.xmlOut !== undefined) {
+  if (inputs.xmlOut.length > 0) {
     args = args.concat("--xml", inputs.xmlOut);
   }
-  if (inputs.coverallsOut !== undefined) {
+  if (inputs.coverallsOut.length > 0) {
     args = args.concat("--coveralls", inputs.coverallsOut);
   }
   return args;
@@ -30,7 +30,7 @@ function getArgs(inputs: action.Inputs): string[] {
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
   await log.group("Generating code coverage report...", async () => {
-    if (inputs.githubToken !== undefined) {
+    if (inputs.githubToken.length > 0) {
       const label = log.emph("COVERALLS_REPO_TOKEN");
       log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}...`);
       try {
@@ -52,7 +52,7 @@ export async function run(inputs: action.Inputs) {
       }
       throw new Error(`Failed to generate code coverage report: ${errMessage}`);
     }
-    if (inputs.coverallsOut !== undefined) {
+    if (inputs.coverallsOut.length > 0) {
       log.info("Patching Coveralls API report...");
       try {
         coveralls.patch(inputs.coverallsOut);

@@ -75,7 +75,7 @@ async function checkLlvm() {
 
 export async function check(inputs: action.Inputs) {
   await checkGcovr();
-  if (inputs.gcovExecutable !== undefined) {
+  if (inputs.gcovExecutable.length > 0) {
     if (inputs.gcovExecutable.includes("llvm-cov")) {
       await checkLlvm();
     }
