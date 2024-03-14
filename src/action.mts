@@ -1,5 +1,4 @@
 import * as core from "@actions/core";
-import * as envi from "@actions-kit/envi";
 import * as log from "@actions-kit/log";
 import * as os from "os";
 import * as path from "path";
@@ -21,7 +20,7 @@ export function processInputs(): Inputs {
     const inputs: Inputs = {
       root: core.getInput("root"),
       gcovExecutable: core.getInput("gcov-executable"),
-      excludes: envi.getMultilineInput("excludes"),
+      excludes: core.getMultilineInput("excludes"),
       failUnderLine: core.getInput("fail-under-line"),
       xmlOut: core.getInput("xml-out"),
       coverallsOut: core.getInput("coveralls-out"),

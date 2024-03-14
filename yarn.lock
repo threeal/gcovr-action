@@ -12,15 +12,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@actions-kit/envi@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@actions-kit/envi@npm:0.1.0"
-  dependencies:
-    "@actions/core": "npm:^1.10.0"
-  checksum: 10c0/59b1638e253c3b2e9322dcc06a3172f255c8e6be4222938572ae68762fe3040321c5873ba608d5707d2799025378d0ddad693d77773e3a210e5b10923ed5f180
-  languageName: node
-  linkType: hard
-
 "@actions-kit/exec@npm:^0.2.0":
   version: 0.2.0
   resolution: "@actions-kit/exec@npm:0.2.0"
@@ -1972,7 +1963,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@actions-kit/envi": "npm:^0.1.0"
     "@actions-kit/exec": "npm:^0.2.0"
     "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118"
     "@actions/cache": "npm:^3.2.3"

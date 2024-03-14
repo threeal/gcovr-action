@@ -7,7 +7,6 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@actions-kit/envi": "^0.1.0",
     "@actions-kit/exec": "^0.2.0",
     "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118",
     "@actions/cache": "^3.2.3",
