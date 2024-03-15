@@ -1,9 +1,9 @@
 name: Gcovr Action
-description: Generate code coverage reports for a C++ project using gcovr
 author: Alfi Maulana
+description: Generate code coverage reports for a C++ project using gcovr
 branding:
-  color: green
   icon: check-circle
+  color: green
 inputs:
   root:
     description: Root directory of your source files
@@ -23,5 +23,5 @@ inputs:
   github-token:
     description: GitHub token of your project
 runs:
-  using: node16
+  using: node20
   main: dist/index.mjs
