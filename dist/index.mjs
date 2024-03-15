@@ -5771,115 +5771,6 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
-/***/ 525:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
-exports.je = exports.AR = exports.rK = exports.sM = void 0;
-var input_1 = __nccwpck_require__(4499);
-Object.defineProperty(exports, "sM", ({ enumerable: true, get: function () { return input_1.getBooleanInput; } }));
-Object.defineProperty(exports, "rK", ({ enumerable: true, get: function () { return input_1.getMultilineInput; } }));
-Object.defineProperty(exports, "AR", ({ enumerable: true, get: function () { return input_1.getNumberInput; } }));
-Object.defineProperty(exports, "je", ({ enumerable: true, get: function () { return input_1.getStringInput; } }));
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 4499:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getNumberInput = exports.getBooleanInput = exports.getMultilineInput = exports.getStringInput = void 0;
-const core = __importStar(__nccwpck_require__(2340));
-/**
- * Gets the string value of an input.
- * Returns undefined if the input is empty or not defined.
- *
- * @param key key of the input
- * @returns string or undefined
- */
-function getStringInput(key) {
-    const val = core.getInput(key);
-    return val.length > 0 ? val : undefined;
-}
-exports.getStringInput = getStringInput;
-/**
- * Gets the multiline string value of an input.
- * Returns empty list if the input is not defined.
- *
- * @param key key of the input
- * @returns list of string
- */
-function getMultilineInput(key) {
-    return core.getMultilineInput(key);
-}
-exports.getMultilineInput = getMultilineInput;
-/**
- * Gets the boolean value of an input.
- * Supports `true` and `false` input case insensitively.
- * Returns undefined if the input is invalid or not defined.
- *
- * @param key key of the input
- * @returns boolean or undefined
- */
-function getBooleanInput(key) {
-    const val = getStringInput(key);
-    if (val === undefined) {
-        return undefined;
-    }
-    switch (val.toLowerCase()) {
-        case "true":
-            return true;
-        case "false":
-            return false;
-    }
-    return undefined;
-}
-exports.getBooleanInput = getBooleanInput;
-/**
- * Gets the number value of an input.
- * Returns undefined if the input is empty or not defined.
- *
- * @param key key of the input
- * @returns number or undefined
- */
-function getNumberInput(key) {
-    const val = getStringInput(key);
-    if (val === undefined)
-        return undefined;
-    return parseInt(val, 10);
-}
-exports.getNumberInput = getNumberInput;
-//# sourceMappingURL=input.js.map
-
-/***/ }),
-
 /***/ 7480:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -82459,8 +82350,8 @@ var __webpack_exports__ = {};
 
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-log-https-40fe1fed85-10c0.zip/node_modules/@actions-kit/log/lib/index.js
 var lib = __nccwpck_require__(1790);
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-envi-npm-0.1.0-80aaa7d3af-10c0.zip/node_modules/@actions-kit/envi/lib/index.js
-var envi_lib = __nccwpck_require__(525);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2340);
 // EXTERNAL MODULE: external "os"
 var external_os_ = __nccwpck_require__(2037);
 // EXTERNAL MODULE: external "path"
@@ -82474,17 +82365,17 @@ function processInputs() {
     lib/* info */.um("Processing the action inputs...");
     try {
         const inputs = {
-            root: envi_lib/* getStringInput */.je("root"),
-            gcovExecutable: envi_lib/* getStringInput */.je("gcov-executable"),
-            excludes: envi_lib/* getMultilineInput */.rK("excludes"),
-            failUnderLine: envi_lib/* getNumberInput */.AR("fail-under-line"),
-            xmlOut: envi_lib/* getStringInput */.je("xml-out"),
-            coverallsOut: envi_lib/* getStringInput */.je("coveralls-out"),
-            coverallsSend: envi_lib/* getBooleanInput */.sM("coveralls-send"),
-            githubToken: envi_lib/* getStringInput */.je("github-token"),
+            root: core.getInput("root"),
+            gcovExecutable: core.getInput("gcov-executable"),
+            excludes: core.getMultilineInput("excludes"),
+            failUnderLine: core.getInput("fail-under-line"),
+            xmlOut: core.getInput("xml-out"),
+            coverallsOut: core.getInput("coveralls-out"),
+            coverallsSend: core.getBooleanInput("coveralls-send"),
+            githubToken: core.getInput("github-token"),
         };
         // Auto set coveralls output if not specified
-        if (inputs.coverallsSend && inputs.coverallsOut === undefined) {
+        if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
             inputs.coverallsOut = external_path_.join(external_os_.tmpdir(), "coveralls.json");
             lib/* info */.um(`Auto set Coveralls output to ${lib/* emph */.sy(inputs.coverallsOut)}`);
         }
@@ -82562,8 +82453,6 @@ async function send(coverallsOut) {
 var exec_lib = __nccwpck_require__(7221);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-io-npm-1.1.3-82d1cf012b-10c0.zip/node_modules/@actions/io/lib/io.js
 var io = __nccwpck_require__(1793);
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2340);
 ;// CONCATENATED MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
 function r(r){return function(r){if("object"==typeof(e=r)&&null!==e&&"message"in e&&"string"==typeof e.message)return r;var e;try{return new Error(JSON.stringify(r))}catch(e){return new Error(String(r))}}(r).message}
 //# sourceMappingURL=index.esm.js.map
@@ -82765,7 +82654,7 @@ async function checkLlvm() {
 }
 async function check(inputs) {
     await checkGcovr();
-    if (inputs.gcovExecutable !== undefined) {
+    if (inputs.gcovExecutable.length > 0) {
         if (inputs.gcovExecutable.includes("llvm-cov")) {
             await checkLlvm();
         }
@@ -82779,22 +82668,22 @@ async function check(inputs) {
 
 function getArgs(inputs) {
     let args = [];
-    if (inputs.root !== undefined) {
+    if (inputs.root.length > 0) {
         args = args.concat(["--root", inputs.root]);
     }
-    if (inputs.gcovExecutable !== undefined) {
+    if (inputs.gcovExecutable.length > 0) {
         args = args.concat("--gcov-executable", inputs.gcovExecutable);
     }
     for (const exclude of inputs.excludes) {
         args = args.concat("--exclude", exclude);
     }
-    if (inputs.failUnderLine !== undefined) {
-        args = args.concat("--fail-under-line", inputs.failUnderLine.toString());
+    if (inputs.failUnderLine.length > 0) {
+        args = args.concat("--fail-under-line", inputs.failUnderLine);
     }
-    if (inputs.xmlOut !== undefined) {
+    if (inputs.xmlOut.length > 0) {
         args = args.concat("--xml", inputs.xmlOut);
     }
-    if (inputs.coverallsOut !== undefined) {
+    if (inputs.coverallsOut.length > 0) {
         args = args.concat("--coveralls", inputs.coverallsOut);
     }
     return args;
@@ -82802,7 +82691,7 @@ function getArgs(inputs) {
 async function run(inputs) {
     const args = getArgs(inputs);
     await lib/* group */.ru("Generating code coverage report...", async () => {
-        if (inputs.githubToken !== undefined) {
+        if (inputs.githubToken.length > 0) {
             const label = lib/* emph */.sy("COVERALLS_REPO_TOKEN");
             lib/* info */.um(`Setting ${label} to ${lib/* emph */.sy(inputs.githubToken)}...`);
             try {
@@ -82824,7 +82713,7 @@ async function run(inputs) {
             }
             throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }
-        if (inputs.coverallsOut !== undefined) {
+        if (inputs.coverallsOut.length > 0) {
             lib/* info */.um("Patching Coveralls API report...");
             try {
                 patch(inputs.coverallsOut);
@@ -82849,7 +82738,7 @@ async function main_run() {
         const inputs = processInputs();
         await check(inputs);
         await run(inputs);
-        if (inputs.coverallsSend && inputs.coverallsOut !== undefined) {
+        if (inputs.coverallsSend && inputs.coverallsOut.length > 0) {
             await send(inputs.coverallsOut);
         }
     }
