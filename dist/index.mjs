@@ -82449,8 +82449,6 @@ async function send(coverallsOut) {
     });
 }
 
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-exec-npm-0.2.0-6ac8393d85-10c0.zip/node_modules/@actions-kit/exec/lib/index.js
-var exec_lib = __nccwpck_require__(7221);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-io-npm-1.1.3-82d1cf012b-10c0.zip/node_modules/@actions/io/lib/io.js
 var io = __nccwpck_require__(1793);
 ;// CONCATENATED MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
@@ -82594,8 +82592,6 @@ async function pipxInstallAction(...pkgs) {
 
 
 
-
-
 async function isMissing(tool) {
     try {
         await io.which(tool, true);
@@ -82605,62 +82601,18 @@ async function isMissing(tool) {
         return true;
     }
 }
-async function chocoInstall(pkg) {
-    const res = await exec_lib/* run */.KH("choco", "install", "-y", pkg);
-    if (!res.isOk()) {
-        throw new Error(`Failed to install Chocolatey package: ${pkg} (error code: ${res.code})`);
-    }
-}
-async function aptInstall(pkg) {
-    const res = await exec_lib/* run */.KH("sudo", "apt-get", "install", "-y", pkg);
-    if (!res.isOk()) {
-        throw new Error(`Failed to install APT package: ${pkg} (error code: ${res.code})`);
-    }
-}
-async function brewInstall(pkg) {
-    const res = await exec_lib/* run */.KH("brew", "install", pkg);
-    if (!res.isOk()) {
-        throw new Error(`Failed to install Homebrew package: ${pkg} (error code: ${res.code})`);
-    }
-}
-async function smartInstall(pkg) {
-    switch (external_os_.type()) {
-        case "Windows_NT":
-            await chocoInstall(pkg);
-            break;
-        case "Linux":
-            await aptInstall(pkg);
-            break;
-        case "Darwin":
-            await brewInstall(pkg);
-            break;
-        default:
-            throw new Error(`Unknown OS type: ${external_os_.type()}`);
-    }
-}
 async function checkGcovr() {
     lib/* info */.um(`Checking ${lib/* emph */.sy("gcovr")}...`);
     if (await isMissing("gcovr")) {
         await pipxInstallAction("gcovr");
     }
 }
-async function checkLlvm() {
-    lib/* info */.um(`Checking ${lib/* emph */.sy("llvm-cov")}...`);
-    if (await isMissing("llvm-cov")) {
-        await lib/* group */.ru(`Installing ${lib/* emph */.sy("LLVM")}...`, async () => {
-            await smartInstall("llvm");
-        });
-    }
-}
-async function check(inputs) {
+async function check() {
     await checkGcovr();
-    if (inputs.gcovExecutable.length > 0) {
-        if (inputs.gcovExecutable.includes("llvm-cov")) {
-            await checkLlvm();
-        }
-    }
 }
 
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-exec-npm-0.2.0-6ac8393d85-10c0.zip/node_modules/@actions-kit/exec/lib/index.js
+var exec_lib = __nccwpck_require__(7221);
 ;// CONCATENATED MODULE: ./lib/gcovr.mjs
 
 
@@ -82736,7 +82688,7 @@ async function run(inputs) {
 async function main_run() {
     try {
         const inputs = processInputs();
-        await check(inputs);
+        await check();
         await run(inputs);
         if (inputs.coverallsSend && inputs.coverallsOut.length > 0) {
             await send(inputs.coverallsOut);
