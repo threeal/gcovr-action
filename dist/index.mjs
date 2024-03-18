@@ -6084,14 +6084,14 @@ exports.group = group;
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
-__webpack_unused_export__ = __webpack_unused_export__ = exports.kH = __webpack_unused_export__ = exports.ru = __webpack_unused_export__ = void 0;
+__webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = exports.ru = __webpack_unused_export__ = void 0;
 var emph_1 = __nccwpck_require__(69);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return emph_1.emph; } });
 var group_1 = __nccwpck_require__(9817);
 Object.defineProperty(exports, "ru", ({ enumerable: true, get: function () { return group_1.group; } }));
 var log_1 = __nccwpck_require__(1349);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.error; } });
-Object.defineProperty(exports, "kH", ({ enumerable: true, get: function () { return log_1.fatal; } }));
+__webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.fatal; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.info; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.warning; } });
 //# sourceMappingURL=index.js.map
@@ -82348,8 +82348,6 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-log-https-40fe1fed85-10c0.zip/node_modules/@actions-kit/log/lib/index.js
-var lib = __nccwpck_require__(1790);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2340);
 // EXTERNAL MODULE: external "os"
@@ -82386,6 +82384,8 @@ function processInputs() {
     }
 }
 
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-log-https-40fe1fed85-10c0.zip/node_modules/@actions-kit/log/lib/index.js
+var lib = __nccwpck_require__(1790);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(7147);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/form-data-npm-4.0.0-916facec2d-10c0.zip/node_modules/form-data/lib/form_data.js
@@ -82693,7 +82693,7 @@ async function main_run() {
         }
     }
     catch (err) {
-        lib/* fatal */.kH(`${err instanceof Error ? err.message : err}`);
+        core.setFailed(`${err instanceof Error ? err.message : err}`);
     }
 }
 main_run();
