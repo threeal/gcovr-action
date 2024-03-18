@@ -25,4 +25,4 @@ inputs:
     default: ${{ github.token }}
 runs:
   using: node20
-  main: dist/index.mjs
+  main: dist/index.js
