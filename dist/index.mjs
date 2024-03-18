@@ -6003,231 +6003,6 @@ exports.runSilently = runSilently;
 
 /***/ }),
 
-/***/ 69:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.emph = void 0;
-function emph(message) {
-    return `\u001b[34m${message}\u001b[39m`;
-}
-exports.emph = emph;
-//# sourceMappingURL=emph.js.map
-
-/***/ }),
-
-/***/ 9817:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.group = void 0;
-const core = __importStar(__nccwpck_require__(2340));
-const internal_1 = __nccwpck_require__(5281);
-const log_1 = __nccwpck_require__(1349);
-/**
- * Wrap an asynchronous function call in a group.
- *
- * Returns the same type as the function itself.
- *
- * @param name The name of the group
- * @param fn The function to wrap in the group
- */
-async function group(name, fn) {
-    const time = internal_1.Time.now();
-    core.startGroup(name);
-    let res;
-    try {
-        res = await fn();
-    }
-    catch (err) {
-        (0, log_1.info)(`Failed in ${time.elapsed()}`);
-        core.endGroup();
-        throw err;
-    }
-    (0, log_1.info)(`Done in ${time.elapsed()}`);
-    core.endGroup();
-    return res;
-}
-exports.group = group;
-//# sourceMappingURL=group.js.map
-
-/***/ }),
-
-/***/ 1790:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
-__webpack_unused_export__ = exports.um = exports.kH = __webpack_unused_export__ = exports.ru = exports.sy = void 0;
-var emph_1 = __nccwpck_require__(69);
-Object.defineProperty(exports, "sy", ({ enumerable: true, get: function () { return emph_1.emph; } }));
-var group_1 = __nccwpck_require__(9817);
-Object.defineProperty(exports, "ru", ({ enumerable: true, get: function () { return group_1.group; } }));
-var log_1 = __nccwpck_require__(1349);
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.error; } });
-Object.defineProperty(exports, "kH", ({ enumerable: true, get: function () { return log_1.fatal; } }));
-Object.defineProperty(exports, "um", ({ enumerable: true, get: function () { return log_1.info; } }));
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.warning; } });
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 9427:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Duration = void 0;
-class Duration {
-    constructor(ms) {
-        this.ms = ms;
-    }
-    toString() {
-        let ms = Math.floor(this.ms);
-        if (ms < 1000) {
-            return `${ms}ms`;
-        }
-        let s = Math.floor(ms / 1000);
-        ms = ms - s * 1000;
-        if (s < 60) {
-            return `${s}s${ms > 0 ? ` ${ms}ms` : ""}`;
-        }
-        let m = Math.floor(s / 60);
-        s = s - m * 60;
-        if (m < 60) {
-            return `${m}m${s > 0 ? ` ${s}s` : ""}`;
-        }
-        const h = Math.floor(m / 60);
-        m = m - h * 60;
-        return `${h}h${m > 0 ? ` ${m}m` : ""}`;
-    }
-}
-exports.Duration = Duration;
-//# sourceMappingURL=duration.js.map
-
-/***/ }),
-
-/***/ 5281:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Time = void 0;
-var time_1 = __nccwpck_require__(5182);
-Object.defineProperty(exports, "Time", ({ enumerable: true, get: function () { return time_1.Time; } }));
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 5182:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Time = void 0;
-const duration_1 = __nccwpck_require__(9427);
-class Time {
-    constructor(ms) {
-        this.ms = ms;
-    }
-    static now() {
-        return new Time(Date.now());
-    }
-    elapsed() {
-        return new duration_1.Duration(Date.now() - this.ms);
-    }
-}
-exports.Time = Time;
-//# sourceMappingURL=time.js.map
-
-/***/ }),
-
-/***/ 1349:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.fatal = exports.error = exports.warning = exports.info = void 0;
-const core = __importStar(__nccwpck_require__(2340));
-var core_1 = __nccwpck_require__(2340);
-Object.defineProperty(exports, "info", ({ enumerable: true, get: function () { return core_1.info; } }));
-/**
- * Writes warning to log with console.log.
- * @param message warning message
- */
-function warning(message) {
-    core.warning(message);
-}
-exports.warning = warning;
-/**
- * Writes error to log with console.log.
- * @param message error message
- */
-function error(message) {
-    core.error(message);
-}
-exports.error = error;
-/**
- * Writes error to log with console.log and sets the action status to failed.
- * @param message error message
- */
-function fatal(message) {
-    core.setFailed(message);
-}
-exports.fatal = fatal;
-//# sourceMappingURL=log.js.map
-
-/***/ }),
-
 /***/ 3042:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -74915,7 +74690,7 @@ module.exports.implForWrapper = function (wrapper) {
 
 /***/ }),
 
-/***/ 9829:
+/***/ 9427:
 /***/ (function(module) {
 
 // Generated by CoffeeScript 1.12.7
@@ -75513,7 +75288,7 @@ module.exports.implForWrapper = function (wrapper) {
 
   isPlainObject = (__nccwpck_require__(1287).isPlainObject);
 
-  XMLDOMImplementation = __nccwpck_require__(9829);
+  XMLDOMImplementation = __nccwpck_require__(9427);
 
   XMLDOMConfiguration = __nccwpck_require__(7579);
 
@@ -78611,7 +78386,7 @@ module.exports.implForWrapper = function (wrapper) {
 
   ref = __nccwpck_require__(1287), assign = ref.assign, isFunction = ref.isFunction;
 
-  XMLDOMImplementation = __nccwpck_require__(9829);
+  XMLDOMImplementation = __nccwpck_require__(9427);
 
   XMLDocument = __nccwpck_require__(8524);
 
@@ -82348,8 +82123,6 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-log-https-40fe1fed85-10c0.zip/node_modules/@actions-kit/log/lib/index.js
-var lib = __nccwpck_require__(1790);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2340);
 // EXTERNAL MODULE: external "os"
@@ -82360,9 +82133,8 @@ var external_path_ = __nccwpck_require__(1017);
 
 
 
-
 function processInputs() {
-    lib/* info */.um("Processing the action inputs...");
+    core.info("Processing the action inputs...");
     try {
         const inputs = {
             root: core.getInput("root"),
@@ -82377,7 +82149,7 @@ function processInputs() {
         // Auto set coveralls output if not specified
         if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
             inputs.coverallsOut = external_path_.join(external_os_.tmpdir(), "coveralls.json");
-            lib/* info */.um(`Auto set Coveralls output to ${lib/* emph */.sy(inputs.coverallsOut)}`);
+            core.info(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
         return inputs;
     }
@@ -82414,7 +82186,7 @@ async function postForm(url, form) {
             res.on("data", (chunk) => {
                 const prev = body.length;
                 body.push(chunk);
-                lib/* info */.um(`Received ${chunk.length - prev} bytes of data`);
+                core.info(`Received ${chunk.length - prev} bytes of data`);
             });
             res.on("end", () => {
                 if (res.statusCode === undefined) {
@@ -82424,7 +82196,7 @@ async function postForm(url, form) {
                     reject(new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`));
                 }
                 else {
-                    lib/* info */.um(`HTTP status code ${res.statusCode}: ${body.toString()}`);
+                    core.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
                     resolve(null);
                 }
             });
@@ -82442,7 +82214,7 @@ async function patch(coverallsOut) {
     external_fs_.writeFileSync(coverallsOut, data);
 }
 async function send(coverallsOut) {
-    await lib/* group */.ru("Sending report to Coveralls...", async () => {
+    await core.group("Sending report to Coveralls...", async () => {
         await postForm("https://coveralls.io/api/v1/jobs", {
             json_file: external_fs_.createReadStream(coverallsOut),
         });
@@ -82602,7 +82374,7 @@ async function isMissing(tool) {
     }
 }
 async function checkGcovr() {
-    lib/* info */.um(`Checking ${lib/* emph */.sy("gcovr")}...`);
+    core.info(`Checking \u001b[34mgcovr\u001b[39m...`);
     if (await isMissing("gcovr")) {
         await pipxInstallAction("gcovr");
     }
@@ -82612,9 +82384,8 @@ async function check() {
 }
 
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-exec-npm-0.2.0-6ac8393d85-10c0.zip/node_modules/@actions-kit/exec/lib/index.js
-var exec_lib = __nccwpck_require__(7221);
+var lib = __nccwpck_require__(7221);
 ;// CONCATENATED MODULE: ./lib/gcovr.mjs
-
 
 
 
@@ -82642,19 +82413,18 @@ function getArgs(inputs) {
 }
 async function run(inputs) {
     const args = getArgs(inputs);
-    await lib/* group */.ru("Generating code coverage report...", async () => {
+    await core.group("Generating code coverage report...", async () => {
         if (inputs.githubToken.length > 0) {
-            const label = lib/* emph */.sy("COVERALLS_REPO_TOKEN");
-            lib/* info */.um(`Setting ${label} to ${lib/* emph */.sy(inputs.githubToken)}...`);
+            core.info(`Setting \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to \u001b[34m${inputs.githubToken}\u001b[39m...`);
             try {
                 core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
             }
             catch (err) {
                 const errMessage = `${err instanceof Error ? err.message : err}`;
-                throw new Error(`Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`);
+                throw new Error(`Failed to set \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to ${inputs.githubToken}: ${errMessage}`);
             }
         }
-        const res = await exec_lib/* run */.KH("gcovr", ...args);
+        const res = await lib/* run */.KH("gcovr", ...args);
         if (!res.isOk()) {
             let errMessage;
             if ((res.code | 2) > 0) {
@@ -82666,7 +82436,7 @@ async function run(inputs) {
             throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }
         if (inputs.coverallsOut.length > 0) {
-            lib/* info */.um("Patching Coveralls API report...");
+            core.info("Patching Coveralls API report...");
             try {
                 patch(inputs.coverallsOut);
             }
@@ -82674,7 +82444,7 @@ async function run(inputs) {
                 const errMessage = `${err instanceof Error ? err.message : err}`;
                 throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
             }
-            lib/* info */.um(`Coveralls API report outputted to ${lib/* emph */.sy(inputs.coverallsOut)}`);
+            core.info(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
     });
 }
@@ -82695,7 +82465,7 @@ async function main_run() {
         }
     }
     catch (err) {
-        lib/* fatal */.kH(`${err instanceof Error ? err.message : err}`);
+        core.setFailed(`${err instanceof Error ? err.message : err}`);
     }
 }
 main_run();

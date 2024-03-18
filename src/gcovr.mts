@@ -1,5 +1,4 @@
 import * as exec from "@actions-kit/exec";
-import * as log from "@actions-kit/log";
 import * as core from "@actions/core";
 import * as action from "./action.mjs";
 import * as coveralls from "./coveralls.mjs";
@@ -29,16 +28,17 @@ function getArgs(inputs: action.Inputs): string[] {
 
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
-  await log.group("Generating code coverage report...", async () => {
+  await core.group("Generating code coverage report...", async () => {
     if (inputs.githubToken.length > 0) {
-      const label = log.emph("COVERALLS_REPO_TOKEN");
-      log.info(`Setting ${label} to ${log.emph(inputs.githubToken)}...`);
+      core.info(
+        `Setting \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to \u001b[34m${inputs.githubToken}\u001b[39m...`,
+      );
       try {
         core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
       } catch (err) {
         const errMessage = `${err instanceof Error ? err.message : err}`;
         throw new Error(
-          `Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`,
+          `Failed to set \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to ${inputs.githubToken}: ${errMessage}`,
         );
       }
     }
@@ -53,15 +53,15 @@ export async function run(inputs: action.Inputs) {
       throw new Error(`Failed to generate code coverage report: ${errMessage}`);
     }
     if (inputs.coverallsOut.length > 0) {
-      log.info("Patching Coveralls API report...");
+      core.info("Patching Coveralls API report...");
       try {
         coveralls.patch(inputs.coverallsOut);
       } catch (err) {
         const errMessage = `${err instanceof Error ? err.message : err}`;
         throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
       }
-      log.info(
-        `Coveralls API report outputted to ${log.emph(inputs.coverallsOut)}`,
+      core.info(
+        `Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`,
       );
     }
   });
