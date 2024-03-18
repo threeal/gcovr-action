@@ -25,7 +25,7 @@ For more information, see [action.yml](./action.yml) and [GitHub Actions guide](
 | `xml-out` | Path | Output file of the generated XML coverage report. |
 | `coveralls-out` | Path | Output file of the generated [Coveralls API](https://docs.coveralls.io/api-introduction) coverage report. |
 | `coveralls-send` | `true` or `false` | Send the generated Coveralls API coverage report to it's endpoint. Defaults to `false`. |
-| `github-token` | Token | [GitHub token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication) of your project. Should be set to `secrets.GITHUB_TOKEN`. Required for sending Coveralls API coverage report successfully. |
+| `github-token` | Token | [GitHub token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication) of your project. Defaults to [`github.token`](https://docs.github.com/en/actions/security-guides/automatic-token-authentication). Required for sending Coveralls API coverage report successfully. |
 
 > Note: All inputs are optional.
 

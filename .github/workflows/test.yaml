@@ -166,4 +166,3 @@ jobs:
         uses: ./
         with:
           coveralls-send: true
-          github-token: ${{ secrets.GITHUB_TOKEN }}
