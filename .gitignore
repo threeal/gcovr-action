@@ -2,7 +2,5 @@
 !.eslintrc.json
 !.git*
 
-lib/
+build/
 node_modules/
-
-build
