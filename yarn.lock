@@ -21,15 +21,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@actions-kit/log@https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118":
-  version: 0.1.0
-  resolution: "@actions-kit/log@https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118"
-  dependencies:
-    "@actions/core": "npm:^1.10.0"
-  checksum: 10c0/b13c4d2fa83a0544e4a1e272a850ff32098d0999f11669778e4b50d3d01f9ac45307786163ef0514427869d7c5b0388ddd241379fff451f1003512d1e6323ebc
-  languageName: node
-  linkType: hard
-
 "@actions/cache@npm:^3.2.3, @actions/cache@npm:^3.2.4":
   version: 3.2.4
   resolution: "@actions/cache@npm:3.2.4"
@@ -1964,7 +1955,6 @@ __metadata:
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
     "@actions-kit/exec": "npm:^0.2.0"
-    "@actions-kit/log": "https://gitpkg.now.sh/threeal/actions-kit/packages/log?303735eedebafc5ba38a33e62cd8bd43ba261118"
     "@actions/cache": "npm:^3.2.3"
     "@actions/core": "npm:^1.10.1"
     "@actions/io": "npm:^1.1.3"

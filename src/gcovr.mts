@@ -1,5 +1,4 @@
 import * as exec from "@actions-kit/exec";
-import * as log from "@actions-kit/log";
 import * as core from "@actions/core";
 import * as action from "./action.mjs";
 import * as coveralls from "./coveralls.mjs";
@@ -29,7 +28,7 @@ function getArgs(inputs: action.Inputs): string[] {
 
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
-  await log.group("Generating code coverage report...", async () => {
+  await core.group("Generating code coverage report...", async () => {
     if (inputs.githubToken.length > 0) {
       core.info(
         `Setting \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to \u001b[34m${inputs.githubToken}\u001b[39m...`,
