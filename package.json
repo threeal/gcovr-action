@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc && ncc build lib/main.mjs",
+    "build": "tsc && ncc build lib/main.js",
     "format": "prettier --write --cache . !dist !README.md",
     "lint": "eslint src"
   },

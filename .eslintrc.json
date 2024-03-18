@@ -3,7 +3,7 @@
   "extends": ["eslint:recommended"],
   "overrides": [
     {
-      "files": ["**/*.mts"],
+      "files": ["**/*.ts"],
       "extends": ["plugin:@typescript-eslint/recommended"]
     }
   ]
