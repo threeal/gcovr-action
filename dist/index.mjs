@@ -5771,238 +5771,6 @@ function copyFile(srcFile, destFile, force) {
 
 /***/ }),
 
-/***/ 7480:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.Command = void 0;
-const output_1 = __nccwpck_require__(4335);
-const run_1 = __nccwpck_require__(955);
-/** A helper for running a command */
-class Command {
-    /**
-     * Constructs a new helper for running a command
-     * @param command a command to run
-     * @param args additional arguments for the command
-     */
-    constructor(command, ...args) {
-        this.command = command;
-        this.args = args;
-    }
-    /**
-     * Runs the command
-     * @param args additional arguments for the command
-     * @returns a command run result
-     */
-    async run(...args) {
-        return (0, run_1.run)(this.command, ...this.args.concat(args));
-    }
-    /**
-     * Runs the command silently
-     * @param args additional arguments for the command
-     * @returns a command run result
-     */
-    async runSilently(...args) {
-        return (0, run_1.runSilently)(this.command, ...this.args.concat(args));
-    }
-    /**
-     * Runs the command and gets the output
-     * @param args additional arguments for the command
-     * @returns a command run result
-     */
-    async output(...args) {
-        return (0, output_1.output)(this.command, ...this.args.concat(args));
-    }
-    /**
-     * Runs the command silently and gets the output
-     * @param args additional arguments for the command
-     * @returns a command run result
-     */
-    async outputSilently(...args) {
-        return (0, output_1.outputSilently)(this.command, ...this.args.concat(args));
-    }
-}
-exports.Command = Command;
-//# sourceMappingURL=command.js.map
-
-/***/ }),
-
-/***/ 7221:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-var __webpack_unused_export__;
-
-__webpack_unused_export__ = ({ value: true });
-__webpack_unused_export__ = __webpack_unused_export__ = exports.KH = __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = __webpack_unused_export__ = void 0;
-var command_1 = __nccwpck_require__(7480);
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return command_1.Command; } });
-var output_1 = __nccwpck_require__(4335);
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return output_1.output; } });
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return output_1.OutputResult; } });
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return output_1.outputSilently; } });
-var run_1 = __nccwpck_require__(955);
-Object.defineProperty(exports, "KH", ({ enumerable: true, get: function () { return run_1.run; } }));
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return run_1.RunResult; } });
-__webpack_unused_export__ = ({ enumerable: true, get: function () { return run_1.runSilently; } });
-//# sourceMappingURL=index.js.map
-
-/***/ }),
-
-/***/ 4335:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.outputSilently = exports.output = exports.OutputResult = void 0;
-const exec = __importStar(__nccwpck_require__(4926));
-const run_1 = __nccwpck_require__(955);
-/** A command run and output get result */
-class OutputResult extends run_1.RunResult {
-    /**
-     * Constructs a new command run and output get result
-     * @param code the status code
-     * @param output the log output
-     */
-    constructor(code, output) {
-        super(code);
-        this.output = output;
-    }
-}
-exports.OutputResult = OutputResult;
-async function outputHelper(silent, command, ...args) {
-    const res = await exec.getExecOutput(command, args, {
-        ignoreReturnCode: true,
-        silent,
-    });
-    return new OutputResult(res.exitCode, res.stdout);
-}
-/**
- * Runs a command and gets the output
- * @param command a command to run
- * @param args additional arguments for the command
- * @returns a command run result
- */
-async function output(command, ...args) {
-    return outputHelper(false, command, ...args);
-}
-exports.output = output;
-/**
- * Runs a command silently and gets the output
- * @param command a command to run
- * @param args additional arguments for the command
- * @returns a command run result
- */
-async function outputSilently(command, ...args) {
-    return outputHelper(true, command, ...args);
-}
-exports.outputSilently = outputSilently;
-//# sourceMappingURL=output.js.map
-
-/***/ }),
-
-/***/ 955:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runSilently = exports.run = exports.RunResult = void 0;
-const exec = __importStar(__nccwpck_require__(4926));
-/** A command run result */
-class RunResult {
-    /**
-     * Constructs a new command run result
-     * @param code the status code
-     */
-    constructor(code) {
-        this.code = code;
-    }
-    /**
-     * Checks if the status is ok (status code is `0`)
-     * @returns `true` if the status is ok
-     */
-    isOk() {
-        return this.code === 0;
-    }
-}
-exports.RunResult = RunResult;
-async function runHelper(silent, command, ...args) {
-    const rc = await exec.exec(command, args, {
-        ignoreReturnCode: true,
-        silent,
-    });
-    return new RunResult(rc);
-}
-/**
- * Runs a command
- * @param command a command to run
- * @param args additional arguments for the command
- * @returns a command run result
- */
-async function run(command, ...args) {
-    return runHelper(false, command, ...args);
-}
-exports.run = run;
-/**
- * Runs a command silently
- * @param command a command to run
- * @param args additional arguments for the command
- * @returns a command run result
- */
-async function runSilently(command, ...args) {
-    return runHelper(true, command, ...args);
-}
-exports.runSilently = runSilently;
-//# sourceMappingURL=run.js.map
-
-/***/ }),
-
 /***/ 3042:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -82383,8 +82151,6 @@ async function check() {
     await checkGcovr();
 }
 
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-kit-exec-npm-0.2.0-6ac8393d85-10c0.zip/node_modules/@actions-kit/exec/lib/index.js
-var lib = __nccwpck_require__(7221);
 ;// CONCATENATED MODULE: ./lib/gcovr.mjs
 
 
@@ -82424,14 +82190,14 @@ async function run(inputs) {
                 throw new Error(`Failed to set \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to ${inputs.githubToken}: ${errMessage}`);
             }
         }
-        const res = await lib/* run */.KH("gcovr", ...args);
-        if (!res.isOk()) {
+        const status = await exec.exec("gcovr", args, { ignoreReturnCode: true });
+        if (status !== 0) {
             let errMessage;
-            if ((res.code | 2) > 0) {
+            if ((status | 2) > 0) {
                 errMessage = `coverage is under ${inputs.failUnderLine}%`;
             }
             else {
-                errMessage = `unknown error (error code ${res.code})`;
+                errMessage = `unknown error (error code ${status})`;
             }
             throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }

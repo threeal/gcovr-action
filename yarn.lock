@@ -12,15 +12,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@actions-kit/exec@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@actions-kit/exec@npm:0.2.0"
-  dependencies:
-    "@actions/exec": "npm:^1.1.1"
-  checksum: 10c0/ae8b94be7636912840247cc41296ae4f168da79d6ae7296348f7570a882d334de83532cb59eecb30b627929ba4570e4342c494861d50657ad95c32a6a25697ba
-  languageName: node
-  linkType: hard
-
 "@actions/cache@npm:^3.2.3, @actions/cache@npm:^3.2.4":
   version: 3.2.4
   resolution: "@actions/cache@npm:3.2.4"
@@ -1954,9 +1945,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
-    "@actions-kit/exec": "npm:^0.2.0"
     "@actions/cache": "npm:^3.2.3"
     "@actions/core": "npm:^1.10.1"
+    "@actions/exec": "npm:^1.1.1"
     "@actions/io": "npm:^1.1.3"
     "@types/node": "npm:^20.11.28"
     "@typescript-eslint/eslint-plugin": "npm:^7.2.0"

@@ -1,5 +1,5 @@
-import * as exec from "@actions-kit/exec";
 import * as core from "@actions/core";
+import * as exec from "@actions/exec";
 import * as action from "./action.mjs";
 import * as coveralls from "./coveralls.mjs";
 
@@ -42,13 +42,13 @@ export async function run(inputs: action.Inputs) {
         );
       }
     }
-    const res = await exec.run("gcovr", ...args);
-    if (!res.isOk()) {
+    const status = await exec.exec("gcovr", args, { ignoreReturnCode: true });
+    if (status !== 0) {
       let errMessage: string;
-      if ((res.code | 2) > 0) {
+      if ((status | 2) > 0) {
         errMessage = `coverage is under ${inputs.failUnderLine}%`;
       } else {
-        errMessage = `unknown error (error code ${res.code})`;
+        errMessage = `unknown error (error code ${status})`;
       }
       throw new Error(`Failed to generate code coverage report: ${errMessage}`);
     }
