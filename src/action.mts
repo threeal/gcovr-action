@@ -30,7 +30,9 @@ export function processInputs(): Inputs {
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
       inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-      log.info(`Auto set Coveralls output to ${log.emph(inputs.coverallsOut)}`);
+      log.info(
+        `Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`,
+      );
     }
     return inputs;
   } catch (err) {

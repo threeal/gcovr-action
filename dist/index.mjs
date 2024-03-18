@@ -6084,9 +6084,9 @@ exports.group = group;
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
-__webpack_unused_export__ = exports.um = exports.kH = __webpack_unused_export__ = exports.ru = exports.sy = void 0;
+__webpack_unused_export__ = exports.um = exports.kH = __webpack_unused_export__ = exports.ru = __webpack_unused_export__ = void 0;
 var emph_1 = __nccwpck_require__(69);
-Object.defineProperty(exports, "sy", ({ enumerable: true, get: function () { return emph_1.emph; } }));
+__webpack_unused_export__ = ({ enumerable: true, get: function () { return emph_1.emph; } });
 var group_1 = __nccwpck_require__(9817);
 Object.defineProperty(exports, "ru", ({ enumerable: true, get: function () { return group_1.group; } }));
 var log_1 = __nccwpck_require__(1349);
@@ -82377,7 +82377,7 @@ function processInputs() {
         // Auto set coveralls output if not specified
         if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
             inputs.coverallsOut = external_path_.join(external_os_.tmpdir(), "coveralls.json");
-            lib/* info */.um(`Auto set Coveralls output to ${lib/* emph */.sy(inputs.coverallsOut)}`);
+            lib/* info */.um(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
         return inputs;
     }
@@ -82602,7 +82602,7 @@ async function isMissing(tool) {
     }
 }
 async function checkGcovr() {
-    lib/* info */.um(`Checking ${lib/* emph */.sy("gcovr")}...`);
+    lib/* info */.um(`Checking \u001b[34mgcovr\u001b[39m...`);
     if (await isMissing("gcovr")) {
         await pipxInstallAction("gcovr");
     }
@@ -82644,14 +82644,13 @@ async function run(inputs) {
     const args = getArgs(inputs);
     await lib/* group */.ru("Generating code coverage report...", async () => {
         if (inputs.githubToken.length > 0) {
-            const label = lib/* emph */.sy("COVERALLS_REPO_TOKEN");
-            lib/* info */.um(`Setting ${label} to ${lib/* emph */.sy(inputs.githubToken)}...`);
+            lib/* info */.um(`Setting \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to \u001b[34m${inputs.githubToken}\u001b[39m...`);
             try {
                 core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
             }
             catch (err) {
                 const errMessage = `${err instanceof Error ? err.message : err}`;
-                throw new Error(`Failed to set ${label} to ${inputs.githubToken}: ${errMessage}`);
+                throw new Error(`Failed to set \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to ${inputs.githubToken}: ${errMessage}`);
             }
         }
         const res = await exec_lib/* run */.KH("gcovr", ...args);
@@ -82674,7 +82673,7 @@ async function run(inputs) {
                 const errMessage = `${err instanceof Error ? err.message : err}`;
                 throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
             }
-            lib/* info */.um(`Coveralls API report outputted to ${lib/* emph */.sy(inputs.coverallsOut)}`);
+            lib/* info */.um(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
     });
 }

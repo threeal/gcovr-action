@@ -12,7 +12,7 @@ async function isMissing(tool: string): Promise<boolean> {
 }
 
 async function checkGcovr() {
-  log.info(`Checking ${log.emph("gcovr")}...`);
+  log.info(`Checking \u001b[34mgcovr\u001b[39m...`);
   if (await isMissing("gcovr")) {
     await pipxInstallAction("gcovr");
   }
