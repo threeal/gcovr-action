@@ -30,17 +30,7 @@ export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
   await core.group("Generating code coverage report...", async () => {
     if (inputs.githubToken.length > 0) {
-      core.info(
-        `Setting \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to \u001b[34m${inputs.githubToken}\u001b[39m...`,
-      );
-      try {
-        core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
-      } catch (err) {
-        const errMessage = `${err instanceof Error ? err.message : err}`;
-        throw new Error(
-          `Failed to set \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to ${inputs.githubToken}: ${errMessage}`,
-        );
-      }
+      core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
     }
     const status = await exec.exec("gcovr", args, { ignoreReturnCode: true });
     if (status !== 0) {
