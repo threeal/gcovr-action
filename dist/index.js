@@ -81882,6 +81882,35 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ }
 /******/ 
 /************************************************************************/
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__nccwpck_require__.n = (module) => {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__nccwpck_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter functions for harmony exports
+/******/ 	__nccwpck_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
 /******/ /* webpack/runtime/compat */
 /******/ 
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
@@ -81897,7 +81926,7 @@ var core = __nccwpck_require__(2340);
 var external_os_ = __nccwpck_require__(2037);
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
-;// CONCATENATED MODULE: ./lib/action.js
+;// CONCATENATED MODULE: ./src/action.ts
 
 
 
@@ -81931,11 +81960,12 @@ function processInputs() {
 var external_fs_ = __nccwpck_require__(7147);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/form-data-npm-4.0.0-916facec2d-10c0.zip/node_modules/form-data/lib/form_data.js
 var form_data = __nccwpck_require__(8805);
-;// CONCATENATED MODULE: ./lib/http.js
+var form_data_default = /*#__PURE__*/__nccwpck_require__.n(form_data);
+;// CONCATENATED MODULE: ./src/http.ts
 
 
 async function postForm(url, form) {
-    const formData = new form_data();
+    const formData = new (form_data_default())();
     for (const [key, value] of Object.entries(form)) {
         formData.append(key, value);
     }
@@ -81972,7 +82002,7 @@ async function postForm(url, form) {
     });
 }
 
-;// CONCATENATED MODULE: ./lib/coveralls.js
+;// CONCATENATED MODULE: ./src/coveralls.ts
 
 
 
@@ -82128,7 +82158,7 @@ async function pipxInstallAction(...pkgs) {
 ;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/index.js
 
 
-;// CONCATENATED MODULE: ./lib/deps/index.js
+;// CONCATENATED MODULE: ./src/deps/index.ts
 
 
 
@@ -82151,7 +82181,7 @@ async function check() {
     await checkGcovr();
 }
 
-;// CONCATENATED MODULE: ./lib/gcovr.js
+;// CONCATENATED MODULE: ./src/gcovr.ts
 
 
 
@@ -82210,7 +82240,7 @@ async function run(inputs) {
     });
 }
 
-;// CONCATENATED MODULE: ./lib/main.js
+;// CONCATENATED MODULE: ./src/main.ts
 
 
 
