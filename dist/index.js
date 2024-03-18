@@ -81893,11 +81893,16 @@ var __webpack_exports__ = {};
 
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(2340);
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
+function r(r){return function(r){if("object"==typeof(e=r)&&null!==e&&"message"in e&&"string"==typeof e.message)return r;var e;try{return new Error(JSON.stringify(r))}catch(e){return new Error(String(r))}}(r).message}
+//# sourceMappingURL=index.esm.js.map
+
 // EXTERNAL MODULE: external "os"
 var external_os_ = __nccwpck_require__(2037);
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
 ;// CONCATENATED MODULE: ./lib/action.js
+
 
 
 
@@ -81922,8 +81927,7 @@ function processInputs() {
         return inputs;
     }
     catch (err) {
-        const errMessage = `${err instanceof Error ? err.message : err}`;
-        throw new Error(`Failed to process the action inputs: ${errMessage}`);
+        throw new Error(`Failed to process the action inputs: ${r(err)}`);
     }
 }
 
@@ -81991,10 +81995,6 @@ async function send(coverallsOut) {
 
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-io-npm-1.1.3-82d1cf012b-10c0.zip/node_modules/@actions/io/lib/io.js
 var io = __nccwpck_require__(1793);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
-function r(r){return function(r){if("object"==typeof(e=r)&&null!==e&&"message"in e&&"string"==typeof e.message)return r;var e;try{return new Error(JSON.stringify(r))}catch(e){return new Error(String(r))}}(r).message}
-//# sourceMappingURL=index.esm.js.map
-
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-cache-npm-3.2.4-c57b047f14-10c0.zip/node_modules/@actions/cache/lib/cache.js
 var cache = __nccwpck_require__(3193);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-exec-npm-1.1.1-90973d2f96-10c0.zip/node_modules/@actions/exec/lib/exec.js
@@ -82155,6 +82155,7 @@ async function check() {
 
 
 
+
 function getArgs(inputs) {
     let args = [];
     if (inputs.root.length > 0) {
@@ -82202,8 +82203,7 @@ async function run(inputs) {
                 patch(inputs.coverallsOut);
             }
             catch (err) {
-                const errMessage = `${err instanceof Error ? err.message : err}`;
-                throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
+                throw new Error(`Failed to patch Coveralls API report: ${r(err)}`);
             }
             core.info(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
@@ -82226,7 +82226,7 @@ async function main_run() {
         }
     }
     catch (err) {
-        core.setFailed(`${err instanceof Error ? err.message : err}`);
+        core.setFailed(err);
     }
 }
 main_run();
