@@ -1,4 +1,4 @@
-import * as log from "@actions-kit/log";
+import * as core from "@actions/core";
 import FormData from "form-data";
 import * as fs from "fs";
 
@@ -23,7 +23,7 @@ export async function postForm(url: string, form: Form): Promise<null> {
       res.on("data", (chunk) => {
         const prev = body.length;
         body.push(chunk);
-        log.info(`Received ${chunk.length - prev} bytes of data`);
+        core.info(`Received ${chunk.length - prev} bytes of data`);
       });
       res.on("end", () => {
         if (res.statusCode === undefined) {
@@ -33,7 +33,7 @@ export async function postForm(url: string, form: Form): Promise<null> {
             new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`),
           );
         } else {
-          log.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
+          core.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
           resolve(null);
         }
       });

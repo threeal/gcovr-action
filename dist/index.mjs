@@ -6084,7 +6084,7 @@ exports.group = group;
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = ({ value: true });
-__webpack_unused_export__ = exports.um = exports.kH = __webpack_unused_export__ = exports.ru = __webpack_unused_export__ = void 0;
+__webpack_unused_export__ = __webpack_unused_export__ = exports.kH = __webpack_unused_export__ = exports.ru = __webpack_unused_export__ = void 0;
 var emph_1 = __nccwpck_require__(69);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return emph_1.emph; } });
 var group_1 = __nccwpck_require__(9817);
@@ -6092,7 +6092,7 @@ Object.defineProperty(exports, "ru", ({ enumerable: true, get: function () { ret
 var log_1 = __nccwpck_require__(1349);
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.error; } });
 Object.defineProperty(exports, "kH", ({ enumerable: true, get: function () { return log_1.fatal; } }));
-Object.defineProperty(exports, "um", ({ enumerable: true, get: function () { return log_1.info; } }));
+__webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.info; } });
 __webpack_unused_export__ = ({ enumerable: true, get: function () { return log_1.warning; } });
 //# sourceMappingURL=index.js.map
 
@@ -82360,9 +82360,8 @@ var external_path_ = __nccwpck_require__(1017);
 
 
 
-
 function processInputs() {
-    lib/* info */.um("Processing the action inputs...");
+    core.info("Processing the action inputs...");
     try {
         const inputs = {
             root: core.getInput("root"),
@@ -82377,7 +82376,7 @@ function processInputs() {
         // Auto set coveralls output if not specified
         if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
             inputs.coverallsOut = external_path_.join(external_os_.tmpdir(), "coveralls.json");
-            lib/* info */.um(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
+            core.info(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
         return inputs;
     }
@@ -82414,7 +82413,7 @@ async function postForm(url, form) {
             res.on("data", (chunk) => {
                 const prev = body.length;
                 body.push(chunk);
-                lib/* info */.um(`Received ${chunk.length - prev} bytes of data`);
+                core.info(`Received ${chunk.length - prev} bytes of data`);
             });
             res.on("end", () => {
                 if (res.statusCode === undefined) {
@@ -82424,7 +82423,7 @@ async function postForm(url, form) {
                     reject(new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`));
                 }
                 else {
-                    lib/* info */.um(`HTTP status code ${res.statusCode}: ${body.toString()}`);
+                    core.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
                     resolve(null);
                 }
             });
@@ -82602,7 +82601,7 @@ async function isMissing(tool) {
     }
 }
 async function checkGcovr() {
-    lib/* info */.um(`Checking \u001b[34mgcovr\u001b[39m...`);
+    core.info(`Checking \u001b[34mgcovr\u001b[39m...`);
     if (await isMissing("gcovr")) {
         await pipxInstallAction("gcovr");
     }
@@ -82644,7 +82643,7 @@ async function run(inputs) {
     const args = getArgs(inputs);
     await lib/* group */.ru("Generating code coverage report...", async () => {
         if (inputs.githubToken.length > 0) {
-            lib/* info */.um(`Setting \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to \u001b[34m${inputs.githubToken}\u001b[39m...`);
+            core.info(`Setting \u001b[34m$COVERALLS_REPO_TOKEN\u001b[39m to \u001b[34m${inputs.githubToken}\u001b[39m...`);
             try {
                 core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
             }
@@ -82665,7 +82664,7 @@ async function run(inputs) {
             throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }
         if (inputs.coverallsOut.length > 0) {
-            lib/* info */.um("Patching Coveralls API report...");
+            core.info("Patching Coveralls API report...");
             try {
                 patch(inputs.coverallsOut);
             }
@@ -82673,7 +82672,7 @@ async function run(inputs) {
                 const errMessage = `${err instanceof Error ? err.message : err}`;
                 throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
             }
-            lib/* info */.um(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
+            core.info(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
     });
 }

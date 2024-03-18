@@ -1,5 +1,4 @@
 import * as core from "@actions/core";
-import * as log from "@actions-kit/log";
 import * as os from "os";
 import * as path from "path";
 
@@ -15,7 +14,7 @@ export interface Inputs {
 }
 
 export function processInputs(): Inputs {
-  log.info("Processing the action inputs...");
+  core.info("Processing the action inputs...");
   try {
     const inputs: Inputs = {
       root: core.getInput("root"),
@@ -30,7 +29,7 @@ export function processInputs(): Inputs {
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
       inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-      log.info(
+      core.info(
         `Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`,
       );
     }
