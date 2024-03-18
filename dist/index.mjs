@@ -82180,9 +82180,7 @@ function getArgs(inputs) {
 async function run(inputs) {
     const args = getArgs(inputs);
     await core.group("Generating code coverage report...", async () => {
-        if (inputs.githubToken.length > 0) {
-            core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
-        }
+        core.exportVariable("COVERALLS_REPO_TOKEN", inputs.githubToken);
         const status = await exec.exec("gcovr", args, { ignoreReturnCode: true });
         if (status !== 0) {
             let errMessage;
