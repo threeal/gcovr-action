@@ -1,5 +1,6 @@
 import * as core from "@actions/core";
 import * as exec from "@actions/exec";
+import { getErrorMessage } from "catched-error-message";
 import * as action from "./action.js";
 import * as coveralls from "./coveralls.js";
 
@@ -49,8 +50,9 @@ export async function run(inputs: action.Inputs) {
       try {
         coveralls.patch(inputs.coverallsOut);
       } catch (err) {
-        const errMessage = `${err instanceof Error ? err.message : err}`;
-        throw new Error(`Failed to patch Coveralls API report: ${errMessage}`);
+        throw new Error(
+          `Failed to patch Coveralls API report: ${getErrorMessage(err)}`,
+        );
       }
       core.info(
         `Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`,

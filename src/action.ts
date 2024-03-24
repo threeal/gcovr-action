@@ -1,4 +1,5 @@
 import * as core from "@actions/core";
+import { getErrorMessage } from "catched-error-message";
 import * as os from "os";
 import * as path from "path";
 
@@ -35,7 +36,8 @@ export function processInputs(): Inputs {
     }
     return inputs;
   } catch (err) {
-    const errMessage = `${err instanceof Error ? err.message : err}`;
-    throw new Error(`Failed to process the action inputs: ${errMessage}`);
+    throw new Error(
+      `Failed to process the action inputs: ${getErrorMessage(err)}`,
+    );
   }
 }
