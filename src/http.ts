@@ -2,9 +2,10 @@ import * as core from "@actions/core";
 import FormData from "form-data";
 import * as fs from "fs";
 
-type Form = { [key: string]: string | fs.ReadStream };
-
-export async function postForm(url: string, form: Form): Promise<null> {
+export async function postForm(
+  url: string,
+  form: Record<string, string | fs.ReadStream>,
+): Promise<null> {
   const formData = new FormData();
   for (const [key, value] of Object.entries(form)) {
     formData.append(key, value);

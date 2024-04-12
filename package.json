@@ -4,7 +4,7 @@
   "scripts": {
     "build": "ncc build src/main.ts",
     "format": "prettier --write --cache . !dist !README.md",
-    "lint": "eslint src"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@actions/cache": "^3.2.3",
@@ -16,13 +16,13 @@
     "pipx-install-action": "^1.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.0.0",
     "@types/node": "^20.12.7",
-    "@typescript-eslint/eslint-plugin": "^7.6.0",
-    "@typescript-eslint/parser": "^7.6.0",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^8.57.0",
     "prettier": "^3.2.4",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.6.0"
   },
   "packageManager": "yarn@4.1.1"
 }

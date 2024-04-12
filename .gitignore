@@ -1,5 +1,4 @@
 .*
-!.eslintrc.json
 !.git*
 
 build/
