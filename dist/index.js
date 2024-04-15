@@ -80011,6 +80011,412 @@ exports.AbortError = AbortError;
 
 /***/ }),
 
+/***/ 3858:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "Y": () => (/* binding */ processInputs)
+/* harmony export */ });
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2340);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var catched_error_message__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(144);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(2037);
+/* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(os__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(1017);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(path__WEBPACK_IMPORTED_MODULE_2__);
+
+
+
+
+function processInputs() {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info("Processing the action inputs...");
+    try {
+        const inputs = {
+            root: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("root"),
+            gcovExecutable: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("gcov-executable"),
+            excludes: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getMultilineInput("excludes"),
+            failUnderLine: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("fail-under-line"),
+            xmlOut: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("xml-out"),
+            coverallsOut: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("coveralls-out"),
+            coverallsSend: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getBooleanInput("coveralls-send"),
+            githubToken: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("github-token"),
+        };
+        // Auto set coveralls output if not specified
+        if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
+            inputs.coverallsOut = path__WEBPACK_IMPORTED_MODULE_2__.join(os__WEBPACK_IMPORTED_MODULE_1__.tmpdir(), "coveralls.json");
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
+        }
+        return inputs;
+    }
+    catch (err) {
+        throw new Error(`Failed to process the action inputs: ${(0,catched_error_message__WEBPACK_IMPORTED_MODULE_3__/* .getErrorMessage */ .e)(err)}`);
+    }
+}
+
+
+/***/ }),
+
+/***/ 7529:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "r": () => (/* binding */ patch),
+  "l": () => (/* binding */ send)
+});
+
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2340);
+// EXTERNAL MODULE: external "fs"
+var external_fs_ = __nccwpck_require__(7147);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/form-data-npm-4.0.0-916facec2d-10c0.zip/node_modules/form-data/lib/form_data.js
+var form_data = __nccwpck_require__(8805);
+var form_data_default = /*#__PURE__*/__nccwpck_require__.n(form_data);
+;// CONCATENATED MODULE: ./src/http.ts
+
+
+async function postForm(url, form) {
+    const formData = new (form_data_default())();
+    for (const [key, value] of Object.entries(form)) {
+        formData.append(key, value);
+    }
+    const urlObj = new URL(url);
+    const options = {
+        host: urlObj.host,
+        path: urlObj.pathname,
+        method: "POST",
+        protocol: "https:",
+    };
+    return new Promise((resolve, reject) => {
+        formData.submit(options, (err, res) => {
+            if (err)
+                return reject(err);
+            const body = [];
+            res.on("data", (chunk) => {
+                const prev = body.length;
+                body.push(chunk);
+                core.info(`Received ${chunk.length - prev} bytes of data`);
+            });
+            res.on("end", () => {
+                if (res.statusCode === undefined) {
+                    reject(new Error(`HTTP status code unknown: ${body.toString()}`));
+                }
+                else if (res.statusCode < 200 || res.statusCode > 299) {
+                    reject(new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`));
+                }
+                else {
+                    core.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
+                    resolve(null);
+                }
+            });
+        });
+    });
+}
+
+;// CONCATENATED MODULE: ./src/coveralls.ts
+
+
+
+async function patch(coverallsOut) {
+    let data = external_fs_.readFileSync(coverallsOut).toString();
+    data = data.replaceAll('"service_name": "github-actions-ci"', '"service_name": "github"');
+    external_fs_.writeFileSync(coverallsOut, data);
+}
+async function send(coverallsOut) {
+    await core.group("Sending report to Coveralls...", async () => {
+        await postForm("https://coveralls.io/api/v1/jobs", {
+            json_file: external_fs_.createReadStream(coverallsOut),
+        });
+    });
+}
+
+
+/***/ }),
+
+/***/ 2190:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "B": () => (/* binding */ check)
+});
+
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2340);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-io-npm-1.1.3-82d1cf012b-10c0.zip/node_modules/@actions/io/lib/io.js
+var io = __nccwpck_require__(1793);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
+var index_esm = __nccwpck_require__(144);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-cache-npm-3.2.4-c57b047f14-10c0.zip/node_modules/@actions/cache/lib/cache.js
+var cache = __nccwpck_require__(3193);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-exec-npm-1.1.1-90973d2f96-10c0.zip/node_modules/@actions/exec/lib/exec.js
+var exec = __nccwpck_require__(4926);
+// EXTERNAL MODULE: external "os"
+var external_os_ = __nccwpck_require__(2037);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(1017);
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/environment.js
+
+
+
+
+
+async function getEnvironment(env) {
+    try {
+        const res = await (0,exec.getExecOutput)("pipx", ["environment", "--value", env], {
+            silent: true,
+        });
+        return res.stdout;
+    }
+    catch (err) {
+        throw new Error(`Failed to get ${env}: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+    }
+}
+function ensurePath() {
+    const homeDir = external_path_.join(external_os_.homedir(), ".local/pipx");
+    const binDir = external_path_.join(external_os_.homedir(), ".local/bin");
+    core.exportVariable("PIPX_HOME", homeDir);
+    core.exportVariable("PIPX_BIN_DIR", binDir);
+    core.addPath(binDir);
+}
+
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/cache.js
+
+
+
+
+async function savePackageCache(pkg) {
+    try {
+        const binDir = await getEnvironment("PIPX_BIN_DIR");
+        const localVenvs = await getEnvironment("PIPX_LOCAL_VENVS");
+        await (0,cache.saveCache)([external_path_.join(binDir, `${pkg}*`), external_path_.join(localVenvs, pkg)], `pipx-${process.platform}-${pkg}`);
+    }
+    catch (err) {
+        throw new Error(`Failed to save ${pkg} cache: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+    }
+}
+async function restorePackageCache(pkg) {
+    try {
+        const binDir = await getEnvironment("PIPX_BIN_DIR");
+        const localVenvs = await getEnvironment("PIPX_LOCAL_VENVS");
+        const key = await (0,cache.restoreCache)([external_path_.join(binDir, `${pkg}*`), external_path_.join(localVenvs, pkg)], `pipx-${process.platform}-${pkg}`);
+        return key !== undefined;
+    }
+    catch (err) {
+        throw new Error(`Failed to restore ${pkg} cache: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+    }
+}
+
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/install.js
+
+
+async function installPackage(pkg) {
+    try {
+        await (0,exec.exec)("pipx", ["install", pkg]);
+    }
+    catch (err) {
+        throw new Error(`Failed to install ${pkg}: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+    }
+}
+
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/index.js
+
+
+
+/* harmony default export */ const pipx = ({
+    ensurePath: ensurePath,
+    getEnvironment: getEnvironment,
+    installPackage: installPackage,
+    restorePackageCache: restorePackageCache,
+    savePackageCache: savePackageCache,
+});
+
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/action.js
+
+
+
+async function pipxInstallAction(...pkgs) {
+    core.info("Ensuring pipx path...");
+    try {
+        pipx.ensurePath();
+    }
+    catch (err) {
+        core.setFailed(`Failed to ensure pipx path: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+        return;
+    }
+    for (const pkg of pkgs) {
+        let cacheFound;
+        core.startGroup(`Restoring \u001b[34m${pkg}\u001b[39m cache...`);
+        try {
+            cacheFound = await pipx.restorePackageCache(pkg);
+        }
+        catch (err) {
+            core.endGroup();
+            core.setFailed(`Failed to restore ${pkg} cache: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+            return;
+        }
+        core.endGroup();
+        if (!cacheFound) {
+            core.startGroup(`Cache not found, installing \u001b[34m${pkg}\u001b[39m...`);
+            try {
+                await pipx.installPackage(pkg);
+            }
+            catch (err) {
+                core.endGroup();
+                core.setFailed(`Failed to install ${pkg}: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+                return;
+            }
+            core.endGroup();
+            core.startGroup(`Saving \u001b[34m${pkg}\u001b[39m cache...`);
+            try {
+                await pipx.savePackageCache(pkg);
+            }
+            catch (err) {
+                core.endGroup();
+                core.setFailed(`Failed to save ${pkg} cache: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
+                return;
+            }
+            core.endGroup();
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/index.js
+
+
+;// CONCATENATED MODULE: ./src/deps/index.ts
+
+
+
+async function isMissing(tool) {
+    try {
+        await io.which(tool, true);
+        return false;
+    }
+    catch {
+        return true;
+    }
+}
+async function checkGcovr() {
+    core.info(`Checking \u001b[34mgcovr\u001b[39m...`);
+    if (await isMissing("gcovr")) {
+        await pipxInstallAction("gcovr");
+    }
+}
+async function check() {
+    await checkGcovr();
+}
+
+
+/***/ }),
+
+/***/ 6840:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "K": () => (/* binding */ run)
+/* harmony export */ });
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2340);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(4926);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var catched_error_message__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(144);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(7529);
+
+
+
+
+function getArgs(inputs) {
+    let args = [];
+    if (inputs.root.length > 0) {
+        args = args.concat(["--root", inputs.root]);
+    }
+    if (inputs.gcovExecutable.length > 0) {
+        args = args.concat("--gcov-executable", inputs.gcovExecutable);
+    }
+    for (const exclude of inputs.excludes) {
+        args = args.concat("--exclude", exclude);
+    }
+    if (inputs.failUnderLine.length > 0) {
+        args = args.concat("--fail-under-line", inputs.failUnderLine);
+    }
+    if (inputs.xmlOut.length > 0) {
+        args = args.concat("--xml", inputs.xmlOut);
+    }
+    if (inputs.coverallsOut.length > 0) {
+        args = args.concat("--coveralls", inputs.coverallsOut);
+    }
+    return args;
+}
+async function run(inputs) {
+    const args = getArgs(inputs);
+    await _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Generating code coverage report...", async () => {
+        const status = await _actions_exec__WEBPACK_IMPORTED_MODULE_1__.exec("gcovr", args, {
+            ignoreReturnCode: true,
+            env: {
+                COVERALLS_REPO_TOKEN: inputs.githubToken,
+            },
+        });
+        if (status !== 0) {
+            let errMessage;
+            if ((status | 2) > 0) {
+                errMessage = `coverage is under ${inputs.failUnderLine}%`;
+            }
+            else {
+                errMessage = `unknown error (error code ${status})`;
+            }
+            throw new Error(`Failed to generate code coverage report: ${errMessage}`);
+        }
+        if (inputs.coverallsOut.length > 0) {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info("Patching Coveralls API report...");
+            try {
+                _coveralls_js__WEBPACK_IMPORTED_MODULE_2__/* .patch */ .r(inputs.coverallsOut);
+            }
+            catch (err) {
+                throw new Error(`Failed to patch Coveralls API report: ${(0,catched_error_message__WEBPACK_IMPORTED_MODULE_3__/* .getErrorMessage */ .e)(err)}`);
+            }
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
+        }
+    });
+}
+
+
+/***/ }),
+
+/***/ 3990:
+/***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
+
+__nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2340);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(3858);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(7529);
+/* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2190);
+/* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(6840);
+
+
+
+
+
+try {
+    const inputs = _action_js__WEBPACK_IMPORTED_MODULE_1__/* .processInputs */ .Y();
+    await _deps_index_js__WEBPACK_IMPORTED_MODULE_3__/* .check */ .B();
+    await _gcovr_js__WEBPACK_IMPORTED_MODULE_4__/* .run */ .K(inputs);
+    if (inputs.coverallsSend && inputs.coverallsOut.length > 0) {
+        await _coveralls_js__WEBPACK_IMPORTED_MODULE_2__/* .send */ .l(inputs.coverallsOut);
+    }
+}
+catch (err) {
+    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(err);
+}
+
+__webpack_async_result__();
+} catch(e) { __webpack_async_result__(e); } }, 1);
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -81835,6 +82241,18 @@ module.exports = parseParams
 
 /***/ }),
 
+/***/ 144:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "e": () => (/* binding */ r)
+/* harmony export */ });
+function r(r){return function(r){if("object"==typeof(e=r)&&null!==e&&"message"in e&&"string"==typeof e.message)return r;var e;try{return new Error(JSON.stringify(r))}catch(e){return new Error(String(r))}}(r).message}
+//# sourceMappingURL=index.esm.js.map
+
+
+/***/ }),
+
 /***/ 9539:
 /***/ ((module) => {
 
@@ -81882,6 +82300,75 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ }
 /******/ 
 /************************************************************************/
+/******/ /* webpack/runtime/async module */
+/******/ (() => {
+/******/ 	var webpackQueues = typeof Symbol === "function" ? Symbol("webpack queues") : "__webpack_queues__";
+/******/ 	var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
+/******/ 	var webpackError = typeof Symbol === "function" ? Symbol("webpack error") : "__webpack_error__";
+/******/ 	var resolveQueue = (queue) => {
+/******/ 		if(queue && !queue.d) {
+/******/ 			queue.d = 1;
+/******/ 			queue.forEach((fn) => (fn.r--));
+/******/ 			queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
+/******/ 		}
+/******/ 	}
+/******/ 	var wrapDeps = (deps) => (deps.map((dep) => {
+/******/ 		if(dep !== null && typeof dep === "object") {
+/******/ 			if(dep[webpackQueues]) return dep;
+/******/ 			if(dep.then) {
+/******/ 				var queue = [];
+/******/ 				queue.d = 0;
+/******/ 				dep.then((r) => {
+/******/ 					obj[webpackExports] = r;
+/******/ 					resolveQueue(queue);
+/******/ 				}, (e) => {
+/******/ 					obj[webpackError] = e;
+/******/ 					resolveQueue(queue);
+/******/ 				});
+/******/ 				var obj = {};
+/******/ 				obj[webpackQueues] = (fn) => (fn(queue));
+/******/ 				return obj;
+/******/ 			}
+/******/ 		}
+/******/ 		var ret = {};
+/******/ 		ret[webpackQueues] = x => {};
+/******/ 		ret[webpackExports] = dep;
+/******/ 		return ret;
+/******/ 	}));
+/******/ 	__nccwpck_require__.a = (module, body, hasAwait) => {
+/******/ 		var queue;
+/******/ 		hasAwait && ((queue = []).d = 1);
+/******/ 		var depQueues = new Set();
+/******/ 		var exports = module.exports;
+/******/ 		var currentDeps;
+/******/ 		var outerResolve;
+/******/ 		var reject;
+/******/ 		var promise = new Promise((resolve, rej) => {
+/******/ 			reject = rej;
+/******/ 			outerResolve = resolve;
+/******/ 		});
+/******/ 		promise[webpackExports] = exports;
+/******/ 		promise[webpackQueues] = (fn) => (queue && fn(queue), depQueues.forEach(fn), promise["catch"](x => {}));
+/******/ 		module.exports = promise;
+/******/ 		body((deps) => {
+/******/ 			currentDeps = wrapDeps(deps);
+/******/ 			var fn;
+/******/ 			var getResult = () => (currentDeps.map((d) => {
+/******/ 				if(d[webpackError]) throw d[webpackError];
+/******/ 				return d[webpackExports];
+/******/ 			}))
+/******/ 			var promise = new Promise((resolve) => {
+/******/ 				fn = () => (resolve(getResult));
+/******/ 				fn.r = 0;
+/******/ 				var fnQueue = (q) => (q !== queue && !depQueues.has(q) && (depQueues.add(q), q && !q.d && (fn.r++, q.push(fn))));
+/******/ 				currentDeps.map((dep) => (dep[webpackQueues](fnQueue)));
+/******/ 			});
+/******/ 			return fn.r ? promise : getResult();
+/******/ 		}, (err) => ((err ? reject(promise[webpackError] = err) : outerResolve(exports)), resolveQueue(queue)));
+/******/ 		queue && (queue.d = 0);
+/******/ 	};
+/******/ })();
+/******/ 
 /******/ /* webpack/runtime/compat get default export */
 /******/ (() => {
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
@@ -81916,350 +82403,10 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
 /******/ 
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2340);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
-function r(r){return function(r){if("object"==typeof(e=r)&&null!==e&&"message"in e&&"string"==typeof e.message)return r;var e;try{return new Error(JSON.stringify(r))}catch(e){return new Error(String(r))}}(r).message}
-//# sourceMappingURL=index.esm.js.map
-
-// EXTERNAL MODULE: external "os"
-var external_os_ = __nccwpck_require__(2037);
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(1017);
-;// CONCATENATED MODULE: ./src/action.ts
-
-
-
-
-function processInputs() {
-    core.info("Processing the action inputs...");
-    try {
-        const inputs = {
-            root: core.getInput("root"),
-            gcovExecutable: core.getInput("gcov-executable"),
-            excludes: core.getMultilineInput("excludes"),
-            failUnderLine: core.getInput("fail-under-line"),
-            xmlOut: core.getInput("xml-out"),
-            coverallsOut: core.getInput("coveralls-out"),
-            coverallsSend: core.getBooleanInput("coveralls-send"),
-            githubToken: core.getInput("github-token"),
-        };
-        // Auto set coveralls output if not specified
-        if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
-            inputs.coverallsOut = external_path_.join(external_os_.tmpdir(), "coveralls.json");
-            core.info(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
-        }
-        return inputs;
-    }
-    catch (err) {
-        throw new Error(`Failed to process the action inputs: ${r(err)}`);
-    }
-}
-
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(7147);
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/form-data-npm-4.0.0-916facec2d-10c0.zip/node_modules/form-data/lib/form_data.js
-var form_data = __nccwpck_require__(8805);
-var form_data_default = /*#__PURE__*/__nccwpck_require__.n(form_data);
-;// CONCATENATED MODULE: ./src/http.ts
-
-
-async function postForm(url, form) {
-    const formData = new (form_data_default())();
-    for (const [key, value] of Object.entries(form)) {
-        formData.append(key, value);
-    }
-    const urlObj = new URL(url);
-    const options = {
-        host: urlObj.host,
-        path: urlObj.pathname,
-        method: "POST",
-        protocol: "https:",
-    };
-    return new Promise((resolve, reject) => {
-        formData.submit(options, (err, res) => {
-            if (err)
-                return reject(err);
-            const body = [];
-            res.on("data", (chunk) => {
-                const prev = body.length;
-                body.push(chunk);
-                core.info(`Received ${chunk.length - prev} bytes of data`);
-            });
-            res.on("end", () => {
-                if (res.statusCode === undefined) {
-                    reject(new Error(`HTTP status code unknown: ${body.toString()}`));
-                }
-                else if (res.statusCode < 200 || res.statusCode > 299) {
-                    reject(new Error(`HTTP status code ${res.statusCode}: ${body.toString()}`));
-                }
-                else {
-                    core.info(`HTTP status code ${res.statusCode}: ${body.toString()}`);
-                    resolve(null);
-                }
-            });
-        });
-    });
-}
-
-;// CONCATENATED MODULE: ./src/coveralls.ts
-
-
-
-async function patch(coverallsOut) {
-    let data = external_fs_.readFileSync(coverallsOut).toString();
-    data = data.replaceAll('"service_name": "github-actions-ci"', '"service_name": "github"');
-    external_fs_.writeFileSync(coverallsOut, data);
-}
-async function send(coverallsOut) {
-    await core.group("Sending report to Coveralls...", async () => {
-        await postForm("https://coveralls.io/api/v1/jobs", {
-            json_file: external_fs_.createReadStream(coverallsOut),
-        });
-    });
-}
-
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-io-npm-1.1.3-82d1cf012b-10c0.zip/node_modules/@actions/io/lib/io.js
-var io = __nccwpck_require__(1793);
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-cache-npm-3.2.4-c57b047f14-10c0.zip/node_modules/@actions/cache/lib/cache.js
-var cache = __nccwpck_require__(3193);
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-exec-npm-1.1.1-90973d2f96-10c0.zip/node_modules/@actions/exec/lib/exec.js
-var exec = __nccwpck_require__(4926);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/environment.js
-
-
-
-
-
-async function getEnvironment(env) {
-    try {
-        const res = await (0,exec.getExecOutput)("pipx", ["environment", "--value", env], {
-            silent: true,
-        });
-        return res.stdout;
-    }
-    catch (err) {
-        throw new Error(`Failed to get ${env}: ${r(err)}`);
-    }
-}
-function ensurePath() {
-    const homeDir = external_path_.join(external_os_.homedir(), ".local/pipx");
-    const binDir = external_path_.join(external_os_.homedir(), ".local/bin");
-    core.exportVariable("PIPX_HOME", homeDir);
-    core.exportVariable("PIPX_BIN_DIR", binDir);
-    core.addPath(binDir);
-}
-
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/cache.js
-
-
-
-
-async function savePackageCache(pkg) {
-    try {
-        const binDir = await getEnvironment("PIPX_BIN_DIR");
-        const localVenvs = await getEnvironment("PIPX_LOCAL_VENVS");
-        await (0,cache.saveCache)([external_path_.join(binDir, `${pkg}*`), external_path_.join(localVenvs, pkg)], `pipx-${process.platform}-${pkg}`);
-    }
-    catch (err) {
-        throw new Error(`Failed to save ${pkg} cache: ${r(err)}`);
-    }
-}
-async function restorePackageCache(pkg) {
-    try {
-        const binDir = await getEnvironment("PIPX_BIN_DIR");
-        const localVenvs = await getEnvironment("PIPX_LOCAL_VENVS");
-        const key = await (0,cache.restoreCache)([external_path_.join(binDir, `${pkg}*`), external_path_.join(localVenvs, pkg)], `pipx-${process.platform}-${pkg}`);
-        return key !== undefined;
-    }
-    catch (err) {
-        throw new Error(`Failed to restore ${pkg} cache: ${r(err)}`);
-    }
-}
-
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/install.js
-
-
-async function installPackage(pkg) {
-    try {
-        await (0,exec.exec)("pipx", ["install", pkg]);
-    }
-    catch (err) {
-        throw new Error(`Failed to install ${pkg}: ${r(err)}`);
-    }
-}
-
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/pipx/index.js
-
-
-
-/* harmony default export */ const pipx = ({
-    ensurePath: ensurePath,
-    getEnvironment: getEnvironment,
-    installPackage: installPackage,
-    restorePackageCache: restorePackageCache,
-    savePackageCache: savePackageCache,
-});
-
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/action.js
-
-
-
-async function pipxInstallAction(...pkgs) {
-    core.info("Ensuring pipx path...");
-    try {
-        pipx.ensurePath();
-    }
-    catch (err) {
-        core.setFailed(`Failed to ensure pipx path: ${r(err)}`);
-        return;
-    }
-    for (const pkg of pkgs) {
-        let cacheFound;
-        core.startGroup(`Restoring \u001b[34m${pkg}\u001b[39m cache...`);
-        try {
-            cacheFound = await pipx.restorePackageCache(pkg);
-        }
-        catch (err) {
-            core.endGroup();
-            core.setFailed(`Failed to restore ${pkg} cache: ${r(err)}`);
-            return;
-        }
-        core.endGroup();
-        if (!cacheFound) {
-            core.startGroup(`Cache not found, installing \u001b[34m${pkg}\u001b[39m...`);
-            try {
-                await pipx.installPackage(pkg);
-            }
-            catch (err) {
-                core.endGroup();
-                core.setFailed(`Failed to install ${pkg}: ${r(err)}`);
-                return;
-            }
-            core.endGroup();
-            core.startGroup(`Saving \u001b[34m${pkg}\u001b[39m cache...`);
-            try {
-                await pipx.savePackageCache(pkg);
-            }
-            catch (err) {
-                core.endGroup();
-                core.setFailed(`Failed to save ${pkg} cache: ${r(err)}`);
-                return;
-            }
-            core.endGroup();
-        }
-    }
-}
-
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/pipx-install-action-npm-1.0.0-9cbf40e0d9-10c0.zip/node_modules/pipx-install-action/dist/index.js
-
-
-;// CONCATENATED MODULE: ./src/deps/index.ts
-
-
-
-async function isMissing(tool) {
-    try {
-        await io.which(tool, true);
-        return false;
-    }
-    catch {
-        return true;
-    }
-}
-async function checkGcovr() {
-    core.info(`Checking \u001b[34mgcovr\u001b[39m...`);
-    if (await isMissing("gcovr")) {
-        await pipxInstallAction("gcovr");
-    }
-}
-async function check() {
-    await checkGcovr();
-}
-
-;// CONCATENATED MODULE: ./src/gcovr.ts
-
-
-
-
-function getArgs(inputs) {
-    let args = [];
-    if (inputs.root.length > 0) {
-        args = args.concat(["--root", inputs.root]);
-    }
-    if (inputs.gcovExecutable.length > 0) {
-        args = args.concat("--gcov-executable", inputs.gcovExecutable);
-    }
-    for (const exclude of inputs.excludes) {
-        args = args.concat("--exclude", exclude);
-    }
-    if (inputs.failUnderLine.length > 0) {
-        args = args.concat("--fail-under-line", inputs.failUnderLine);
-    }
-    if (inputs.xmlOut.length > 0) {
-        args = args.concat("--xml", inputs.xmlOut);
-    }
-    if (inputs.coverallsOut.length > 0) {
-        args = args.concat("--coveralls", inputs.coverallsOut);
-    }
-    return args;
-}
-async function run(inputs) {
-    const args = getArgs(inputs);
-    await core.group("Generating code coverage report...", async () => {
-        const status = await exec.exec("gcovr", args, {
-            ignoreReturnCode: true,
-            env: {
-                COVERALLS_REPO_TOKEN: inputs.githubToken,
-            },
-        });
-        if (status !== 0) {
-            let errMessage;
-            if ((status | 2) > 0) {
-                errMessage = `coverage is under ${inputs.failUnderLine}%`;
-            }
-            else {
-                errMessage = `unknown error (error code ${status})`;
-            }
-            throw new Error(`Failed to generate code coverage report: ${errMessage}`);
-        }
-        if (inputs.coverallsOut.length > 0) {
-            core.info("Patching Coveralls API report...");
-            try {
-                patch(inputs.coverallsOut);
-            }
-            catch (err) {
-                throw new Error(`Failed to patch Coveralls API report: ${r(err)}`);
-            }
-            core.info(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
-        }
-    });
-}
-
-;// CONCATENATED MODULE: ./src/main.ts
-
-
-
-
-
-async function main_run() {
-    try {
-        const inputs = processInputs();
-        await check();
-        await run(inputs);
-        if (inputs.coverallsSend && inputs.coverallsOut.length > 0) {
-            await send(inputs.coverallsOut);
-        }
-    }
-    catch (err) {
-        core.setFailed(err);
-    }
-}
-main_run();
-
-})();
-
+/******/ 
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ // This entry module used 'module' so it can't be inlined
+/******/ var __webpack_exports__ = __nccwpck_require__(3990);
+/******/ __webpack_exports__ = await __webpack_exports__;
+/******/ 
