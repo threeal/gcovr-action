@@ -2058,7 +2058,6 @@ __metadata:
     "@vercel/ncc": "npm:^0.38.1"
     catched-error-message: "npm:^0.0.1"
     eslint: "npm:^9.0.0"
-    form-data: "npm:^4.0.0"
     formdata-node: "npm:^6.0.3"
     got: "npm:^14.2.1"
     pipx-install-action: "npm:^1.0.0"
