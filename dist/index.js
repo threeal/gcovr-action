@@ -91927,7 +91927,10 @@ async function send(coverallsOut) {
     await core.group("Sending report to Coveralls...", async () => {
         const form = new FormData();
         form.set("json_file", fileFromPathSync(coverallsOut));
-        await got_dist_source.post("https://coveralls.io/api/v1/jobs", { body: form });
+        const res = await got_dist_source.post("https://coveralls.io/api/v1/jobs", {
+            body: form,
+        });
+        core.info(`HTTP status code ${res.statusCode}: ${res.body}`);
     });
 }
 
