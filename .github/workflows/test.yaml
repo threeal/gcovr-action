@@ -40,13 +40,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.2
 
-      - name: Configure, build, and test the sample project
+      - name: Build Sample Project
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
           generator: Ninja
           cxx-compiler: g++
-          run-test: true
+          run-build: true
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.0.0
+        with:
+          test-dir: sample/build
 
       - name: Use this action
         uses: ./
@@ -60,14 +65,19 @@ jobs:
       - name: Install LLVM
         run: sudo apt-get install -y llvm
 
-      - name: Configure, build, and test the sample project
+      - name: Build Sample Project
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
           generator: Ninja
           c-compiler: clang
           cxx-compiler: clang++
-          run-test: true
+          run-build: true
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.0.0
+        with:
+          test-dir: sample/build
 
       - name: Use this action with llvm-cov as the gcov executable
         uses: ./
@@ -80,14 +90,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.2
 
-      - name: Configure, build, and test the sample project
+      - name: Build Sample Project
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
           generator: Ninja
           cxx-compiler: g++
           args: -DTEST_EVEN=OFF -DTEST_ODD=OFF
-          run-test: true
+          run-build: true
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.0.0
+        with:
+          test-dir: sample/build
 
       - name: Use this action without an exclusion
         id: failed_step
@@ -128,11 +143,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.2
 
-      - name: Build and Test Sample Project
+      - name: Build Sample Project
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
-          run-test: true
+          run-build: true
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.0.0
+        with:
+          test-dir: sample/build
 
       - name: Use this action to generate an XML report
         uses: ./
@@ -148,11 +168,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.1.2
 
-      - name: Build and Test Sample Project
+      - name: Build Sample Project
         uses: threeal/cmake-action@v1.3.0
         with:
           source-dir: sample
-          run-test: true
+          run-build: true
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.0.0
+        with:
+          test-dir: sample/build
 
       - name: Use this action to generate a Coveralls report
         uses: ./
