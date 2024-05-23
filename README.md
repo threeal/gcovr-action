@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out this repository
-        uses: actions/checkout@v4.1.5
+        uses: actions/checkout@v4.1.6
 
       - name: Build and test this project
         run: |
