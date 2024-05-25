@@ -23,7 +23,7 @@
     "eslint": "^9.3.0",
     "prettier": "^3.2.4",
     "typescript": "^5.4.5",
-    "typescript-eslint": "^7.9.0"
+    "typescript-eslint": "^7.10.0"
   },
   "packageManager": "yarn@4.2.2"
 }
