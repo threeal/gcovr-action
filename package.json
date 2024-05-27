@@ -13,7 +13,7 @@
     "@actions/io": "^1.1.3",
     "catched-error-message": "^0.0.1",
     "formdata-node": "^6.0.3",
-    "got": "^14.2.1",
+    "got": "^14.3.0",
     "pipx-install-action": "^1.0.0"
   },
   "devDependencies": {
