@@ -1294,9 +1294,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"got@npm:^14.3.0":
-  version: 14.3.0
-  resolution: "got@npm:14.3.0"
+"got@npm:^14.4.0":
+  version: 14.4.0
+  resolution: "got@npm:14.4.0"
   dependencies:
     "@sindresorhus/is": "npm:^6.3.1"
     "@szmarczak/http-timer": "npm:^5.0.1"
@@ -1309,7 +1309,7 @@ __metadata:
     lowercase-keys: "npm:^3.0.0"
     p-cancelable: "npm:^4.0.1"
     responselike: "npm:^3.0.0"
-  checksum: 10c0/c2fe6a1411cd6f3334bda48b4b027035e0c4a0587344c652f193d4ca7b782d43ec29b1781c796572f4621676eeafe36d2bd9e371cb7e1d1982e65f3630a4dcb6
+  checksum: 10c0/b09c38690b3e788c8b40dead26a3ab7bdc71773a08e9f4fb128a4fe4549140feca6c2722dd1b50c3f74a3a69bc62e95a4258a8c308ed857642c467ce4e0e9e47
   languageName: node
   linkType: hard
 
@@ -2064,7 +2064,7 @@ __metadata:
     catched-error-message: "npm:^0.0.1"
     eslint: "npm:^9.4.0"
     formdata-node: "npm:^6.0.3"
-    got: "npm:^14.3.0"
+    got: "npm:^14.4.0"
     pipx-install-action: "npm:^1.0.0"
     prettier: "npm:^3.2.4"
     typescript: "npm:^5.4.5"
