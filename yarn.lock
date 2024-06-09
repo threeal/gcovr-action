@@ -1294,9 +1294,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"got@npm:^14.3.0":
-  version: 14.3.0
-  resolution: "got@npm:14.3.0"
+"got@npm:^14.4.1":
+  version: 14.4.1
+  resolution: "got@npm:14.4.1"
   dependencies:
     "@sindresorhus/is": "npm:^6.3.1"
     "@szmarczak/http-timer": "npm:^5.0.1"
@@ -1309,7 +1309,8 @@ __metadata:
     lowercase-keys: "npm:^3.0.0"
     p-cancelable: "npm:^4.0.1"
     responselike: "npm:^3.0.0"
-  checksum: 10c0/c2fe6a1411cd6f3334bda48b4b027035e0c4a0587344c652f193d4ca7b782d43ec29b1781c796572f4621676eeafe36d2bd9e371cb7e1d1982e65f3630a4dcb6
+    type-fest: "npm:^4.19.0"
+  checksum: 10c0/6adf8785f26676040a31faaf0ddd1420aaa40af32a9ddd58674b54d3371eeb67ac159bc8e9f3ec3d6cb96a4a966a05afbd570ab7b34cfee19b340b2530f0e536
   languageName: node
   linkType: hard
 
@@ -2064,7 +2065,7 @@ __metadata:
     catched-error-message: "npm:^0.0.1"
     eslint: "npm:^9.4.0"
     formdata-node: "npm:^6.0.3"
-    got: "npm:^14.3.0"
+    got: "npm:^14.4.1"
     pipx-install-action: "npm:^1.0.0"
     prettier: "npm:^3.2.4"
     typescript: "npm:^5.4.5"
@@ -2311,6 +2312,13 @@ __metadata:
   dependencies:
     prelude-ls: "npm:^1.2.1"
   checksum: 10c0/7b3fd0ed43891e2080bf0c5c504b418fbb3e5c7b9708d3d015037ba2e6323a28152ec163bcb65212741fa5d2022e3075ac3c76440dbd344c9035f818e8ecee58
+  languageName: node
+  linkType: hard
+
+"type-fest@npm:^4.19.0":
+  version: 4.20.0
+  resolution: "type-fest@npm:4.20.0"
+  checksum: 10c0/d0b35152f7f0b34b3048fb14d93d8d6dfe6288d443a2ab7b7b8c1dd902278e092aa057ad7cfc30f269f17d42eeb14a19d4d147ecb14dff74a5941c5c82248efa
   languageName: node
   linkType: hard
 
