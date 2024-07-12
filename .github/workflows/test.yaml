@@ -24,7 +24,7 @@ jobs:
           run-build: true
 
       - name: Test Sample Project
-        uses: threeal/ctest-action@v1.0.0
+        uses: threeal/ctest-action@v1.1.0
         with:
           test-dir: sample/build
 
@@ -50,7 +50,7 @@ jobs:
           run-build: true
 
       - name: Test Sample Project
-        uses: threeal/ctest-action@v1.0.0
+        uses: threeal/ctest-action@v1.1.0
         with:
           test-dir: sample/build
 
@@ -75,7 +75,7 @@ jobs:
           run-build: true
 
       - name: Test Sample Project
-        uses: threeal/ctest-action@v1.0.0
+        uses: threeal/ctest-action@v1.1.0
         with:
           test-dir: sample/build
 
@@ -125,7 +125,7 @@ jobs:
           run-build: true
 
       - name: Test Sample Project
-        uses: threeal/ctest-action@v1.0.0
+        uses: threeal/ctest-action@v1.1.0
         with:
           test-dir: sample/build
 
@@ -150,7 +150,7 @@ jobs:
           run-build: true
 
       - name: Test Sample Project
-        uses: threeal/ctest-action@v1.0.0
+        uses: threeal/ctest-action@v1.1.0
         with:
           test-dir: sample/build
 
