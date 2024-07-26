@@ -262,10 +262,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.7.0, @eslint/js@npm:^9.7.0":
+"@eslint/js@npm:9.7.0":
   version: 9.7.0
   resolution: "@eslint/js@npm:9.7.0"
   checksum: 10c0/73fc10666f6f4aed6f58e407e09f42ceb0d42fa60c52701c64ea9f59a81a6a8ad5caecdfd423d03088481515fe7ec17eb461acb4ef1ad70b649b6eae465b3164
+  languageName: node
+  linkType: hard
+
+"@eslint/js@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@eslint/js@npm:10.0.0"
+  checksum: 10c0/4e209a56b9813d5a198f48bbf012e8f9c5103b0e2abd09a47a8915f06954921be6aad2ed0e1d0940b81aa750c3d5f141fc81581b022a74318c08d37c3db79a1e
   languageName: node
   linkType: hard
 
@@ -2078,7 +2085,7 @@ __metadata:
     "@actions/core": "npm:^1.10.1"
     "@actions/exec": "npm:^1.1.1"
     "@actions/io": "npm:^1.1.3"
-    "@eslint/js": "npm:^9.7.0"
+    "@eslint/js": "npm:^10.0.0"
     "@types/node": "npm:^20.14.11"
     "@vercel/ncc": "npm:^0.38.1"
     catched-error-message: "npm:^0.0.1"

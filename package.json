@@ -17,7 +17,7 @@
     "pipx-install-action": "^1.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.7.0",
+    "@eslint/js": "^10.0.0",
     "@types/node": "^20.14.11",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^9.7.0",
