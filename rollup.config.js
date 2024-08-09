@@ -7,6 +7,7 @@ export default {
   input: "src/index.ts",
   output: {
     dir: "dist",
+    entryFileNames: "[name].mjs",
   },
   plugins: [commonjs(), json(), nodeResolve(), typescript()],
 };
