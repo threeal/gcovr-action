@@ -1,6 +1,6 @@
-import * as core from "@actions/core";
 import * as exec from "@actions/exec";
 import { getErrorMessage } from "catched-error-message";
+import { beginLogGroup, endLogGroup, logInfo } from "gha-utils";
 import * as action from "./action.js";
 import * as coveralls from "./coveralls.js";
 
@@ -29,7 +29,8 @@ function getArgs(inputs: action.Inputs): string[] {
 
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
-  await core.group("Generating code coverage report...", async () => {
+  beginLogGroup("Generating code coverage report...");
+  try {
     const status = await exec.exec("gcovr", args, {
       ignoreReturnCode: true,
       env: {
@@ -46,7 +47,7 @@ export async function run(inputs: action.Inputs) {
       throw new Error(`Failed to generate code coverage report: ${errMessage}`);
     }
     if (inputs.coverallsOut.length > 0) {
-      core.info("Patching Coveralls API report...");
+      logInfo("Patching Coveralls API report...");
       try {
         coveralls.patch(inputs.coverallsOut);
       } catch (err) {
@@ -54,9 +55,13 @@ export async function run(inputs: action.Inputs) {
           `Failed to patch Coveralls API report: ${getErrorMessage(err)}`,
         );
       }
-      core.info(
+      logInfo(
         `Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`,
       );
     }
-  });
+  } catch (err) {
+    endLogGroup();
+    throw err;
+  }
+  endLogGroup();
 }

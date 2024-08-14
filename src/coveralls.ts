@@ -1,7 +1,7 @@
-import * as core from "@actions/core";
 import { FormData } from "formdata-node";
 import { fileFromPathSync } from "formdata-node/file-from-path";
 import * as fs from "fs";
+import { beginLogGroup, endLogGroup, logInfo } from "gha-utils";
 import got from "got";
 
 export async function patch(coverallsOut: string) {
@@ -14,13 +14,18 @@ export async function patch(coverallsOut: string) {
 }
 
 export async function send(coverallsOut: string) {
-  await core.group("Sending report to Coveralls...", async () => {
+  beginLogGroup("Sending report to Coveralls...");
+  try {
     const form = new FormData();
     form.set("json_file", fileFromPathSync(coverallsOut));
 
     const res = await got.post("https://coveralls.io/api/v1/jobs", {
       body: form,
     });
-    core.info(`HTTP status code ${res.statusCode}: ${res.body}`);
-  });
+    logInfo(`HTTP status code ${res.statusCode}: ${res.body}`);
+  } catch (err) {
+    endLogGroup();
+    throw err;
+  }
+  endLogGroup();
 }
