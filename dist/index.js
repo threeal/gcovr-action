@@ -2137,7 +2137,7 @@ exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const fs = __importStar(__nccwpck_require__(7147));
 const os = __importStar(__nccwpck_require__(2037));
-const uuid_1 = __nccwpck_require__(4823);
+const uuid_1 = __nccwpck_require__(8674);
 const utils_1 = __nccwpck_require__(9470);
 function issueFileCommand(command, message) {
     const filePath = process.env[`GITHUB_${command}`];
@@ -6263,7 +6263,7 @@ exports.isTokenCredential = isTokenCredential;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 
-var uuid = __nccwpck_require__(4823);
+var uuid = __nccwpck_require__(8674);
 var util = __nccwpck_require__(3837);
 var tslib = __nccwpck_require__(3249);
 var xml2js = __nccwpck_require__(7654);
@@ -44040,7 +44040,7 @@ const EventEmitter = __nccwpck_require__(2361);
 const tls = __nccwpck_require__(4404);
 const http2 = __nccwpck_require__(5158);
 const QuickLRU = __nccwpck_require__(7394);
-const delayAsyncDestroy = __nccwpck_require__(3808);
+const delayAsyncDestroy = __nccwpck_require__(4823);
 
 const kCurrentStreamCount = Symbol('currentStreamCount');
 const kRequest = Symbol('request');
@@ -44846,7 +44846,7 @@ const QuickLRU = __nccwpck_require__(7394);
 const {Agent, globalAgent} = __nccwpck_require__(8353);
 const Http2ClientRequest = __nccwpck_require__(546);
 const calculateServerName = __nccwpck_require__(6599);
-const delayAsyncDestroy = __nccwpck_require__(3808);
+const delayAsyncDestroy = __nccwpck_require__(4823);
 
 const cache = new QuickLRU({maxSize: 100});
 const queue = new Map();
@@ -46142,7 +46142,7 @@ module.exports = checkType;
 
 /***/ }),
 
-/***/ 3808:
+/***/ 4823:
 /***/ ((module) => {
 
 
@@ -74644,7 +74644,7 @@ module.exports = v4;
 
 /***/ }),
 
-/***/ 4823:
+/***/ 8674:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -84037,9 +84037,8 @@ exports.AbortError = AbortError;
 /* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
 /* harmony export */   "Y": () => (/* binding */ processInputs)
 /* harmony export */ });
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2340);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var catched_error_message__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(144);
+/* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(3365);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(2037);
 /* harmony import */ var os__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(os__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(1017);
@@ -84049,22 +84048,25 @@ exports.AbortError = AbortError;
 
 
 function processInputs() {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.info("Processing the action inputs...");
+    (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .logInfo */ .PN)("Processing the action inputs...");
     try {
         const inputs = {
-            root: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("root"),
-            gcovExecutable: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("gcov-executable"),
-            excludes: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getMultilineInput("excludes"),
-            failUnderLine: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("fail-under-line"),
-            xmlOut: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("xml-out"),
-            coverallsOut: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("coveralls-out"),
-            coverallsSend: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getBooleanInput("coveralls-send"),
-            githubToken: _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput("github-token"),
+            root: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("root"),
+            gcovExecutable: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("gcov-executable"),
+            excludes: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("excludes")
+                .split(/\s+/)
+                .map((val) => val.trim())
+                .filter((val) => val !== ""),
+            failUnderLine: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("fail-under-line"),
+            xmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("xml-out"),
+            coverallsOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-out"),
+            coverallsSend: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-send") === "false",
+            githubToken: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("github-token"),
         };
         // Auto set coveralls output if not specified
         if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
             inputs.coverallsOut = path__WEBPACK_IMPORTED_MODULE_2__.join(os__WEBPACK_IMPORTED_MODULE_1__.tmpdir(), "coveralls.json");
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
+            (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .logInfo */ .PN)(`Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
         return inputs;
     }
@@ -84076,7 +84078,7 @@ function processInputs() {
 
 /***/ }),
 
-/***/ 6450:
+/***/ 2075:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -84086,8 +84088,6 @@ __nccwpck_require__.d(__webpack_exports__, {
   "l": () => (/* binding */ send)
 });
 
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2340);
 ;// CONCATENATED MODULE: ../../../.yarn/berry/cache/formdata-node-npm-6.0.3-c432b83b2e-10c0.zip/node_modules/formdata-node/lib/form-data.js
 var __accessCheck = (obj, member, msg) => {
   if (!member.has(obj))
@@ -85044,6 +85044,8 @@ async function fileFromPath(path, filenameOrOptions, options) {
 
 /*! Based on fetch-blob. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> & David Frank */
 
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/gha-utils-npm-0.2.0-572860ffdf-10c0.zip/node_modules/gha-utils/dist/index.js + 2 modules
+var dist = __nccwpck_require__(3365);
 ;// CONCATENATED MODULE: ../../../.yarn/berry/cache/@sindresorhus-is-npm-7.0.0-d5455300d7-10c0.zip/node_modules/@sindresorhus/is/distribution/index.js
 const typedArrayTypeNames = [
     'Int8Array',
@@ -87887,7 +87889,7 @@ const convertHeaders = (headers) => {
     }
     return result;
 };
-/* harmony default export */ const dist = (CacheableRequest);
+/* harmony default export */ const cacheable_request_dist = (CacheableRequest);
 
 const onResponse = 'onResponse';
 //# sourceMappingURL=index.js.map
@@ -88551,8 +88553,8 @@ const external_node_tls_namespaceObject = __WEBPACK_EXTERNAL_createRequire(impor
 const external_node_https_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:https");
 ;// CONCATENATED MODULE: external "node:dns"
 const external_node_dns_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:dns");
-;// CONCATENATED MODULE: external "node:os"
-const external_node_os_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:os");
+// EXTERNAL MODULE: external "node:os"
+var external_node_os_ = __nccwpck_require__(612);
 ;// CONCATENATED MODULE: ../../../.yarn/berry/cache/cacheable-lookup-npm-7.0.0-b6cd95c14a-10c0.zip/node_modules/cacheable-lookup/source/index.js
 
 
@@ -88587,7 +88589,7 @@ const getIfaceInfo = () => {
 	let has4 = false;
 	let has6 = false;
 
-	for (const device of Object.values(external_node_os_namespaceObject.networkInterfaces())) {
+	for (const device of Object.values(external_node_os_.networkInterfaces())) {
 		for (const iface of device) {
 			if (iface.internal) {
 				continue;
@@ -91447,7 +91449,7 @@ class Request extends external_node_stream_.Duplex {
     }
     _prepareCache(cache) {
         if (!cacheableStore.has(cache)) {
-            const cacheableRequest = new dist(((requestOptions, handler) => {
+            const cacheableRequest = new cacheable_request_dist(((requestOptions, handler) => {
                 const result = requestOptions._request(requestOptions, handler);
                 // TODO: remove this when `cacheable-request` supports async request functions.
                 if (distribution.promise(result)) {
@@ -92136,14 +92138,20 @@ async function patch(coverallsOut) {
     external_fs_.writeFileSync(coverallsOut, data);
 }
 async function send(coverallsOut) {
-    await core.group("Sending report to Coveralls...", async () => {
+    (0,dist/* beginLogGroup */.zq)("Sending report to Coveralls...");
+    try {
         const form = new FormData();
         form.set("json_file", fileFromPathSync(coverallsOut));
         const res = await got_dist_source.post("https://coveralls.io/api/v1/jobs", {
             body: form,
         });
-        core.info(`HTTP status code ${res.statusCode}: ${res.body}`);
-    });
+        (0,dist/* logInfo */.PN)(`HTTP status code ${res.statusCode}: ${res.body}`);
+    }
+    catch (err) {
+        (0,dist/* endLogGroup */.sH)();
+        throw err;
+    }
+    (0,dist/* endLogGroup */.sH)();
 }
 
 
@@ -92158,10 +92166,12 @@ __nccwpck_require__.d(__webpack_exports__, {
   "B": () => (/* binding */ check)
 });
 
-// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2340);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-io-npm-1.1.3-82d1cf012b-10c0.zip/node_modules/@actions/io/lib/io.js
 var io = __nccwpck_require__(1793);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/gha-utils-npm-0.2.0-572860ffdf-10c0.zip/node_modules/gha-utils/dist/index.js + 2 modules
+var dist = __nccwpck_require__(3365);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-core-npm-1.10.1-3cb1000b4d-10c0.zip/node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2340);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
 var index_esm = __nccwpck_require__(144);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-cache-npm-3.2.4-c57b047f14-10c0.zip/node_modules/@actions/cache/lib/cache.js
@@ -92315,7 +92325,7 @@ async function isMissing(tool) {
     }
 }
 async function checkGcovr() {
-    core.info(`Checking \u001b[34mgcovr\u001b[39m...`);
+    (0,dist/* logInfo */.PN)(`Checking \u001b[34mgcovr\u001b[39m...`);
     if (await isMissing("gcovr")) {
         await pipxInstallAction("gcovr");
     }
@@ -92333,12 +92343,11 @@ async function check() {
 /* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
 /* harmony export */   "K": () => (/* binding */ run)
 /* harmony export */ });
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2340);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(4926);
-/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(4926);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var catched_error_message__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(144);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(6450);
+/* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(3365);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2075);
 
 
 
@@ -92367,8 +92376,9 @@ function getArgs(inputs) {
 }
 async function run(inputs) {
     const args = getArgs(inputs);
-    await _actions_core__WEBPACK_IMPORTED_MODULE_0__.group("Generating code coverage report...", async () => {
-        const status = await _actions_exec__WEBPACK_IMPORTED_MODULE_1__.exec("gcovr", args, {
+    (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .beginLogGroup */ .zq)("Generating code coverage report...");
+    try {
+        const status = await _actions_exec__WEBPACK_IMPORTED_MODULE_0__.exec("gcovr", args, {
             ignoreReturnCode: true,
             env: {
                 COVERALLS_REPO_TOKEN: inputs.githubToken,
@@ -92385,16 +92395,21 @@ async function run(inputs) {
             throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }
         if (inputs.coverallsOut.length > 0) {
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info("Patching Coveralls API report...");
+            (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .logInfo */ .PN)("Patching Coveralls API report...");
             try {
                 _coveralls_js__WEBPACK_IMPORTED_MODULE_2__/* .patch */ .r(inputs.coverallsOut);
             }
             catch (err) {
                 throw new Error(`Failed to patch Coveralls API report: ${(0,catched_error_message__WEBPACK_IMPORTED_MODULE_3__/* .getErrorMessage */ .e)(err)}`);
             }
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
+            (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .logInfo */ .PN)(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
-    });
+    }
+    catch (err) {
+        (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .endLogGroup */ .sH)();
+        throw err;
+    }
+    (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .endLogGroup */ .sH)();
 }
 
 
@@ -92404,10 +92419,9 @@ async function run(inputs) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2340);
-/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(3365);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(3858);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(6450);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2075);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2190);
 /* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(6840);
 
@@ -92424,7 +92438,8 @@ try {
     }
 }
 catch (err) {
-    _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed(err);
+    (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .logError */ .H)(err);
+    process.exit(1);
 }
 
 __webpack_async_result__();
@@ -92527,6 +92542,13 @@ module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("net");
 /***/ ((module) => {
 
 module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:events");
+
+/***/ }),
+
+/***/ 612:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:os");
 
 /***/ }),
 
@@ -94264,6 +94286,122 @@ module.exports = parseParams
 /* harmony export */ });
 function r(r){return function(r){if("object"==typeof(e=r)&&null!==e&&"message"in e&&"string"==typeof e.message)return r;var e;try{return new Error(JSON.stringify(r))}catch(e){return new Error(String(r))}}(r).message}
 //# sourceMappingURL=index.esm.js.map
+
+
+/***/ }),
+
+/***/ 3365:
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
+
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "zq": () => (/* binding */ beginLogGroup),
+  "sH": () => (/* binding */ endLogGroup),
+  "Np": () => (/* binding */ getInput),
+  "H": () => (/* binding */ logError),
+  "PN": () => (/* binding */ logInfo)
+});
+
+// UNUSED EXPORTS: addPath, logCommand, logWarning, setEnv, setOutput
+
+;// CONCATENATED MODULE: external "node:fs"
+const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
+// EXTERNAL MODULE: external "node:os"
+var external_node_os_ = __nccwpck_require__(612);
+;// CONCATENATED MODULE: external "node:path"
+const external_node_path_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:path");
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/gha-utils-npm-0.2.0-572860ffdf-10c0.zip/node_modules/gha-utils/dist/index.js
+
+
+
+/**
+ * Retrieves the value of a GitHub Actions input.
+ *
+ * @param name - The name of the GitHub Actions input.
+ * @returns The value of the GitHub Actions input, or an empty string if not found.
+ */
+function getInput(name) {
+    const value = process.env[`INPUT_${name.toUpperCase()}`] || "";
+    return value.trim();
+}
+/**
+ * Sets the value of a GitHub Actions output.
+ *
+ * @param name - The name of the GitHub Actions output.
+ * @param value - The value of the GitHub Actions output
+ */
+function setOutput(name, value) {
+    fs.appendFileSync(process.env["GITHUB_OUTPUT"], `${name}=${value}${os.EOL}`);
+}
+/**
+ * Sets the value of an environment variable in GitHub Actions.
+ *
+ * @param name - The name of the environment variable.
+ * @param value - The value of the environment variable.
+ */
+function setEnv(name, value) {
+    process.env[name] = value;
+    fs.appendFileSync(process.env["GITHUB_ENV"], `${name}=${value}${os.EOL}`);
+}
+/**
+ * Adds a system path to the environment in GitHub Actions.
+ *
+ * @param sysPath - The system path to add.
+ */
+function addPath(sysPath) {
+    process.env["PATH"] = `${sysPath}${path.delimiter}${process.env["PATH"]}`;
+    fs.appendFileSync(process.env["GITHUB_PATH"], `${sysPath}${os.EOL}`);
+}
+/**
+ * Logs an information message in GitHub Actions.
+ *
+ * @param message - The information message to log.
+ */
+function logInfo(message) {
+    process.stdout.write(`${message}${external_node_os_.EOL}`);
+}
+/**
+ * Logs a warning message in GitHub Actions.
+ *
+ * @param message - The warning message to log.
+ */
+function logWarning(message) {
+    process.stdout.write(`::warning::${message}${os.EOL}`);
+}
+/**
+ * Logs an error message in GitHub Actions.
+ *
+ * @param err - The error, which can be of any type.
+ */
+function logError(err) {
+    const message = err instanceof Error ? err.message : String(err);
+    process.stdout.write(`::error::${message}${external_node_os_.EOL}`);
+}
+/**
+ * Logs a command along with its arguments in GitHub Actions.
+ *
+ * @param command - The command to log.
+ * @param args - The arguments of the command.
+ */
+function logCommand(command, args) {
+    const message = [command, ...args].join(" ");
+    process.stdout.write(`[command]${message}${os.EOL}`);
+}
+/**
+ * Begins a log group in GitHub Actions.
+ *
+ * @param name - The name of the log group.
+ */
+function beginLogGroup(name) {
+    process.stdout.write(`::group::${name}${external_node_os_.EOL}`);
+}
+/**
+ * Ends the current log group in GitHub Actions.
+ */
+function endLogGroup() {
+    process.stdout.write(`::endgroup::${external_node_os_.EOL}`);
+}
 
 
 /***/ }),

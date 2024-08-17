@@ -1,4 +1,4 @@
-import * as core from "@actions/core";
+import { logError } from "gha-utils";
 import * as action from "./action.js";
 import * as coveralls from "./coveralls.js";
 import * as deps from "./deps/index.js";
@@ -12,5 +12,6 @@ try {
     await coveralls.send(inputs.coverallsOut);
   }
 } catch (err) {
-  core.setFailed(err as Error);
+  logError(err);
+  process.exit(1);
 }

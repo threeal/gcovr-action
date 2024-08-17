@@ -1,5 +1,5 @@
-import * as core from "@actions/core";
 import { getErrorMessage } from "catched-error-message";
+import { getInput, logInfo } from "gha-utils";
 import * as os from "os";
 import * as path from "path";
 
@@ -15,22 +15,25 @@ export interface Inputs {
 }
 
 export function processInputs(): Inputs {
-  core.info("Processing the action inputs...");
+  logInfo("Processing the action inputs...");
   try {
     const inputs: Inputs = {
-      root: core.getInput("root"),
-      gcovExecutable: core.getInput("gcov-executable"),
-      excludes: core.getMultilineInput("excludes"),
-      failUnderLine: core.getInput("fail-under-line"),
-      xmlOut: core.getInput("xml-out"),
-      coverallsOut: core.getInput("coveralls-out"),
-      coverallsSend: core.getBooleanInput("coveralls-send"),
-      githubToken: core.getInput("github-token"),
+      root: getInput("root"),
+      gcovExecutable: getInput("gcov-executable"),
+      excludes: getInput("excludes")
+        .split(/\s+/)
+        .map((val) => val.trim())
+        .filter((val) => val !== ""),
+      failUnderLine: getInput("fail-under-line"),
+      xmlOut: getInput("xml-out"),
+      coverallsOut: getInput("coveralls-out"),
+      coverallsSend: getInput("coveralls-send") === "false",
+      githubToken: getInput("github-token"),
     };
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
       inputs.coverallsOut = path.join(os.tmpdir(), "coveralls.json");
-      core.info(
+      logInfo(
         `Auto set Coveralls output to \u001b[34m${inputs.coverallsOut}\u001b[39m`,
       );
     }
