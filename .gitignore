@@ -1,5 +1,6 @@
 .*
 !.git*
+!.nvmrc
 
 build/
 node_modules/
