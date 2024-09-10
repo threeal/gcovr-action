@@ -13,6 +13,10 @@ inputs:
     description: Exclude source files that match these filters
   fail-under-line:
     description: Fail if the total line coverage is less than this value
+  html-out:
+    description: Output file of the generated HTML coverage report
+  html-theme:
+    description: Override the default color theme for the HTML report. Default is green. Possible options green, blue, github.blue, github.green, github.dark-green, github.dark-blue
   xml-out:
     description: Output file of the generated XML coverage report
   coveralls-out:
