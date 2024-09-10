@@ -13,6 +13,8 @@ inputs:
     description: Exclude source files that match these filters
   fail-under-line:
     description: Fail if the total line coverage is less than this value
+  html-out:
+    description: Output file of the generated HTML coverage report
   xml-out:
     description: Output file of the generated XML coverage report
   coveralls-out:

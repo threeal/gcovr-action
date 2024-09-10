@@ -18,6 +18,9 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.failUnderLine.length > 0) {
     args = args.concat("--fail-under-line", inputs.failUnderLine);
   }
+  if (inputs.htmlOut.length > 0) {
+    args = args.concat("--html", inputs.htmlOut);
+  }
   if (inputs.xmlOut.length > 0) {
     args = args.concat("--xml", inputs.xmlOut);
   }
