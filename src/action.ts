@@ -9,6 +9,7 @@ export interface Inputs {
   excludes: string[];
   failUnderLine: string;
   htmlOut: string;
+  htmlTheme: string;
   xmlOut: string;
   coverallsOut: string;
   coverallsSend: boolean;
@@ -27,6 +28,7 @@ export function processInputs(): Inputs {
         .filter((val) => val !== ""),
       failUnderLine: getInput("fail-under-line"),
       htmlOut: getInput("html-out"),
+      htmlTheme: getInput("html-theme"),
       xmlOut: getInput("xml-out"),
       coverallsOut: getInput("coveralls-out"),
       coverallsSend: getInput("coveralls-send") === "false",

@@ -21,6 +21,9 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.htmlOut.length > 0) {
     args = args.concat("--html", inputs.htmlOut);
   }
+  if (inputs.htmlTheme.length > 0) {
+    args = args.concat("--html-theme", inputs.htmlTheme);
+  }
   if (inputs.xmlOut.length > 0) {
     args = args.concat("--xml", inputs.xmlOut);
   }
