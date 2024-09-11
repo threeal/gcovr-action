@@ -120,6 +120,54 @@ jobs:
             sample/include/is_odd.hpp
           fail-under-line: 100
 
+  html-out-usage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Build Sample Project
+        uses: threeal/cmake-action@v2.0.0
+        with:
+          source-dir: sample
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: sample/build
+
+      - name: Use this action to generate an HTML report
+        uses: ./
+        with:
+          html-out: coverage.html
+
+      - name: Check if that HTML report does exist
+        run: cat coverage.html
+
+  html-theme-usage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Build Sample Project
+        uses: threeal/cmake-action@v2.0.0
+        with:
+          source-dir: sample
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: sample/build
+
+      - name: Use this action to generate an HTML report
+        uses: ./
+        with:
+          html-out: coverage.html
+          html-theme: github.dark-blue
+
+      - name: Check if that HTML report does exist
+        run: cat coverage.html
   xml-out-usage:
     runs-on: ubuntu-latest
     steps:

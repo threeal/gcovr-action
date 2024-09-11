@@ -84058,6 +84058,8 @@ function processInputs() {
                 .map((val) => val.trim())
                 .filter((val) => val !== ""),
             failUnderLine: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("fail-under-line"),
+            htmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-out"),
+            htmlTheme: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-theme"),
             xmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("xml-out"),
             coverallsOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-out"),
             coverallsSend: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-send") === "false",
@@ -92365,6 +92367,12 @@ function getArgs(inputs) {
     }
     if (inputs.failUnderLine.length > 0) {
         args = args.concat("--fail-under-line", inputs.failUnderLine);
+    }
+    if (inputs.htmlOut.length > 0) {
+        args = args.concat("--html", inputs.htmlOut);
+    }
+    if (inputs.htmlTheme.length > 0) {
+        args = args.concat("--html-theme", inputs.htmlTheme);
     }
     if (inputs.xmlOut.length > 0) {
         args = args.concat("--xml", inputs.xmlOut);
