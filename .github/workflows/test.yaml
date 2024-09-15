@@ -6,11 +6,11 @@ on:
     branches: [main]
 jobs:
   standard-usage:
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows, ubuntu, macos]
+        os: [ubuntu-22.04, macos-14, windows-2022]
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -34,7 +34,7 @@ jobs:
         uses: ./
 
   llvm-usage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -64,7 +64,7 @@ jobs:
           gcov-executable: llvm-cov gcov
 
   exclusion-usage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -121,7 +121,7 @@ jobs:
           fail-under-line: 100
 
   html-out-usage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -145,7 +145,7 @@ jobs:
         run: cat coverage.html
 
   html-theme-usage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -169,7 +169,7 @@ jobs:
       - name: Check if that HTML report does exist
         run: cat coverage.html
   xml-out-usage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
@@ -193,7 +193,7 @@ jobs:
         run: cat coverage.xml
 
   coveralls-usage:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
