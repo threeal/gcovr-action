@@ -84062,7 +84062,7 @@ function processInputs() {
             htmlTheme: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-theme"),
             xmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("xml-out"),
             coverallsOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-out"),
-            coverallsSend: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-send") === "false",
+            coverallsSend: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-send") === "true",
             githubToken: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("github-token"),
         };
         // Auto set coveralls output if not specified
