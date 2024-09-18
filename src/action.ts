@@ -31,7 +31,7 @@ export function processInputs(): Inputs {
       htmlTheme: getInput("html-theme"),
       xmlOut: getInput("xml-out"),
       coverallsOut: getInput("coveralls-out"),
-      coverallsSend: getInput("coveralls-send") === "false",
+      coverallsSend: getInput("coveralls-send") === "true",
       githubToken: getInput("github-token"),
     };
     // Auto set coveralls output if not specified
