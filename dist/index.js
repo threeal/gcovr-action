@@ -84059,7 +84059,9 @@ function processInputs() {
                 .filter((val) => val !== ""),
             failUnderLine: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("fail-under-line"),
             htmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-out"),
+            htmlOutDetails: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-details") === "true",
             htmlTheme: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-theme"),
+            htmlTitle: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-title"),
             xmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("xml-out"),
             coverallsOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-out"),
             coverallsSend: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-send") === "true",
@@ -92369,10 +92371,18 @@ function getArgs(inputs) {
         args = args.concat("--fail-under-line", inputs.failUnderLine);
     }
     if (inputs.htmlOut.length > 0) {
-        args = args.concat("--html", inputs.htmlOut);
+        if (inputs.htmlOutDetails) {
+            args = args.concat("--html-details", inputs.htmlOut);
+        }
+        else {
+            args = args.concat("--html", inputs.htmlOut);
+        }
     }
     if (inputs.htmlTheme.length > 0) {
         args = args.concat("--html-theme", inputs.htmlTheme);
+    }
+    if (inputs.htmlTitle.length > 0) {
+        args = args.concat("--html-title", inputs.htmlTitle);
     }
     if (inputs.xmlOut.length > 0) {
         args = args.concat("--xml", inputs.xmlOut);

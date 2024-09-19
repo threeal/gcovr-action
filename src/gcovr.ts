@@ -19,10 +19,17 @@ function getArgs(inputs: action.Inputs): string[] {
     args = args.concat("--fail-under-line", inputs.failUnderLine);
   }
   if (inputs.htmlOut.length > 0) {
-    args = args.concat("--html", inputs.htmlOut);
+    if (inputs.htmlOutDetails) {
+      args = args.concat("--html-details", inputs.htmlOut);
+    } else {
+      args = args.concat("--html", inputs.htmlOut);
+    }
   }
   if (inputs.htmlTheme.length > 0) {
     args = args.concat("--html-theme", inputs.htmlTheme);
+  }
+  if (inputs.htmlTitle.length > 0) {
+    args = args.concat("--html-title", inputs.htmlTitle);
   }
   if (inputs.xmlOut.length > 0) {
     args = args.concat("--xml", inputs.xmlOut);

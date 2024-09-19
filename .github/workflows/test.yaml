@@ -168,6 +168,57 @@ jobs:
 
       - name: Check if that HTML report does exist
         run: cat coverage.html
+
+  html-details-usage:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Build Sample Project
+        uses: threeal/cmake-action@v2.0.0
+        with:
+          source-dir: sample
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: sample/build
+
+      - name: Use this action to generate an HTML report
+        uses: ./
+        with:
+          html-out: coverage.html
+          html-details: true
+
+      - name: Check if that HTML report does exist
+        run: cat coverage.html
+
+  html-title-usage:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Build Sample Project
+        uses: threeal/cmake-action@v2.0.0
+        with:
+          source-dir: sample
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: sample/build
+
+      - name: Use this action to generate an HTML report
+        uses: ./
+        with:
+          html-out: coverage.html
+          html-title: My Project Code Coverage Report
+
+      - name: Check if that HTML report does exist
+        run: cat coverage.html
+
   xml-out-usage:
     runs-on: ubuntu-22.04
     steps:

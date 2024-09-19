@@ -23,7 +23,9 @@ For more information, see [action.yml](./action.yml) and [GitHub Actions guide](
 | `excludes` | One or more regular expression | Exclude source files that match these filters. |
 | `fail-under-line` | 0 - 100 | Fail if the total line coverage is less than this value. |
 | `html-out` | Path | Output file of the generated HTML coverage report. |
+| `html-details` | `true` or `false`  | Additional option to add annotated source code reports to the HTML report. |
 | `html-theme` | `green` , `blue` , `github.blue` , `github.green` , `github.dark-green` , `github.dark-blue` | Override the default color theme for the HTML report. |
+| `html-title` | HTML Report TITLE  | Use TITLE as title for the HTML report. Default is ‘GCC Code Coverage Report’ |
 | `xml-out` | Path | Output file of the generated XML coverage report. |
 | `coveralls-out` | Path | Output file of the generated [Coveralls API](https://docs.coveralls.io/api-introduction) coverage report. |
 | `coveralls-send` | `true` or `false` | Send the generated Coveralls API coverage report to it's endpoint. Defaults to `false`. |
@@ -74,13 +76,24 @@ jobs:
     html-out: coverage.html
 ```
 
-#### Output HTML Report generated with a specific theme
+#### Output HTML Report with annotated source code reports.
 
 ```yaml
 - name: Generate a html code coverage report
   uses: threeal/gcovr-action@xml-out
   with:
     html-out: coverage.html
+    html-out-details: true
+```
+
+#### Output HTML Report generated with a specific theme & title
+
+```yaml
+- name: Generate a html code coverage report
+  uses: threeal/gcovr-action@xml-out
+  with:
+    html-out: coverage.html
+    html-title: My Project Code Coverage Report
     html-theme: github.green
 ```
 

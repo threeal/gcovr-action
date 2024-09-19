@@ -15,8 +15,13 @@ inputs:
     description: Fail if the total line coverage is less than this value
   html-out:
     description: Output file of the generated HTML coverage report
+  html-details:
+    description: Additional option to add annotated source code reports to the HTML report.
+    default: false
   html-theme:
     description: Override the default color theme for the HTML report. Default is green. Possible options green, blue, github.blue, github.green, github.dark-green, github.dark-blue
+  html-title:
+    description: User custom title for the HTML report. Default is ‘GCC Code Coverage Report’.
   xml-out:
     description: Output file of the generated XML coverage report
   coveralls-out:
