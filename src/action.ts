@@ -8,12 +8,15 @@ export interface Inputs {
   gcovExecutable: string;
   excludes: string[];
   failUnderLine: string;
+  failUnderBranch: string;
+  failUnderFunction: string;
   htmlOut: string;
   htmlTheme: string;
   xmlOut: string;
   coverallsOut: string;
   coverallsSend: boolean;
   githubToken: string;
+  workingDirectory: string;
 }
 
 export function processInputs(): Inputs {
@@ -27,12 +30,15 @@ export function processInputs(): Inputs {
         .map((val) => val.trim())
         .filter((val) => val !== ""),
       failUnderLine: getInput("fail-under-line"),
+      failUnderBranch: getInput("fail-under-branch"),
+      failUnderFunction: getInput("fail-under-function"),
       htmlOut: getInput("html-out"),
       htmlTheme: getInput("html-theme"),
       xmlOut: getInput("xml-out"),
       coverallsOut: getInput("coveralls-out"),
       coverallsSend: getInput("coveralls-send") === "true",
       githubToken: getInput("github-token"),
+      workingDirectory: getInput("working-directory"),
     };
     // Auto set coveralls output if not specified
     if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {

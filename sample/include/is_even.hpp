@@ -1,3 +1,13 @@
 #pragma once
 
-bool is_even(int val) { return val % 2 == 0; }
+#include <iostream>
+
+bool is_even(int val) {
+    bool result = ((val % 2) == 0);
+    if (result) {
+        std::cout << "Result is even\n";
+    } else {
+        std::cout << "Result is odd\n";
+    }
+    return result;
+}

@@ -22,12 +22,15 @@ For more information, see [action.yml](./action.yml) and [GitHub Actions guide](
 | `gcov-executable` | Executable name with optional arguments | Use a particular [gcov](https://gcc.gnu.org/onlinedocs/gcc/Gcov.html) executable. Must match the compiler you are using, e.g. `llvm-cov gcov` for [LLVM Clang](https://clang.llvm.org/). See [this](https://gcovr.com/en/stable/guide/compiling.html#choosing-the-right-gcov-executable). |
 | `excludes` | One or more regular expression | Exclude source files that match these filters. |
 | `fail-under-line` | 0 - 100 | Fail if the total line coverage is less than this value. |
+| `fail-under-branch` | 0 - 100 | Fail if the total branch coverage is less than this value. |
+| `fail-under-function` | 0 - 100 | Fail if the total function coverage is less than this value. |
 | `html-out` | Path | Output file of the generated HTML coverage report. |
 | `html-theme` | `green` , `blue` , `github.blue` , `github.green` , `github.dark-green` , `github.dark-blue` | Override the default color theme for the HTML report. |
 | `xml-out` | Path | Output file of the generated XML coverage report. |
 | `coveralls-out` | Path | Output file of the generated [Coveralls API](https://docs.coveralls.io/api-introduction) coverage report. |
 | `coveralls-send` | `true` or `false` | Send the generated Coveralls API coverage report to it's endpoint. Defaults to `false`. |
 | `github-token` | Token | [GitHub token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication) of your project. Defaults to [`github.token`](https://docs.github.com/en/actions/security-guides/automatic-token-authentication). Required for sending Coveralls API coverage report successfully. |
+| `working-directory` | Path | Working directory where gcovr should be executed from. |
 
 > Note: All inputs are optional.
 
@@ -117,6 +120,18 @@ jobs:
     coveralls-send: true
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+#### Specify Alternate Working Directory
+Note that `working-directory` and `root` will almost always be used together, in which case `root` is evaluated relative to the specified working directory. In other words it is passed directly through as an argument to `gcovr`.
+
+```yaml
+- name: Generate a code coverage report
+  uses: threeal/gcovr-action@v1.0.0
+  with:
+    working-directory: build
+    root: ../
+```
+
 
 ## License
 
