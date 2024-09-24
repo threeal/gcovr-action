@@ -102,7 +102,7 @@ jobs:
         uses: ./
         with:
           root: sample
-          fail-under-line: 50
+          fail-under-line: 20
 
       - name: Use this action with an exclusion
         uses: ./
@@ -119,6 +119,90 @@ jobs:
             sample/include/is_even.hpp
             sample/include/is_odd.hpp
           fail-under-line: 100
+
+  branch-and-function-usage:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - name: Build Sample Project
+        uses: threeal/cmake-action@v2.0.0
+        with:
+          source-dir: sample
+          generator: Ninja
+          cxx-compiler: g++
+          options: |
+            TEST_EVEN=OFF
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: sample/build
+
+      - name: Test branch coverage above threshold
+        id: failed_branch_step
+        continue-on-error: true
+        uses: ./
+        with:
+          root: sample
+          fail-under-branch: 100
+
+      - name: Check if the previous step did fail
+        run: ${{ steps.failed_branch_step.outcome == 'failure' && true || false }}
+
+      - name: Test branch coverage below threshold
+        uses: ./
+        with:
+          root: sample
+          fail-under-branch: 25
+
+      - name: Test function coverage above threshold
+        id: failed_function_step
+        continue-on-error: true
+        uses: ./
+        with:
+          root: sample
+          fail-under-function: 100
+
+      - name: Check if the previous step did fail
+        run: ${{ steps.failed_function_step.outcome == 'failure' && true || false }}
+
+      - name: Test branch coverage below threshold
+        uses: ./
+        with:
+          root: sample
+          fail-under-function: 50
+
+  working-directory-usage:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.1.7
+
+      - name: Setup Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v5
+
+      - name: Build Sample Project
+        uses: threeal/cmake-action@v2.0.0
+        with:
+          source-dir: sample
+          generator: Ninja
+          cxx-compiler: g++
+
+      - name: Test Sample Project
+        uses: threeal/ctest-action@v1.1.0
+        with:
+          test-dir: sample/build
+
+      - name: Use this action with a different working directory
+        uses: ./
+        with:
+          working-directory: sample/build
+          root: ../
 
   html-out-usage:
     runs-on: ubuntu-22.04
