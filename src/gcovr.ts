@@ -3,6 +3,7 @@ import { getErrorMessage } from "catched-error-message";
 import { beginLogGroup, endLogGroup, logInfo } from "gha-utils";
 import * as action from "./action.js";
 import * as coveralls from "./coveralls.js";
+import * as process from "process";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];
@@ -17,6 +18,12 @@ function getArgs(inputs: action.Inputs): string[] {
   }
   if (inputs.failUnderLine.length > 0) {
     args = args.concat("--fail-under-line", inputs.failUnderLine);
+  }
+  if (inputs.failUnderBranch.length > 0) {
+    args = args.concat("--fail-under-branch", inputs.failUnderBranch);
+  }
+  if (inputs.failUnderFunction.length > 0) {
+    args = args.concat("--fail-under-function", inputs.failUnderFunction);
   }
   if (inputs.htmlOut.length > 0) {
     if (inputs.htmlOutDetails) {
@@ -43,6 +50,10 @@ function getArgs(inputs: action.Inputs): string[] {
 export async function run(inputs: action.Inputs) {
   const args = getArgs(inputs);
   beginLogGroup("Generating code coverage report...");
+  if (inputs.workingDirectory.length > 0) {
+    process.chdir(inputs.workingDirectory);
+    console.log(`Current directory: ${process.cwd()}`);
+  }
   try {
     const status = await exec.exec("gcovr", args, {
       ignoreReturnCode: true,
@@ -53,7 +64,7 @@ export async function run(inputs: action.Inputs) {
     if (status !== 0) {
       let errMessage: string;
       if ((status | 2) > 0) {
-        errMessage = `coverage is under ${inputs.failUnderLine}%`;
+        errMessage = `coverage is under configured targets.`;
       } else {
         errMessage = `unknown error (error code ${status})`;
       }

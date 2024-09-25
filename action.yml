@@ -13,6 +13,10 @@ inputs:
     description: Exclude source files that match these filters
   fail-under-line:
     description: Fail if the total line coverage is less than this value
+  fail-under-branch:
+    description: Fail if the total branch coverage is less than this value
+  fail-under-function:
+    description: Fail if the total function coverage is less than this value
   html-out:
     description: Output file of the generated HTML coverage report
   html-details:
@@ -32,6 +36,8 @@ inputs:
   github-token:
     description: GitHub token of your project
     default: ${{ github.token }}
+  working-directory:
+    description: Working directory where gcovr should be executed from
 runs:
   using: node20
   main: dist/index.js

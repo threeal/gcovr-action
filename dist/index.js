@@ -84058,6 +84058,8 @@ function processInputs() {
                 .map((val) => val.trim())
                 .filter((val) => val !== ""),
             failUnderLine: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("fail-under-line"),
+            failUnderBranch: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("fail-under-branch"),
+            failUnderFunction: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("fail-under-function"),
             htmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-out"),
             htmlOutDetails: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-details") === "true",
             htmlTheme: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("html-theme"),
@@ -84066,6 +84068,7 @@ function processInputs() {
             coverallsOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-out"),
             coverallsSend: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("coveralls-send") === "true",
             githubToken: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("github-token"),
+            workingDirectory: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .Np)("working-directory"),
         };
         // Auto set coveralls output if not specified
         if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
@@ -92341,17 +92344,27 @@ async function check() {
 
 /***/ }),
 
-/***/ 6840:
+/***/ 4515:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "K": () => (/* binding */ run)
-/* harmony export */ });
-/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(4926);
-/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var catched_error_message__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(144);
-/* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(9720);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2075);
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "K": () => (/* binding */ run)
+});
+
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/@actions-exec-npm-1.1.1-90973d2f96-10c0.zip/node_modules/@actions/exec/lib/exec.js
+var exec = __nccwpck_require__(4926);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/catched-error-message-npm-0.0.1-9126a73d25-10c0.zip/node_modules/catched-error-message/dist/index.esm.js
+var index_esm = __nccwpck_require__(144);
+// EXTERNAL MODULE: ../../../.yarn/berry/cache/gha-utils-npm-0.3.0-2043836e46-10c0.zip/node_modules/gha-utils/dist/index.js + 5 modules
+var dist = __nccwpck_require__(9720);
+// EXTERNAL MODULE: ./src/coveralls.ts + 50 modules
+var coveralls = __nccwpck_require__(2075);
+;// CONCATENATED MODULE: external "process"
+const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
+;// CONCATENATED MODULE: ./src/gcovr.ts
+
 
 
 
@@ -92369,6 +92382,12 @@ function getArgs(inputs) {
     }
     if (inputs.failUnderLine.length > 0) {
         args = args.concat("--fail-under-line", inputs.failUnderLine);
+    }
+    if (inputs.failUnderBranch.length > 0) {
+        args = args.concat("--fail-under-branch", inputs.failUnderBranch);
+    }
+    if (inputs.failUnderFunction.length > 0) {
+        args = args.concat("--fail-under-function", inputs.failUnderFunction);
     }
     if (inputs.htmlOut.length > 0) {
         if (inputs.htmlOutDetails) {
@@ -92394,9 +92413,13 @@ function getArgs(inputs) {
 }
 async function run(inputs) {
     const args = getArgs(inputs);
-    (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .beginLogGroup */ .zq)("Generating code coverage report...");
+    (0,dist/* beginLogGroup */.zq)("Generating code coverage report...");
+    if (inputs.workingDirectory.length > 0) {
+        external_process_namespaceObject.chdir(inputs.workingDirectory);
+        console.log(`Current directory: ${external_process_namespaceObject.cwd()}`);
+    }
     try {
-        const status = await _actions_exec__WEBPACK_IMPORTED_MODULE_0__.exec("gcovr", args, {
+        const status = await exec.exec("gcovr", args, {
             ignoreReturnCode: true,
             env: {
                 COVERALLS_REPO_TOKEN: inputs.githubToken,
@@ -92405,7 +92428,7 @@ async function run(inputs) {
         if (status !== 0) {
             let errMessage;
             if ((status | 2) > 0) {
-                errMessage = `coverage is under ${inputs.failUnderLine}%`;
+                errMessage = `coverage is under configured targets.`;
             }
             else {
                 errMessage = `unknown error (error code ${status})`;
@@ -92413,21 +92436,21 @@ async function run(inputs) {
             throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }
         if (inputs.coverallsOut.length > 0) {
-            (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .logInfo */ .PN)("Patching Coveralls API report...");
+            (0,dist/* logInfo */.PN)("Patching Coveralls API report...");
             try {
-                _coveralls_js__WEBPACK_IMPORTED_MODULE_2__/* .patch */ .r(inputs.coverallsOut);
+                coveralls/* patch */.r(inputs.coverallsOut);
             }
             catch (err) {
-                throw new Error(`Failed to patch Coveralls API report: ${(0,catched_error_message__WEBPACK_IMPORTED_MODULE_3__/* .getErrorMessage */ .e)(err)}`);
+                throw new Error(`Failed to patch Coveralls API report: ${(0,index_esm/* getErrorMessage */.e)(err)}`);
             }
-            (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .logInfo */ .PN)(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
+            (0,dist/* logInfo */.PN)(`Coveralls API report outputted to \u001b[34m${inputs.coverallsOut}\u001b[39m`);
         }
     }
     catch (err) {
-        (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .endLogGroup */ .sH)();
+        (0,dist/* endLogGroup */.sH)();
         throw err;
     }
-    (0,gha_utils__WEBPACK_IMPORTED_MODULE_1__/* .endLogGroup */ .sH)();
+    (0,dist/* endLogGroup */.sH)();
 }
 
 
@@ -92441,7 +92464,7 @@ __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __we
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(3858);
 /* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2075);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2190);
-/* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(6840);
+/* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(4515);
 
 
 
