@@ -1,43 +1,43 @@
 name: Gcovr Action
 author: Alfi Maulana
-description: Generate code coverage reports for a C++ project using gcovr
+description: Check test coverage and generate reports for C/C++ projects using gcovr.
 branding:
   icon: check-circle
   color: green
 inputs:
   root:
-    description: Root directory of your source files
+    description: Root directory of your source files. Defaults to the current directory. File names are reported relative to this directory.
   gcov-executable:
-    description: Use a particular gcov executable
+    description: Use a specific gcov executable. It must match the compiler you are using, e.g., `llvm-cov gcov` for LLVM Clang.
   excludes:
-    description: Exclude source files that match these filters
+    description: Exclude source files that match these filters.
   fail-under-line:
-    description: Fail if the total line coverage is less than this value
+    description: Fail if the total line coverage is less than this value.
   fail-under-branch:
-    description: Fail if the total branch coverage is less than this value
+    description: Fail if the total branch coverage is less than this value.
   fail-under-function:
-    description: Fail if the total function coverage is less than this value
+    description: Fail if the total function coverage is less than this value.
   html-out:
-    description: Output file of the generated HTML coverage report
+    description: Output file for the generated HTML report.
   html-details:
-    description: Additional option to add annotated source code reports to the HTML report.
+    description: Enable to add annotated source code reports to the HTML report. Defaults to `false`.
     default: false
   html-theme:
-    description: Override the default color theme for the HTML report. Default is green. Possible options green, blue, github.blue, github.green, github.dark-green, github.dark-blue
+    description: Override the default color theme for the HTML report.
   html-title:
-    description: User custom title for the HTML report. Default is ‘GCC Code Coverage Report’.
+    description: Override the default title for the HTML report.
   xml-out:
-    description: Output file of the generated XML coverage report
+    description: Output file for the generated Cobertura report.
   coveralls-out:
-    description: Output file of the generated Coveralls API coverage report
+    description: Output file for the generated Coveralls report.
   coveralls-send:
-    description: Send the generated Coveralls API coverage report to it's endpoint (true/false)
+    description: Send the generated Coveralls report to its endpoint. Defaults to `false`.
     default: false
   github-token:
-    description: GitHub token of your project
+    description: GitHub token for your project. Defaults to `github.token`. Required for successfully sending the Coveralls report to its endpoint.
     default: ${{ github.token }}
   working-directory:
-    description: Working directory where gcovr should be executed from
+    description: The working directory where gcovr should be executed.
 runs:
   using: node20
   main: dist/index.js
