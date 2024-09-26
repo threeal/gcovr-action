@@ -10,11 +10,7 @@ Generate code coverage reports for a C++ project on [GitHub Actions](https://git
 - Support coverage report on [GCC](https://gcc.gnu.org/) and [LLVM Clang](https://clang.llvm.org/).
 - Support files exclusion and fail if coverage is below a specific thresold.
 
-## Usage
-
-For more information, see [action.yml](./action.yml) and [GitHub Actions guide](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions).
-
-### Inputs
+## Inputs
 
 | Name | Value Type | Description |
 | --- | --- | --- |
@@ -36,7 +32,7 @@ For more information, see [action.yml](./action.yml) and [GitHub Actions guide](
 
 > Note: All inputs are optional.
 
-### Examples
+## Examples
 
 ```yaml
 name: test
@@ -59,7 +55,7 @@ jobs:
         uses: threeal/gcovr-action@v1.0.0
 ```
 
-#### Exclude Source Files
+### Exclude Source Files
 
 ```yaml
 - name: Generate a code coverage report
@@ -70,7 +66,7 @@ jobs:
       src/internal/*
 ```
 
-#### Output HTML Report
+### Output HTML Report
 
 ```yaml
 - name: Generate a html code coverage report
@@ -79,7 +75,7 @@ jobs:
     html-out: coverage.html
 ```
 
-#### Output HTML Report with annotated source code reports.
+### Output HTML Report with annotated source code reports.
 
 ```yaml
 - name: Generate a html code coverage report
@@ -89,7 +85,7 @@ jobs:
     html-out-details: true
 ```
 
-#### Output HTML Report generated with a specific theme & title
+### Output HTML Report generated with a specific theme & title
 
 ```yaml
 - name: Generate a html code coverage report
@@ -100,7 +96,7 @@ jobs:
     html-theme: github.green
 ```
 
-#### Output XML Report
+### Output XML Report
 
 ```yaml
 - name: Generate a code coverage report
@@ -109,7 +105,7 @@ jobs:
     xml-out: coverage.xml
 ```
 
-#### Using LLVM Clang
+### Using LLVM Clang
 
 ```yaml
 - name: Build and test this project
@@ -124,7 +120,7 @@ jobs:
     gcov-executable: llvm-cov gcov
 ```
 
-#### Send to Coveralls
+### Send to Coveralls
 
 ```yaml
 - name: Generate and send a code coverage report to Coveralls
@@ -134,7 +130,7 @@ jobs:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-#### Specify Alternate Working Directory
+### Specify Alternate Working Directory
 Note that `working-directory` and `root` will almost always be used together, in which case `root` is evaluated relative to the specified working directory. In other words it is passed directly through as an argument to `gcovr`.
 
 ```yaml
