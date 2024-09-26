@@ -453,12 +453,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.7.0":
-  version: 22.7.0
-  resolution: "@types/node@npm:22.7.0"
+"@types/node@npm:^22.7.1":
+  version: 22.7.1
+  resolution: "@types/node@npm:22.7.1"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/127b1ac3eebe8c2b09e3d2de277ee906710c4908b4573cde23b9c7cec1cb1aaf1af8bdabbccdac08d005f820b770e7447b22c8eb56ca63344f4d2e26bcdc29fb
+  checksum: 10c0/5647181455d543992f5e93165e7ad2ca0e97402e748a1209c07135320b6f220ffb5b2531b0412d6d33bb3173b5bcd9418899d9fa6f04596a5ec9f338b2f37992
   languageName: node
   linkType: hard
 
@@ -2084,7 +2084,7 @@ __metadata:
     "@actions/exec": "npm:^1.1.1"
     "@actions/io": "npm:^1.1.3"
     "@eslint/js": "npm:^9.11.1"
-    "@types/node": "npm:^22.7.0"
+    "@types/node": "npm:^22.7.1"
     "@vercel/ncc": "npm:^0.38.2"
     catched-error-message: "npm:^0.0.1"
     eslint: "npm:^9.11.1"
