@@ -84085,7 +84085,7 @@ function processInputs() {
 
 /***/ }),
 
-/***/ 3359:
+/***/ 4029:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -85053,7 +85053,9 @@ async function fileFromPath(path, filenameOrOptions, options) {
 
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/gha-utils-npm-0.4.0-2eb06cac01-10c0.zip/node_modules/gha-utils/dist/index.js + 5 modules
 var dist = __nccwpck_require__(6328);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/@sindresorhus-is-npm-7.0.0-d5455300d7-10c0.zip/node_modules/@sindresorhus/is/distribution/index.js
+;// CONCATENATED MODULE: external "node:timers/promises"
+const external_node_timers_promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:timers/promises");
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/@sindresorhus-is-npm-7.0.1-ee6b6a0f2b-10c0.zip/node_modules/@sindresorhus/is/distribution/index.js
 const typedArrayTypeNames = [
     'Int8Array',
     'Uint8Array',
@@ -85899,8 +85901,10 @@ function assertArray(value, assertion, message) {
         throw new TypeError(message ?? typeErrorMessage('Array', value));
     }
     if (assertion) {
-        // eslint-disable-next-line unicorn/no-array-for-each, unicorn/no-array-callback-reference
-        value.forEach(assertion);
+        for (const element of value) {
+            // @ts-expect-error: "Assertions require every name in the call target to be declared with an explicit type annotation."
+            assertion(element, message);
+        }
     }
 }
 function assertArrayBuffer(value, message) {
@@ -86476,7 +86480,7 @@ class PCancelable {
 
 Object.setPrototypeOf(PCancelable.prototype, Promise.prototype);
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/errors.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/errors.js
 
 // A hacky check to prevent circular references.
 function isRequest(x) {
@@ -88267,13 +88271,13 @@ getContentLength_fn = function() {
 
 // EXTERNAL MODULE: external "node:util"
 var external_node_util_ = __nccwpck_require__(7975);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/is-form-data.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/is-form-data.js
 
 function is_form_data_isFormData(body) {
     return distribution.nodeStream(body) && distribution.function(body.getBoundary);
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/get-body-size.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/get-body-size.js
 
 
 
@@ -88297,7 +88301,7 @@ async function getBodySize(body, headers) {
     return undefined;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/proxy-events.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/proxy-events.js
 function proxyEvents(from, to, events) {
     const eventFunctions = {};
     for (const event of events) {
@@ -88316,7 +88320,7 @@ function proxyEvents(from, to, events) {
 
 ;// CONCATENATED MODULE: external "node:net"
 const external_node_net_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:net");
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/unhandle.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/unhandle.js
 // When attaching listeners, it's very easy to forget about them.
 // Especially if you do error handling and set timeouts.
 // So instead of checking if it's proper to throw an error on every timeout ever,
@@ -88338,7 +88342,7 @@ function unhandle() {
     };
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/timed-out.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/timed-out.js
 
 
 const reentry = Symbol('reentry');
@@ -88469,7 +88473,7 @@ function timedOut(request, delays, options) {
     return cancelTimeouts;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/url-to-options.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/url-to-options.js
 
 function urlToOptions(url) {
     // Cast to URL
@@ -88493,7 +88497,7 @@ function urlToOptions(url) {
     return options;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/weakable-map.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/weakable-map.js
 class WeakableMap {
     weakMap;
     map;
@@ -88523,7 +88527,7 @@ class WeakableMap {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/calculate-retry-delay.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/calculate-retry-delay.js
 const calculateRetryDelay = ({ attemptCount, retryOptions, error, retryAfter, computedValue, }) => {
     if (error.name === 'RetryError') {
         return 1;
@@ -89012,7 +89016,7 @@ class CacheableLookup {
 
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/http2-wrapper-npm-2.2.1-c033aaabde-10c0.zip/node_modules/http2-wrapper/source/index.js
 var http2_wrapper_source = __nccwpck_require__(5296);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/parse-link-header.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/parse-link-header.js
 function parseLinkHeader(link) {
     const parsed = [];
     const items = link.split(',');
@@ -89047,7 +89051,7 @@ function parseLinkHeader(link) {
     return parsed;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/options.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/options.js
 
 
 
@@ -90684,7 +90688,7 @@ class Options {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/response.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/response.js
 
 const isResponseOk = (response) => {
     const { statusCode } = response;
@@ -90727,19 +90731,19 @@ const parseBody = (response, responseType, parseJson, encoding) => {
     }, response);
 };
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/is-client-request.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/is-client-request.js
 function isClientRequest(clientRequest) {
     return clientRequest.writable && !clientRequest.writableEnded;
 }
 /* harmony default export */ const is_client_request = (isClientRequest);
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function isUnixSocketURL(url) {
     return url.protocol === 'unix:' || url.hostname === 'unix';
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/core/index.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/core/index.js
 
 
 
@@ -91474,13 +91478,13 @@ class Request extends external_node_stream_.Duplex {
                                 }
                             })();
                         }
-                        else if (event === 'abort') {
+                        else if (event === 'abort' || event === 'destroy') {
                             // The empty catch is needed here in case when
                             // it rejects before it's `await`ed in `_makeRequest`.
                             (async () => {
                                 try {
                                     const request = (await result);
-                                    request.once('abort', handler);
+                                    request.once(event, handler);
                                 }
                                 catch { }
                             })();
@@ -91740,7 +91744,7 @@ class Request extends external_node_stream_.Duplex {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/as-promise/types.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/as-promise/types.js
 
 /**
 An error to be thrown when the request is aborted with `.cancel()`.
@@ -91759,7 +91763,7 @@ class types_CancelError extends RequestError {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/as-promise/index.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/as-promise/index.js
 
 
 
@@ -91925,15 +91929,12 @@ function asPromise(firstRequest) {
     return promise;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/create.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/create.js
 
 
 
 
-// The `delay` package weighs 10KB (!)
-const delay = async (ms) => new Promise(resolve => {
-    setTimeout(resolve, ms);
-});
+
 const isGotInstance = (value) => distribution.function(value);
 const aliases = [
     'get',
@@ -92034,7 +92035,7 @@ const create = (defaults) => {
         while (numberOfRequests < pagination.requestLimit) {
             if (numberOfRequests !== 0) {
                 // eslint-disable-next-line no-await-in-loop
-                await delay(pagination.backoff);
+                await (0,external_node_timers_promises_namespaceObject.setTimeout)(pagination.backoff);
             }
             // eslint-disable-next-line no-await-in-loop
             const response = (await got(undefined, undefined, normalizedOptions));
@@ -92110,7 +92111,7 @@ const create = (defaults) => {
 };
 /* harmony default export */ const source_create = (create);
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.2-58bd359030-10c0.zip/node_modules/got/dist/source/index.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.3-da871500f3-10c0.zip/node_modules/got/dist/source/index.js
 
 
 const defaults = {
@@ -92359,8 +92360,8 @@ var exec = __nccwpck_require__(8413);
 var index_esm = __nccwpck_require__(9086);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/gha-utils-npm-0.4.0-2eb06cac01-10c0.zip/node_modules/gha-utils/dist/index.js + 5 modules
 var dist = __nccwpck_require__(6328);
-// EXTERNAL MODULE: ./src/coveralls.ts + 50 modules
-var coveralls = __nccwpck_require__(3359);
+// EXTERNAL MODULE: ./src/coveralls.ts + 51 modules
+var coveralls = __nccwpck_require__(4029);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
 ;// CONCATENATED MODULE: ./src/gcovr.ts
@@ -92462,7 +92463,7 @@ async function run(inputs) {
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 /* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(6328);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(413);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(3359);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(4029);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(1265);
 /* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(5397);
 

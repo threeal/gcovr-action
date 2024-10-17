@@ -421,10 +421,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sindresorhus/is@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "@sindresorhus/is@npm:7.0.0"
-  checksum: 10c0/005cc3a09a41d17073eeb55e0a2003648a6fcde23bef60f95830e5d8600a6b0aa157f167fd4ddce7fd34e8c8c2263dd642de892e33f8b68c816efe6c4393b7c9
+"@sindresorhus/is@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "@sindresorhus/is@npm:7.0.1"
+  checksum: 10c0/6d43a916d70d9b64066394c272883869b22faf21f4748aaf399c1b691ea704ea607d1668ff2eb5704e5be8809c4a7faafe16be048ce5e1a2ba6e8928b8e3461c
   languageName: node
   linkType: hard
 
@@ -1356,11 +1356,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"got@npm:^14.4.2":
-  version: 14.4.2
-  resolution: "got@npm:14.4.2"
+"got@npm:^14.4.3":
+  version: 14.4.3
+  resolution: "got@npm:14.4.3"
   dependencies:
-    "@sindresorhus/is": "npm:^7.0.0"
+    "@sindresorhus/is": "npm:^7.0.1"
     "@szmarczak/http-timer": "npm:^5.0.1"
     cacheable-lookup: "npm:^7.0.0"
     cacheable-request: "npm:^12.0.1"
@@ -1370,8 +1370,8 @@ __metadata:
     lowercase-keys: "npm:^3.0.0"
     p-cancelable: "npm:^4.0.1"
     responselike: "npm:^3.0.0"
-    type-fest: "npm:^4.19.0"
-  checksum: 10c0/fb3d17720cbda69cb0ea4d942bbd0554b63bdd0bbb1de37f7bc2666e2bed10bb10d7f09651312ce853bd55e6038e1fe3c9686767f63631ece7a9dbd29d248a62
+    type-fest: "npm:^4.26.1"
+  checksum: 10c0/de8e785370b9f83122c26ac29dab81a390b3f4bff219f45c7c9de7f973251fa7b2da255a61909ba6eb83210ac0a036040792361b4e945ea83c3f5bad2985d765
   languageName: node
   linkType: hard
 
@@ -2112,7 +2112,7 @@ __metadata:
     eslint: "npm:^9.12.0"
     formdata-node: "npm:^6.0.3"
     gha-utils: "npm:^0.4.0"
-    got: "npm:^14.4.2"
+    got: "npm:^14.4.3"
     pipx-install-action: "npm:^1.0.0"
     prettier: "npm:^3.3.3"
     typescript: "npm:^5.6.3"
@@ -2355,10 +2355,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^4.19.0":
-  version: 4.20.0
-  resolution: "type-fest@npm:4.20.0"
-  checksum: 10c0/d0b35152f7f0b34b3048fb14d93d8d6dfe6288d443a2ab7b7b8c1dd902278e092aa057ad7cfc30f269f17d42eeb14a19d4d147ecb14dff74a5941c5c82248efa
+"type-fest@npm:^4.26.1":
+  version: 4.26.1
+  resolution: "type-fest@npm:4.26.1"
+  checksum: 10c0/d2719ff8d380befe8a3c61068f37f28d6fa2849fd140c5d2f0f143099e371da6856aad7c97e56b83329d45bfe504afe9fd936a7cff600cc0d46aa9ffb008d6c6
   languageName: node
   linkType: hard
 
