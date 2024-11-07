@@ -1383,9 +1383,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"got@npm:^14.4.3":
-  version: 14.4.3
-  resolution: "got@npm:14.4.3"
+"got@npm:^14.4.4":
+  version: 14.4.4
+  resolution: "got@npm:14.4.4"
   dependencies:
     "@sindresorhus/is": "npm:^7.0.1"
     "@szmarczak/http-timer": "npm:^5.0.1"
@@ -1398,7 +1398,7 @@ __metadata:
     p-cancelable: "npm:^4.0.1"
     responselike: "npm:^3.0.0"
     type-fest: "npm:^4.26.1"
-  checksum: 10c0/de8e785370b9f83122c26ac29dab81a390b3f4bff219f45c7c9de7f973251fa7b2da255a61909ba6eb83210ac0a036040792361b4e945ea83c3f5bad2985d765
+  checksum: 10c0/2135303a48edaf0bdf1f590db231c4e69a6725efc5f306fff409003e182eafeb9135ae6c2de37f9d5ebe8e3f0a6b8227fd008fce9ac9581b38e6278b19e152a6
   languageName: node
   linkType: hard
 
@@ -2139,7 +2139,7 @@ __metadata:
     eslint: "npm:^9.14.0"
     formdata-node: "npm:^6.0.3"
     gha-utils: "npm:^0.4.1"
-    got: "npm:^14.4.3"
+    got: "npm:^14.4.4"
     pipx-install-action: "npm:^1.0.0"
     prettier: "npm:^3.3.3"
     typescript: "npm:^5.6.3"
