@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-14, windows-2022]
+        os: [ubuntu-24.04, macos-14, windows-2022]
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -34,7 +34,7 @@ jobs:
         uses: ./
 
   llvm-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -64,7 +64,7 @@ jobs:
           gcov-executable: llvm-cov gcov
 
   exclusion-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -121,7 +121,7 @@ jobs:
           fail-under-line: 100
 
   branch-and-function-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -178,7 +178,7 @@ jobs:
           fail-under-function: 50
 
   working-directory-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -205,7 +205,7 @@ jobs:
           root: ../
 
   html-out-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -229,7 +229,7 @@ jobs:
         run: cat coverage.html
 
   html-theme-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -254,7 +254,7 @@ jobs:
         run: cat coverage.html
 
   html-details-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -279,7 +279,7 @@ jobs:
         run: cat coverage.html
 
   html-title-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -304,7 +304,7 @@ jobs:
         run: cat coverage.html
 
   xml-out-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
@@ -328,7 +328,7 @@ jobs:
         run: cat coverage.xml
 
   coveralls-usage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.2
