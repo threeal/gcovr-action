@@ -35,7 +35,7 @@ export interface Inputs {
   workingDirectory: string;
   decisions: boolean;
   calls: boolean;
-  j: boolean | number;
+  jobs: boolean | number;
   printSummary: boolean;
 }
 
@@ -80,8 +80,8 @@ export function processInputs(): Inputs {
       workingDirectory: getInput("working-directory"),
       decisions: getInput("decisions") === "true",
       calls: getInput("calls") === "true",
-      j: (() => {
-        const val = getInput("j");
+      jobs: (() => {
+        const val = getInput("jobs");
         if (val === "true") return true;
         if (val === "false") return false;
         const asNumber = parseInt(val, 10);

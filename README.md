@@ -35,7 +35,7 @@ The following table lists all available inputs supported by this action. Please 
 | `coveralls-send` | `true` or `false` | Send the generated Coveralls report to its endpoint. Defaults to `false`. |
 | `decisions` | `true` or `false` | Report the decision coverage in HTML, JSON, and summary reports. Defaults to `false`. |
 | `calls` | `true` or `false` | Report the calls coverage in HTML and summary reports. Defaults to `false`. |
-| `j` | `true`, `false`, or number | Set the number of threads to use in parallel. When set to `true` without a number, uses all available processors. Defaults to `false`. |
+| `jobs` | `true`, `false`, or number | Set the number of threads to use in parallel. When set to `true` without a number, uses all available processors. Defaults to `false`. |
 | `print-summary` | `true` or `false` | Print a small report to stdout showing line, function, branch percentage coverage with optional decision & call coverage. This is in addition to other reports. Defaults to `false`. |
 | `github-token` | Token | [GitHub token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication) for your project. Defaults to [`github.token`](https://docs.github.com/en/actions/security-guides/automatic-token-authentication). Required for successfully sending the Coveralls report to its endpoint. |
 | `working-directory` | Path | The working directory where gcovr should be executed. |

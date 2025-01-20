@@ -83,10 +83,10 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.decisions) {
     args = args.concat("--decisions");
   }
-  if (inputs.j) {
-    if (typeof inputs.j === "number") {
-      args = args.concat("-j", inputs.j.toString());
-    } else if (typeof inputs.j === "boolean" && inputs.j) {
+  if (inputs.jobs) {
+    if (typeof inputs.jobs === "number") {
+      args = args.concat("-j", inputs.jobs.toString());
+    } else if (typeof inputs.jobs === "boolean" && inputs.jobs) {
       args = args.concat("-j");
     }
   }
