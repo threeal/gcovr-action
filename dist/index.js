@@ -84051,8 +84051,6 @@ function processInputs() {
     (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .logInfo */ .fH)("Processing the action inputs...");
     try {
         const inputs = {
-            version: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("version"),
-            force_install: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("force_install") === "true",
             root: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("root"),
             gcovExecutable: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("gcov-executable"),
             excludes: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("excludes")
@@ -92367,14 +92365,14 @@ async function isMissing(tool) {
         return true;
     }
 }
-async function checkGcovr(inputs) {
+async function checkGcovr() {
     (0,dist/* logInfo */.fH)(`Checking \u001b[34mgcovr\u001b[39m...`);
-    if (inputs.force_install || (await isMissing("gcovr"))) {
-        await pipxInstallAction("gcovr" + inputs.version);
+    if (await isMissing("gcovr")) {
+        await pipxInstallAction("gcovr");
     }
 }
-async function check(inputs) {
-    await checkGcovr(inputs);
+async function check() {
+    await checkGcovr();
 }
 
 
@@ -92558,7 +92556,7 @@ __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __we
 
 try {
     const inputs = _action_js__WEBPACK_IMPORTED_MODULE_1__/* .processInputs */ .h();
-    await _deps_index_js__WEBPACK_IMPORTED_MODULE_3__/* .check */ .z(inputs);
+    await _deps_index_js__WEBPACK_IMPORTED_MODULE_3__/* .check */ .z();
     await _gcovr_js__WEBPACK_IMPORTED_MODULE_4__/* .run */ .e(inputs);
     if (inputs.coverallsSend && inputs.coverallsOut.length > 0) {
         await _coveralls_js__WEBPACK_IMPORTED_MODULE_2__/* .send */ .t(inputs.coverallsOut);
