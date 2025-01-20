@@ -16,6 +16,8 @@ The following table lists all available inputs supported by this action. Please 
 
 | Name | Value Type | Description |
 | --- | --- | --- |
+| `version` | Version Requirement | Version of gcovr to be installed (leave empty for pipx default). Set `force_install` to `true` if used. |
+| `force_install` | Boolean | Force installation, especially to be used together with `version`. |
 | `root` | Path | Root directory of your source files. Defaults to the current directory. File names are reported relative to this directory. |
 | `gcov-executable` | Executable name with optional arguments | Use a specific [gcov](https://gcc.gnu.org/onlinedocs/gcc/Gcov.html) executable. It must match the compiler you are using, e.g., `llvm-cov gcov` for LLVM Clang. |
 | `excludes` | One or more regular expression patterns | Exclude source files that match these filters. |
