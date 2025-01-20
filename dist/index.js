@@ -84088,8 +84088,8 @@ function processInputs() {
             workingDirectory: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("working-directory"),
             decisions: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("decisions") === "true",
             calls: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("calls") === "true",
-            j: (() => {
-                const val = (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("j");
+            jobs: (() => {
+                const val = (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("jobs");
                 if (val === "true")
                     return true;
                 if (val === "false")
@@ -92484,11 +92484,11 @@ function getArgs(inputs) {
     if (inputs.decisions) {
         args = args.concat("--decisions");
     }
-    if (inputs.j) {
-        if (typeof inputs.j === "number") {
-            args = args.concat("-j", inputs.j.toString());
+    if (inputs.jobs) {
+        if (typeof inputs.jobs === "number") {
+            args = args.concat("-j", inputs.jobs.toString());
         }
-        else if (typeof inputs.j === "boolean" && inputs.j) {
+        else if (typeof inputs.jobs === "boolean" && inputs.jobs) {
             args = args.concat("-j");
         }
     }
