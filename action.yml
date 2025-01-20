@@ -5,11 +5,6 @@ branding:
   icon: check-circle
   color: green
 inputs:
-  version:
-    description: Version of gcovr to be installed (leave empty for pipx default). Set `force_install` to `true` if used.
-  force_install:
-    description: Force installation, especially to be used together with `version`.
-    default: false
   root:
     description: Root directory of your source files. Defaults to the current directory. File names are reported relative to this directory.
   gcov-executable:

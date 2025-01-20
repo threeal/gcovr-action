@@ -6,7 +6,7 @@ import * as gcovr from "./gcovr.js";
 
 try {
   const inputs = action.processInputs();
-  await deps.check(inputs);
+  await deps.check();
   await gcovr.run(inputs);
   if (inputs.coverallsSend && inputs.coverallsOut.length > 0) {
     await coveralls.send(inputs.coverallsOut);
