@@ -19,9 +19,11 @@ The following table lists all available inputs supported by this action. Please 
 | `root` | Path | Root directory of your source files. Defaults to the current directory. File names are reported relative to this directory. |
 | `gcov-executable` | Executable name with optional arguments | Use a specific [gcov](https://gcc.gnu.org/onlinedocs/gcc/Gcov.html) executable. It must match the compiler you are using, e.g., `llvm-cov gcov` for LLVM Clang. |
 | `excludes` | One or more regular expression patterns | Exclude source files that match these filters. |
+| `filter` | One or more regular expression patterns | Filter source files that match these filters. |
 | `fail-under-line` | 0 - 100 | Fail if the total line coverage is less than this value. |
 | `fail-under-branch` | 0 - 100 | Fail if the total branch coverage is less than this value. |
 | `fail-under-function` | 0 - 100 | Fail if the total function coverage is less than this value. |
+| `fail-under-decision` | 0 - 100 | Fail if the total decision coverage is less than this value. |
 | `html-out` | Path | Output file for the generated HTML report. |
 | `html-details` | `true` or `false` | Enable to add annotated source code reports to the HTML report. Defaults to `false`. |
 | `html-theme` | String | Override the default color theme for the HTML report. |
@@ -29,8 +31,22 @@ The following table lists all available inputs supported by this action. Please 
 | `xml-out` | Path | Output file for the generated Cobertura report. |
 | `coveralls-out` | Path | Output file for the generated Coveralls report. |
 | `coveralls-send` | `true` or `false` | Send the generated Coveralls report to its endpoint. Defaults to `false`. |
+| `decisions` | `true` or `false` | Report the decision coverage in HTML, JSON, and summary reports. Defaults to `false`. |
+| `calls` | `true` or `false` | Report the calls coverage in HTML and summary reports. Defaults to `false`. |
+| `jobs` | `true`, `false`, or number | Set the number of threads to use in parallel. When set to `true` without a number, uses all available processors. Defaults to `false`. |
+| `print-summary` | `true` or `false` | Print a small report to stdout showing line, function, branch percentage coverage with optional decision & call coverage. This is in addition to other reports. Defaults to `false`. |
 | `github-token` | Token | [GitHub token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication) for your project. Defaults to [`github.token`](https://docs.github.com/en/actions/security-guides/automatic-token-authentication). Required for successfully sending the Coveralls report to its endpoint. |
 | `working-directory` | Path | The working directory where gcovr should be executed. |
+| `cobertura-out` | Path | Generate a Cobertura XML report. |
+| `cobertura-pretty` | `true` or `false` | Pretty-print the Cobertura XML report. Defaults to `false`. |
+| `jacoco-out` | Path | Output file for the generated JaCoCo report. |
+| `json-out` | Path | Generate a JSON report. |
+| `json-pretty` | `true` or `false` | Pretty-print the JSON report. Defaults to `false`. |
+| `json-summary-out` | Path | Generate a JSON summary report. |
+| `json-summary-pretty` | `true` or `false` | Pretty-print the JSON SUMMARY report. Defaults to `false`. |
+| `lcov-out` | Path | Generate LCOV coverage report. |
+| `sonarqube-out` | Path | Generate sonarqube generic coverage report. |
+| `txt-out` | Path | Output file for the generated text report. |
 
 ## Example Usages
 

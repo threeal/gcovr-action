@@ -11,12 +11,16 @@ inputs:
     description: Use a specific gcov executable. It must match the compiler you are using, e.g., `llvm-cov gcov` for LLVM Clang.
   excludes:
     description: Exclude source files that match these filters.
+  filter:
+    description: Filter source files that match these filters.
   fail-under-line:
     description: Fail if the total line coverage is less than this value.
   fail-under-branch:
     description: Fail if the total branch coverage is less than this value.
   fail-under-function:
     description: Fail if the total function coverage is less than this value.
+  fail-under-decision:
+    description: Fail if the total decision coverage is less than this value.
   html-out:
     description: Output file for the generated HTML report.
   html-details:
@@ -28,16 +32,52 @@ inputs:
     description: Override the default title for the HTML report.
   xml-out:
     description: Output file for the generated Cobertura report.
+    deprecated: Better use `cobertura-out`, because this also supports the optional `cobertura-pretty` flag.
   coveralls-out:
     description: Output file for the generated Coveralls report.
   coveralls-send:
     description: Send the generated Coveralls report to its endpoint. Defaults to `false`.
+    default: false
+  decisions:
+    description: Report the decision coverage. For HTML, JSON, and the summary report.
+    default: false
+  calls:
+    description: Report the calls coverage. For HTML and the summary report.
+    default: false
+  jobs:
+    description: Set the number of threads to use in parallel.
+    default: false
+  print-summary:
+    description: Print a small report to stdout with line & function & branch percentage coverage optional parts are decision & call coverage. This is in addition to other reports.
     default: false
   github-token:
     description: GitHub token for your project. Defaults to `github.token`. Required for successfully sending the Coveralls report to its endpoint.
     default: ${{ github.token }}
   working-directory:
     description: The working directory where gcovr should be executed.
+  cobertura-out:
+    description: Output file for the generated Cobertura report.
+  cobertura-pretty:
+    description: Pretty-print the Cobertura XML report.
+    default: false
+  jacoco-out:
+    description: Output file for the generated JaCoCo report.
+  json-out:
+    description: Generate a JSON report.
+  json-pretty:
+    description: Pretty-print the JSON report.
+    default: false
+  json-summary-out:
+    description: Generate a JSON summary report.
+  json-summary-pretty:
+    description: Pretty-print the JSON SUMMARY report.
+    default: false
+  lcov-out:
+    description: Generate LCOV coverage report.
+  sonarqube-out:
+    description: Generate sonarqube generic coverage report.
+  txt-out:
+    description: Output file for the generated text report.
 runs:
   using: node20
   main: dist/index.js
