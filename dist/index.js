@@ -84059,18 +84059,45 @@ function processInputs() {
                 .split(/\s+/)
                 .map((val) => val.trim())
                 .filter((val) => val !== ""),
+            filter: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("filter")
+                .split(/\s+/)
+                .map((val) => val.trim())
+                .filter((val) => val !== ""),
             failUnderLine: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("fail-under-line"),
             failUnderBranch: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("fail-under-branch"),
             failUnderFunction: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("fail-under-function"),
+            failUnderDecision: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("fail-under-decision"),
+            coberturaOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("cobertura-out"),
+            coberturaPretty: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("cobertura-pretty") === "true",
             htmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("html-out"),
             htmlOutDetails: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("html-details") === "true",
             htmlTheme: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("html-theme"),
             htmlTitle: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("html-title"),
+            jacocoOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("jacoco-out"),
+            jsonOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("json-out"),
+            jsonPretty: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("json-pretty") === "true",
+            jsonSummaryOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("json-summary-out"),
+            jsonSummaryPretty: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("json-summary-pretty") === "true",
+            lcovOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("lcov-out"),
+            sonarqubeOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("sonarqube-out"),
+            txtOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("txt-out"),
             xmlOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("xml-out"),
             coverallsOut: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("coveralls-out"),
             coverallsSend: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("coveralls-send") === "true",
             githubToken: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("github-token"),
             workingDirectory: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("working-directory"),
+            decisions: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("decisions") === "true",
+            calls: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("calls") === "true",
+            jobs: (() => {
+                const val = (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("jobs");
+                if (val === "true")
+                    return true;
+                if (val === "false")
+                    return false;
+                const asNumber = parseInt(val, 10);
+                return isNaN(asNumber) ? false : asNumber;
+            })(),
+            printSummary: (0,gha_utils__WEBPACK_IMPORTED_MODULE_0__/* .getInput */ .V4)("print-summary") === "true",
         };
         // Auto set coveralls output if not specified
         if (inputs.coverallsSend && inputs.coverallsOut.length <= 0) {
@@ -92389,6 +92416,9 @@ function getArgs(inputs) {
     for (const exclude of inputs.excludes) {
         args = args.concat("--exclude", exclude);
     }
+    for (const filter of inputs.filter) {
+        args = args.concat("--filter", filter);
+    }
     if (inputs.failUnderLine.length > 0) {
         args = args.concat("--fail-under-line", inputs.failUnderLine);
     }
@@ -92397,6 +92427,15 @@ function getArgs(inputs) {
     }
     if (inputs.failUnderFunction.length > 0) {
         args = args.concat("--fail-under-function", inputs.failUnderFunction);
+    }
+    if (inputs.failUnderDecision.length > 0) {
+        args = args.concat("--fail-under-decision", inputs.failUnderDecision);
+    }
+    if (inputs.coberturaOut.length > 0) {
+        args = args.concat("--cobertura", inputs.coberturaOut);
+    }
+    if (inputs.coberturaPretty) {
+        args = args.concat("--cobertura-pretty");
     }
     if (inputs.htmlOut.length > 0) {
         if (inputs.htmlOutDetails) {
@@ -92412,11 +92451,49 @@ function getArgs(inputs) {
     if (inputs.htmlTitle.length > 0) {
         args = args.concat("--html-title", inputs.htmlTitle);
     }
+    if (inputs.jsonOut.length > 0) {
+        args = args.concat("--json", inputs.jsonOut);
+    }
+    if (inputs.jsonPretty) {
+        args = args.concat("--json-pretty");
+    }
+    if (inputs.jsonSummaryOut.length > 0) {
+        args = args.concat("--json-summary", inputs.jsonSummaryOut);
+    }
+    if (inputs.jsonSummaryPretty) {
+        args = args.concat("--json-summary-pretty");
+    }
+    if (inputs.lcovOut.length > 0) {
+        args = args.concat("--lcov", inputs.lcovOut);
+    }
+    if (inputs.sonarqubeOut.length > 0) {
+        args = args.concat("--sonarqube", inputs.sonarqubeOut);
+    }
+    if (inputs.txtOut.length > 0) {
+        args = args.concat("--txt", inputs.txtOut);
+    }
     if (inputs.xmlOut.length > 0) {
         args = args.concat("--xml", inputs.xmlOut);
     }
     if (inputs.coverallsOut.length > 0) {
         args = args.concat("--coveralls", inputs.coverallsOut);
+    }
+    if (inputs.calls) {
+        args = args.concat("--calls");
+    }
+    if (inputs.decisions) {
+        args = args.concat("--decisions");
+    }
+    if (inputs.jobs) {
+        if (typeof inputs.jobs === "number") {
+            args = args.concat("-j", inputs.jobs.toString());
+        }
+        else if (typeof inputs.jobs === "boolean" && inputs.jobs) {
+            args = args.concat("-j");
+        }
+    }
+    if (inputs.printSummary) {
+        args = args.concat("--print-summary");
     }
     return args;
 }

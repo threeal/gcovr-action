@@ -16,6 +16,9 @@ function getArgs(inputs: action.Inputs): string[] {
   for (const exclude of inputs.excludes) {
     args = args.concat("--exclude", exclude);
   }
+  for (const filter of inputs.filter) {
+    args = args.concat("--filter", filter);
+  }
   if (inputs.failUnderLine.length > 0) {
     args = args.concat("--fail-under-line", inputs.failUnderLine);
   }
@@ -24,6 +27,15 @@ function getArgs(inputs: action.Inputs): string[] {
   }
   if (inputs.failUnderFunction.length > 0) {
     args = args.concat("--fail-under-function", inputs.failUnderFunction);
+  }
+  if (inputs.failUnderDecision.length > 0) {
+    args = args.concat("--fail-under-decision", inputs.failUnderDecision);
+  }
+  if (inputs.coberturaOut.length > 0) {
+    args = args.concat("--cobertura", inputs.coberturaOut);
+  }
+  if (inputs.coberturaPretty) {
+    args = args.concat("--cobertura-pretty");
   }
   if (inputs.htmlOut.length > 0) {
     if (inputs.htmlOutDetails) {
@@ -38,11 +50,48 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.htmlTitle.length > 0) {
     args = args.concat("--html-title", inputs.htmlTitle);
   }
+  if (inputs.jsonOut.length > 0) {
+    args = args.concat("--json", inputs.jsonOut);
+  }
+  if (inputs.jsonPretty) {
+    args = args.concat("--json-pretty");
+  }
+  if (inputs.jsonSummaryOut.length > 0) {
+    args = args.concat("--json-summary", inputs.jsonSummaryOut);
+  }
+  if (inputs.jsonSummaryPretty) {
+    args = args.concat("--json-summary-pretty");
+  }
+  if (inputs.lcovOut.length > 0) {
+    args = args.concat("--lcov", inputs.lcovOut);
+  }
+  if (inputs.sonarqubeOut.length > 0) {
+    args = args.concat("--sonarqube", inputs.sonarqubeOut);
+  }
+  if (inputs.txtOut.length > 0) {
+    args = args.concat("--txt", inputs.txtOut);
+  }
   if (inputs.xmlOut.length > 0) {
     args = args.concat("--xml", inputs.xmlOut);
   }
   if (inputs.coverallsOut.length > 0) {
     args = args.concat("--coveralls", inputs.coverallsOut);
+  }
+  if (inputs.calls) {
+    args = args.concat("--calls");
+  }
+  if (inputs.decisions) {
+    args = args.concat("--decisions");
+  }
+  if (inputs.jobs) {
+    if (typeof inputs.jobs === "number") {
+      args = args.concat("-j", inputs.jobs.toString());
+    } else if (typeof inputs.jobs === "boolean" && inputs.jobs) {
+      args = args.concat("-j");
+    }
+  }
+  if (inputs.printSummary) {
+    args = args.concat("--print-summary");
   }
   return args;
 }
