@@ -4,6 +4,8 @@ import * as os from "os";
 import * as path from "path";
 
 export interface Inputs {
+  version: string;
+  force_install: boolean;
   root: string;
   gcovExecutable: string;
   excludes: string[];
@@ -41,6 +43,8 @@ export function processInputs(): Inputs {
   logInfo("Processing the action inputs...");
   try {
     const inputs: Inputs = {
+      version: getInput("version"),
+      force_install: getInput("force_install") === "true",
       root: getInput("root"),
       gcovExecutable: getInput("gcov-executable"),
       excludes: getInput("excludes")
