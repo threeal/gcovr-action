@@ -84120,7 +84120,7 @@ function processInputs() {
 
 /***/ }),
 
-/***/ 4792:
+/***/ 2295:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -86515,7 +86515,7 @@ class PCancelable {
 
 Object.setPrototypeOf(PCancelable.prototype, Promise.prototype);
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/errors.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/errors.js
 
 // A hacky check to prevent circular references.
 function isRequest(x) {
@@ -88306,13 +88306,13 @@ getContentLength_fn = function() {
 
 // EXTERNAL MODULE: external "node:util"
 var external_node_util_ = __nccwpck_require__(7975);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/is-form-data.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/is-form-data.js
 
 function is_form_data_isFormData(body) {
     return distribution.nodeStream(body) && distribution.function(body.getBoundary);
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/get-body-size.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/get-body-size.js
 
 
 
@@ -88336,7 +88336,7 @@ async function getBodySize(body, headers) {
     return undefined;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/proxy-events.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/proxy-events.js
 function proxyEvents(from, to, events) {
     const eventFunctions = {};
     for (const event of events) {
@@ -88355,7 +88355,7 @@ function proxyEvents(from, to, events) {
 
 ;// CONCATENATED MODULE: external "node:net"
 const external_node_net_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:net");
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/unhandle.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/unhandle.js
 // When attaching listeners, it's very easy to forget about them.
 // Especially if you do error handling and set timeouts.
 // So instead of checking if it's proper to throw an error on every timeout ever,
@@ -88377,7 +88377,7 @@ function unhandle() {
     };
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/timed-out.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/timed-out.js
 
 
 const reentry = Symbol('reentry');
@@ -88399,10 +88399,12 @@ function timedOut(request, delays, options) {
     request[reentry] = true;
     const cancelers = [];
     const { once, unhandleAll } = unhandle();
+    const handled = new Map();
     const addTimeout = (delay, callback, event) => {
         const timeout = setTimeout(callback, delay, delay, event);
         timeout.unref?.();
         const cancel = () => {
+            handled.set(event, true);
             clearTimeout(timeout);
         };
         cancelers.push(cancel);
@@ -88410,7 +88412,13 @@ function timedOut(request, delays, options) {
     };
     const { host, hostname } = options;
     const timeoutHandler = (delay, event) => {
-        request.destroy(new timed_out_TimeoutError(delay, event));
+        // Use setTimeout to allow for any cancelled events to be handled first,
+        // to prevent firing any TimeoutError unneeded when the event loop is busy or blocked
+        setTimeout(() => {
+            if (!handled.has(event)) {
+                request.destroy(new timed_out_TimeoutError(delay, event));
+            }
+        }, 0);
     };
     const cancelTimeouts = () => {
         for (const cancel of cancelers) {
@@ -88508,7 +88516,7 @@ function timedOut(request, delays, options) {
     return cancelTimeouts;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/url-to-options.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/url-to-options.js
 
 function urlToOptions(url) {
     // Cast to URL
@@ -88532,7 +88540,7 @@ function urlToOptions(url) {
     return options;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/weakable-map.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/weakable-map.js
 class WeakableMap {
     weakMap;
     map;
@@ -88562,7 +88570,7 @@ class WeakableMap {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/calculate-retry-delay.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/calculate-retry-delay.js
 const calculateRetryDelay = ({ attemptCount, retryOptions, error, retryAfter, computedValue, }) => {
     if (error.name === 'RetryError') {
         return 1;
@@ -89051,7 +89059,7 @@ class CacheableLookup {
 
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/http2-wrapper-npm-2.2.1-c033aaabde-10c0.zip/node_modules/http2-wrapper/source/index.js
 var http2_wrapper_source = __nccwpck_require__(9542);
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/parse-link-header.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/parse-link-header.js
 function parseLinkHeader(link) {
     const parsed = [];
     const items = link.split(',');
@@ -89086,7 +89094,7 @@ function parseLinkHeader(link) {
     return parsed;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/options.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/options.js
 
 
 
@@ -90723,7 +90731,7 @@ class Options {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/response.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/response.js
 
 const isResponseOk = (response) => {
     const { statusCode } = response;
@@ -90766,19 +90774,19 @@ const parseBody = (response, responseType, parseJson, encoding) => {
     }, response);
 };
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/is-client-request.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/is-client-request.js
 function isClientRequest(clientRequest) {
     return clientRequest.writable && !clientRequest.writableEnded;
 }
 /* harmony default export */ const is_client_request = (isClientRequest);
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function isUnixSocketURL(url) {
     return url.protocol === 'unix:' || url.hostname === 'unix';
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/core/index.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/core/index.js
 
 
 
@@ -91785,7 +91793,7 @@ class Request extends external_node_stream_.Duplex {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/as-promise/types.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/as-promise/types.js
 
 /**
 An error to be thrown when the request is aborted with `.cancel()`.
@@ -91804,7 +91812,7 @@ class types_CancelError extends RequestError {
     }
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/as-promise/index.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/as-promise/index.js
 
 
 
@@ -91970,7 +91978,7 @@ function asPromise(firstRequest) {
     return promise;
 }
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/create.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/create.js
 
 
 
@@ -92152,7 +92160,7 @@ const create = (defaults) => {
 };
 /* harmony default export */ const source_create = (create);
 
-;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.5-c5679173a2-10c0.zip/node_modules/got/dist/source/index.js
+;// CONCATENATED MODULE: ../../../.yarn/berry/cache/got-npm-14.4.6-91c3285caa-10c0.zip/node_modules/got/dist/source/index.js
 
 
 const defaults = {
@@ -92402,7 +92410,7 @@ var index_esm = __nccwpck_require__(1140);
 // EXTERNAL MODULE: ../../../.yarn/berry/cache/gha-utils-npm-0.4.1-d84b781b1f-10c0.zip/node_modules/gha-utils/dist/index.js + 5 modules
 var dist = __nccwpck_require__(6362);
 // EXTERNAL MODULE: ./src/coveralls.ts + 50 modules
-var coveralls = __nccwpck_require__(4792);
+var coveralls = __nccwpck_require__(2295);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
 ;// CONCATENATED MODULE: ./src/gcovr.ts
@@ -92554,7 +92562,7 @@ async function run(inputs) {
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 /* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(6362);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(2023);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(4792);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2295);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(9738);
 /* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(4460);
 
