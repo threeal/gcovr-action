@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.20.0",
-    "@types/node": "^22.13.1",
+    "@types/node": "^22.13.4",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.20.1",
     "prettier": "^3.5.1",
