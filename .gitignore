@@ -1,6 +1,7 @@
 .*
 !.git*
 !.nvmrc
+!.prettierignore
 
 build/
 node_modules/
