@@ -37,8 +37,8 @@ importers:
         specifier: ^9.23.0
         version: 9.23.0
       '@tsconfig/node23':
-        specifier: ^23.0.0
-        version: 23.0.0
+        specifier: ^23.0.1
+        version: 23.0.1
       '@types/node':
         specifier: ^22.13.14
         version: 22.13.14
@@ -239,8 +239,8 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
-  '@tsconfig/node23@23.0.0':
-    resolution: {integrity: sha512-a2qO9QOEWnomKbFFE3XlOJ5za6Sc+XduxQkFpah42enbTPFPaW0QzKw616KDNfmMLPhXMwCw4EHVjcKaFOj/OA==}
+  '@tsconfig/node23@23.0.1':
+    resolution: {integrity: sha512-oJ0Y42TmsBLuLAfEbPTS5JXSbJJEEU4bULROS6zsL54Gdlw5aOy27rpsquotMKGf2auP6rkbfYsjl43WdGrNcg==}
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
@@ -1184,7 +1184,7 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tsconfig/node23@23.0.0': {}
+  '@tsconfig/node23@23.0.1': {}
 
   '@types/estree@1.0.7': {}
 
