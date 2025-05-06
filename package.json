@@ -19,7 +19,7 @@
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "@tsconfig/node23": "^23.0.1",
-    "@types/node": "^22.15.3",
+    "@types/node": "^22.15.14",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.25.1",
     "prettier": "^3.5.3",
