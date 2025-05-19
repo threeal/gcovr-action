@@ -31708,7 +31708,7 @@ var isArray = Array.isArray || function (xs) {
 
 /***/ }),
 
-/***/ 4885:
+/***/ 4468:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /* eslint-env browser */
@@ -31932,7 +31932,7 @@ function save(namespaces) {
 function load() {
 	let r;
 	try {
-		r = exports.storage.getItem('debug');
+		r = exports.storage.getItem('debug') || exports.storage.getItem('DEBUG') ;
 	} catch (error) {
 		// Swallow
 		// XXX (@Qix-) should we be logging these?
@@ -31968,7 +31968,7 @@ function localstorage() {
 	}
 }
 
-module.exports = __nccwpck_require__(8228)(exports);
+module.exports = __nccwpck_require__(1163)(exports);
 
 const {formatters} = module.exports;
 
@@ -31987,7 +31987,7 @@ formatters.j = function (v) {
 
 /***/ }),
 
-/***/ 8228:
+/***/ 1163:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 
@@ -32160,7 +32160,7 @@ function setup(env) {
 
 		const split = (typeof namespaces === 'string' ? namespaces : '')
 			.trim()
-			.replace(' ', ',')
+			.replace(/\s+/g, ',')
 			.split(',')
 			.filter(Boolean);
 
@@ -32286,7 +32286,7 @@ module.exports = setup;
 
 /***/ }),
 
-/***/ 1541:
+/***/ 9592:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 /**
@@ -32295,15 +32295,15 @@ module.exports = setup;
  */
 
 if (typeof process === 'undefined' || process.type === 'renderer' || process.browser === true || process.__nwjs) {
-	module.exports = __nccwpck_require__(4885);
+	module.exports = __nccwpck_require__(4468);
 } else {
-	module.exports = __nccwpck_require__(7709);
+	module.exports = __nccwpck_require__(3606);
 }
 
 
 /***/ }),
 
-/***/ 7709:
+/***/ 3606:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /**
@@ -32545,7 +32545,7 @@ function init(debug) {
 	}
 }
 
-module.exports = __nccwpck_require__(8228)(exports);
+module.exports = __nccwpck_require__(1163)(exports);
 
 const {formatters} = module.exports;
 
@@ -33422,7 +33422,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.HttpProxyAgent = void 0;
 const net = __importStar(__nccwpck_require__(9278));
 const tls = __importStar(__nccwpck_require__(4756));
-const debug_1 = __importDefault(__nccwpck_require__(1541));
+const debug_1 = __importDefault(__nccwpck_require__(9592));
 const events_1 = __nccwpck_require__(4434);
 const agent_base_1 = __nccwpck_require__(3690);
 const url_1 = __nccwpck_require__(7016);
@@ -35988,7 +35988,7 @@ exports.HttpsProxyAgent = void 0;
 const net = __importStar(__nccwpck_require__(9278));
 const tls = __importStar(__nccwpck_require__(4756));
 const assert_1 = __importDefault(__nccwpck_require__(2613));
-const debug_1 = __importDefault(__nccwpck_require__(1541));
+const debug_1 = __importDefault(__nccwpck_require__(9592));
 const agent_base_1 = __nccwpck_require__(3690);
 const url_1 = __nccwpck_require__(7016);
 const parse_proxy_response_1 = __nccwpck_require__(4832);
@@ -36148,7 +36148,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseProxyResponse = void 0;
-const debug_1 = __importDefault(__nccwpck_require__(1541));
+const debug_1 = __importDefault(__nccwpck_require__(9592));
 const debug = (0, debug_1.default)('https-proxy-agent:parse-proxy-response');
 function parseProxyResponse(socket) {
     return new Promise((resolve, reject) => {
