@@ -21,7 +21,7 @@
     "@tsconfig/node23": "^23.0.1",
     "@types/node": "^22.15.18",
     "@vercel/ncc": "^0.38.3",
-    "eslint": "^9.26.0",
+    "eslint": "^9.27.0",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.32.0"
