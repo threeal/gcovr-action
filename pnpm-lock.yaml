@@ -36,9 +36,9 @@ importers:
       '@eslint/js':
         specifier: ^9.27.0
         version: 9.27.0
-      '@tsconfig/node23':
-        specifier: ^23.0.2
-        version: 23.0.2
+      '@tsconfig/node20':
+        specifier: ^20.1.5
+        version: 20.1.5
       '@types/node':
         specifier: ^22.15.18
         version: 22.15.23
@@ -239,8 +239,8 @@ packages:
     resolution: {integrity: sha512-+PmQX0PiAYPMeVYe237LJAYvOMYW1j2rH5YROyS3b4CTVJum34HfRvKvAzozHAQG0TnHNdUfY9nCeUyRAs//cw==}
     engines: {node: '>=14.16'}
 
-  '@tsconfig/node23@23.0.2':
-    resolution: {integrity: sha512-vOs+KHadhOfNs80TDwy9qXtwFgD5SJ37AkeSMsWmllZ96FaNcfB2S3bkmMHuG8jLjpezXCOO2+4KtNIFk2Xs+A==}
+  '@tsconfig/node20@20.1.5':
+    resolution: {integrity: sha512-Vm8e3WxDTqMGPU4GATF9keQAIy1Drd7bPwlgzKJnZtoOsTm1tduUTbDjg0W5qERvGuxPI2h9RbMufH0YdfBylA==}
 
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
@@ -1198,7 +1198,7 @@ snapshots:
     dependencies:
       defer-to-connect: 2.0.1
 
-  '@tsconfig/node23@23.0.2': {}
+  '@tsconfig/node20@20.1.5': {}
 
   '@types/estree@1.0.7': {}
 
