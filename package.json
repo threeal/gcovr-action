@@ -14,7 +14,7 @@
   "devDependencies": {
     "@eslint/js": "^9.27.0",
     "@tsconfig/node20": "^20.1.5",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.15.30",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.27.0",
     "lefthook": "^1.11.13",
