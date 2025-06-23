@@ -70739,7 +70739,7 @@ const got = source_create(defaults);
 
 
 
-async function patch(coverallsOut) {
+function patch(coverallsOut) {
     let data = external_fs_.readFileSync(coverallsOut).toString();
     data = data.replaceAll('"service_name": "github-actions-ci"', '"service_name": "github"');
     external_fs_.writeFileSync(coverallsOut, data);
@@ -70752,7 +70752,7 @@ async function send(coverallsOut) {
         const res = await got_dist_source.post("https://coveralls.io/api/v1/jobs", {
             body: form,
         });
-        (0,dist/* logInfo */.fH)(`HTTP status code ${res.statusCode}: ${res.body}`);
+        (0,dist/* logInfo */.fH)(`HTTP status code ${res.statusCode.toString()}: ${res.body}`);
     }
     catch (err) {
         (0,dist/* endLogGroup */.NZ)();
@@ -71052,7 +71052,7 @@ function getArgs(inputs) {
         if (typeof inputs.jobs === "number") {
             args = args.concat("-j", inputs.jobs.toString());
         }
-        else if (typeof inputs.jobs === "boolean" && inputs.jobs) {
+        else if (typeof inputs.jobs === "boolean") {
             args = args.concat("-j");
         }
     }
@@ -71081,7 +71081,7 @@ async function run(inputs) {
                 errMessage = `coverage is under configured targets.`;
             }
             else {
-                errMessage = `unknown error (error code ${status})`;
+                errMessage = `unknown error (error code ${status.toString()})`;
             }
             throw new Error(`Failed to generate code coverage report: ${errMessage}`);
         }

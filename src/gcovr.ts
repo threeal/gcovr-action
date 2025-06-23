@@ -86,7 +86,7 @@ function getArgs(inputs: action.Inputs): string[] {
   if (inputs.jobs) {
     if (typeof inputs.jobs === "number") {
       args = args.concat("-j", inputs.jobs.toString());
-    } else if (typeof inputs.jobs === "boolean" && inputs.jobs) {
+    } else if (typeof inputs.jobs === "boolean") {
       args = args.concat("-j");
     }
   }
@@ -115,7 +115,7 @@ export async function run(inputs: action.Inputs) {
       if ((status | 2) > 0) {
         errMessage = `coverage is under configured targets.`;
       } else {
-        errMessage = `unknown error (error code ${status})`;
+        errMessage = `unknown error (error code ${status.toString()})`;
       }
       throw new Error(`Failed to generate code coverage report: ${errMessage}`);
     }
