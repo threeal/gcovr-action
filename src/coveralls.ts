@@ -4,7 +4,7 @@ import * as fs from "fs";
 import { beginLogGroup, endLogGroup, logInfo } from "gha-utils";
 import got from "got";
 
-export async function patch(coverallsOut: string) {
+export function patch(coverallsOut: string) {
   let data: string = fs.readFileSync(coverallsOut).toString();
   data = data.replaceAll(
     '"service_name": "github-actions-ci"',
@@ -22,7 +22,7 @@ export async function send(coverallsOut: string) {
     const res = await got.post("https://coveralls.io/api/v1/jobs", {
       body: form,
     });
-    logInfo(`HTTP status code ${res.statusCode}: ${res.body}`);
+    logInfo(`HTTP status code ${res.statusCode.toString()}: ${res.body}`);
   } catch (err) {
     endLogGroup();
     throw err;
