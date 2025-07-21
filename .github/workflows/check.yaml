@@ -18,11 +18,11 @@ jobs:
       - name: Install Dependencies
         run: pnpm install
 
+      - name: Check Types
+        run: pnpm tsc --noEmit
+
       - name: Check Formatting
         run: pnpm prettier --check .
 
       - name: Check Lint
         run: pnpm eslint
-
-      - name: Check Types
-        run: pnpm tsc --noEmit
