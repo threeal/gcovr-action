@@ -70959,10 +70959,10 @@ var exec = __nccwpck_require__(8872);
 var index_esm = __nccwpck_require__(4214);
 // EXTERNAL MODULE: ./node_modules/.pnpm/gha-utils@0.4.1/node_modules/gha-utils/dist/index.js + 5 modules
 var dist = __nccwpck_require__(8222);
-// EXTERNAL MODULE: ./src/coveralls.ts + 47 modules
-var coveralls = __nccwpck_require__(5388);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
+// EXTERNAL MODULE: ./src/coveralls.ts + 47 modules
+var coveralls = __nccwpck_require__(5388);
 ;// CONCATENATED MODULE: ./src/gcovr.ts
 
 
