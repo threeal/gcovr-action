@@ -1,9 +1,9 @@
 import * as exec from "@actions/exec";
 import { getErrorMessage } from "catched-error-message";
 import { beginLogGroup, endLogGroup, logInfo } from "gha-utils";
+import * as process from "process";
 import * as action from "./action.js";
 import * as coveralls from "./coveralls.js";
-import * as process from "process";
 
 function getArgs(inputs: action.Inputs): string[] {
   let args: string[] = [];
