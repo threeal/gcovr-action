@@ -79,5 +79,5 @@ inputs:
   txt-out:
     description: Output file for the generated text report.
 runs:
-  using: node20
+  using: node24
   main: dist/index.js
