@@ -61,16 +61,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout Project
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v5.0.0
 
       - name: Build Project
-        uses: threeal/cmake-action@v2.0.0
+        uses: threeal/cmake-action@v2.1.0
 
       - name: Test Project
         uses: threeal/ctest-action@v1.1.0
 
       - name: Check Test Coverage
-        uses: threeal/gcovr-action@v1.1.0
+        uses: threeal/gcovr-action@v1.2.0
 ```
 
 ### Specify Test Coverage Threshold
@@ -79,7 +79,7 @@ To specify the minimum required test coverage threshold, set the `fail-under-lin
 
 ```yaml
 - name: Check Test Coverage
-  uses: threeal/gcovr-action@v1.1.0
+  uses: threeal/gcovr-action@v1.2.0
   with:
     fail-under-line: 80
 ```
@@ -90,7 +90,7 @@ Specify the `html-out` input to generate the test coverage report in HTML format
 
 ```yaml
 - name: Generate HTML Report
-  uses: threeal/gcovr-action@v1.1.0
+  uses: threeal/gcovr-action@v1.2.0
   with:
     html-out: coverage.html
 ```
@@ -99,7 +99,7 @@ Other options are also available to customize the generated HTML output:
 
 ```yaml
 - name: Generate HTML Report
-  uses: threeal/gcovr-action@v1.1.0
+  uses: threeal/gcovr-action@v1.2.0
   with:
     html-out: coverage.html
     html-details: true
@@ -113,7 +113,7 @@ Specify the `xml-out` input to generate the test coverage report in Cobertura fo
 
 ```yaml
 - name: Generate Cobertura Report
-  uses: threeal/gcovr-action@v1.1.0
+  uses: threeal/gcovr-action@v1.2.0
   with:
     xml-out: cobertura.xml
 ```
@@ -124,7 +124,7 @@ Specify the `coveralls-out` input to generate the test coverage report in Covera
 
 ```yaml
 - name: Generate Coveralls Report
-  uses: threeal/gcovr-action@v1.1.0
+  uses: threeal/gcovr-action@v1.2.0
   with:
     coveralls-out: coveralls.json
 ```
@@ -133,7 +133,7 @@ Rather than outputting the report as a file, it can also be directly sent to Cov
 
 ```yaml
 - name: Send Coveralls Report
-  uses: threeal/gcovr-action@v1.1.0
+  uses: threeal/gcovr-action@v1.2.0
   with:
     coveralls-send: true
 ```
@@ -144,7 +144,7 @@ By default, gcovr works well with projects compiled using GCC. However, for proj
 
 ```yaml
 - name: Check Test Coverage
-  uses: threeal/gcovr-action@v1.1.0
+  uses: threeal/gcovr-action@v1.2.0
   with:
     gcov-executable: llvm-cov gcov
 ```
