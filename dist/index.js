@@ -37915,7 +37915,7 @@ function processInputs() {
 
 /***/ }),
 
-/***/ 8599:
+/***/ 779:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -38885,7 +38885,13 @@ async function fileFromPath(path, filenameOrOptions, options) {
 var dist = __nccwpck_require__(138);
 ;// CONCATENATED MODULE: external "node:timers/promises"
 const external_node_timers_promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:timers/promises");
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@sindresorhus+is@7.0.2/node_modules/@sindresorhus/is/distribution/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@sindresorhus+is@7.1.0/node_modules/@sindresorhus/is/distribution/utilities.js
+function keysOf(value) {
+    return Object.keys(value);
+}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@sindresorhus+is@7.1.0/node_modules/@sindresorhus/is/distribution/index.js
+
 const typedArrayTypeNames = [
     'Int8Array',
     'Uint8Array',
@@ -39042,8 +39048,11 @@ function detect(value) {
         return 'Buffer';
     }
     const tagType = getObjectType(value);
-    if (tagType) {
+    if (tagType && tagType !== 'Object') {
         return tagType;
+    }
+    if (hasPromiseApi(value)) {
+        return 'Promise';
     }
     if (value instanceof String || value instanceof Boolean || value instanceof Number) {
         throw new TypeError('Please don\'t use object wrappers for primitive types');
@@ -39139,6 +39148,7 @@ const is = Object.assign(detect, {
     urlInstance: isUrlInstance,
     urlSearchParams: isUrlSearchParams,
     urlString: isUrlString,
+    optional: isOptional,
     validDate: isValidDate,
     validLength: isValidLength,
     weakMap: isWeakMap,
@@ -39155,6 +39165,9 @@ function isAll(predicate, ...values) {
 function isAny(predicate, ...values) {
     const predicates = isArray(predicate) ? predicate : [predicate];
     return predicates.some(singlePredicate => predicateOnArray(Array.prototype.some, singlePredicate, values));
+}
+function isOptional(value, predicate) {
+    return isUndefined(value) || predicate(value);
 }
 function isArray(value, assertion) {
     if (!Array.isArray(value)) {
@@ -39529,6 +39542,7 @@ function typeErrorMessageMultipleValues(expectedType, values) {
 const assert = {
     all: assertAll,
     any: assertAny,
+    optional: assertOptional,
     array: assertArray,
     arrayBuffer: assertArrayBuffer,
     arrayLike: assertArrayLike,
@@ -39708,9 +39722,6 @@ const methodTypeMap = {
     isWeakSet: 'WeakSet',
     isWhitespaceString: 'whitespace string',
 };
-function keysOf(value) {
-    return Object.keys(value);
-}
 const isMethodNames = keysOf(methodTypeMap);
 function isIsMethodName(value) {
     return isMethodNames.includes(value);
@@ -39726,6 +39737,11 @@ function assertAny(predicate, ...values) {
         const predicates = isArray(predicate) ? predicate : [predicate];
         const expectedTypes = predicates.map(predicate => isIsMethodName(predicate.name) ? methodTypeMap[predicate.name] : 'predicate returns truthy for any value');
         throw new TypeError(typeErrorMessageMultipleValues(expectedTypes, values));
+    }
+}
+function assertOptional(value, assertion, message) {
+    if (!isUndefined(value)) {
+        assertion(value, message);
     }
 }
 function assertArray(value, assertion, message) {
@@ -40312,7 +40328,7 @@ class PCancelable {
 
 Object.setPrototypeOf(PCancelable.prototype, Promise.prototype);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/errors.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/errors.js
 
 // A hacky check to prevent circular references.
 function isRequest(x) {
@@ -40579,7 +40595,7 @@ const timer = (request) => {
 const external_node_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
 // EXTERNAL MODULE: external "node:crypto"
 var external_node_crypto_ = __nccwpck_require__(7598);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/normalize-url@8.0.2/node_modules/normalize-url/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/normalize-url@8.1.0/node_modules/normalize-url/index.js
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
 const DATA_URL_DEFAULT_MIME_TYPE = 'text/plain';
 const DATA_URL_DEFAULT_CHARSET = 'us-ascii';
@@ -40671,6 +40687,8 @@ function normalizeUrl(urlString, options) {
 		removeDirectoryIndex: false,
 		removeExplicitPort: false,
 		sortQueryParameters: true,
+		removePath: false,
+		transformPath: false,
 		...options,
 	};
 
@@ -40782,6 +40800,18 @@ function normalizeUrl(urlString, options) {
 		}
 	}
 
+	// Remove path
+	if (options.removePath) {
+		urlObject.pathname = '/';
+	}
+
+	// Transform path components
+	if (options.transformPath && typeof options.transformPath === 'function') {
+		const pathComponents = urlObject.pathname.split('/').filter(Boolean);
+		const newComponents = options.transformPath(pathComponents);
+		urlObject.pathname = newComponents?.length > 0 ? `/${newComponents.join('/')}` : '/';
+	}
+
 	if (urlObject.hostname) {
 		// Remove trailing dot
 		urlObject.hostname = urlObject.hostname.replace(/\.$/, '');
@@ -40822,12 +40852,21 @@ function normalizeUrl(urlString, options) {
 
 	// Sort query parameters
 	if (options.sortQueryParameters) {
+		const originalSearch = urlObject.search;
 		urlObject.searchParams.sort();
 
 		// Calling `.sort()` encodes the search parameters, so we need to decode them again.
 		try {
 			urlObject.search = decodeURIComponent(urlObject.search);
 		} catch {}
+
+		// Fix parameters that originally had no equals sign but got one added by URLSearchParams
+		const partsWithoutEquals = originalSearch.slice(1).split('&').filter(p => p && !p.includes('='));
+		for (const part of partsWithoutEquals) {
+			const decoded = decodeURIComponent(part);
+			// Only replace at word boundaries to avoid partial matches
+			urlObject.search = urlObject.search.replace(`?${decoded}=`, `?${decoded}`).replace(`&${decoded}=`, `&${decoded}`);
+		}
 	}
 
 	if (options.removeTrailingSlash) {
@@ -42085,13 +42124,13 @@ getContentLength_fn = function() {
 
 // EXTERNAL MODULE: external "node:util"
 var external_node_util_ = __nccwpck_require__(7975);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/is-form-data.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/is-form-data.js
 
 function is_form_data_isFormData(body) {
     return distribution.nodeStream(body) && distribution.function(body.getBoundary);
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/get-body-size.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/get-body-size.js
 
 
 
@@ -42115,7 +42154,7 @@ async function getBodySize(body, headers) {
     return undefined;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/proxy-events.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/proxy-events.js
 function proxyEvents(from, to, events) {
     const eventFunctions = {};
     for (const event of events) {
@@ -42134,7 +42173,7 @@ function proxyEvents(from, to, events) {
 
 ;// CONCATENATED MODULE: external "node:net"
 const external_node_net_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:net");
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/unhandle.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/unhandle.js
 // When attaching listeners, it's very easy to forget about them.
 // Especially if you do error handling and set timeouts.
 // So instead of checking if it's proper to throw an error on every timeout ever,
@@ -42156,7 +42195,7 @@ function unhandle() {
     };
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/timed-out.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/timed-out.js
 
 
 const reentry = Symbol('reentry');
@@ -42295,7 +42334,7 @@ function timedOut(request, delays, options) {
     return cancelTimeouts;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/url-to-options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/url-to-options.js
 
 function urlToOptions(url) {
     // Cast to URL
@@ -42319,7 +42358,7 @@ function urlToOptions(url) {
     return options;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/weakable-map.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/weakable-map.js
 class WeakableMap {
     weakMap;
     map;
@@ -42349,7 +42388,7 @@ class WeakableMap {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/calculate-retry-delay.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/calculate-retry-delay.js
 const calculateRetryDelay = ({ attemptCount, retryOptions, error, retryAfter, computedValue, }) => {
     if (error.name === 'RetryError') {
         return 1;
@@ -42838,7 +42877,7 @@ class CacheableLookup {
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/http2-wrapper@2.2.1/node_modules/http2-wrapper/source/index.js
 var http2_wrapper_source = __nccwpck_require__(5409);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/parse-link-header.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/parse-link-header.js
 function parseLinkHeader(link) {
     const parsed = [];
     const items = link.split(',');
@@ -42873,7 +42912,7 @@ function parseLinkHeader(link) {
     return parsed;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/options.js
 
 
 
@@ -44137,6 +44176,8 @@ class Options {
     The `calculateDelay` property is a `function` that receives an object with `attemptCount`, `retryOptions`, `error` and `computedValue` properties for current retry count, the retry options, error and default computed value.
     The function must return a delay in milliseconds (or a Promise resolving with it) (`0` return value cancels retry).
 
+    __Note:__ When you provide `calculateDelay`, you take full control of retry decisions. The `limit` option is not automatically enforced - you must check `attemptCount` yourself or return `0` when `computedValue` is `0` to respect the default retry logic.
+
     By default, it retries *only* on the specified methods, status codes, and on these network errors:
 
     - `ETIMEDOUT`: One of the [timeout](#timeout) limits were reached.
@@ -44513,7 +44554,7 @@ class Options {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/response.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/response.js
 
 const isResponseOk = (response) => {
     const { statusCode } = response;
@@ -44556,19 +44597,19 @@ const parseBody = (response, responseType, parseJson, encoding) => {
     }, response);
 };
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/is-client-request.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/is-client-request.js
 function isClientRequest(clientRequest) {
     return clientRequest.writable && !clientRequest.writableEnded;
 }
 /* harmony default export */ const is_client_request = (isClientRequest);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function isUnixSocketURL(url) {
     return url.protocol === 'unix:' || url.hostname === 'unix';
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/core/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/index.js
 
 
 
@@ -45020,10 +45061,22 @@ class Request extends external_node_stream_.Duplex {
         const { options } = this;
         const { url } = options;
         this._nativeResponse = response;
-        if (options.decompress) {
+        const statusCode = response.statusCode;
+        const { method } = options;
+        // Skip decompression for responses that must not have bodies per RFC 9110:
+        // - HEAD responses (any status code)
+        // - 1xx (Informational): 100, 101, 102, 103, etc.
+        // - 204 (No Content)
+        // - 205 (Reset Content)
+        // - 304 (Not Modified)
+        const hasNoBody = method === 'HEAD'
+            || (statusCode >= 100 && statusCode < 200)
+            || statusCode === 204
+            || statusCode === 205
+            || statusCode === 304;
+        if (options.decompress && !hasNoBody) {
             response = decompress_response(response);
         }
-        const statusCode = response.statusCode;
         const typedResponse = response;
         typedResponse.statusMessage = typedResponse.statusMessage ?? external_node_http_.STATUS_CODES[statusCode];
         typedResponse.url = options.url.toString();
@@ -45575,7 +45628,7 @@ class Request extends external_node_stream_.Duplex {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/as-promise/types.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/as-promise/types.js
 
 /**
 An error to be thrown when the request is aborted with `.cancel()`.
@@ -45594,7 +45647,7 @@ class types_CancelError extends RequestError {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/as-promise/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/as-promise/index.js
 
 
 
@@ -45760,7 +45813,7 @@ function asPromise(firstRequest) {
     return promise;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/create.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/create.js
 
 
 
@@ -45942,7 +45995,7 @@ const create = (defaults) => {
 };
 /* harmony default export */ const source_create = (create);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.8/node_modules/got/dist/source/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/index.js
 
 
 const defaults = {
@@ -46193,8 +46246,8 @@ var index_esm = __nccwpck_require__(4214);
 var dist = __nccwpck_require__(138);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
-// EXTERNAL MODULE: ./src/coveralls.ts + 46 modules
-var coveralls = __nccwpck_require__(8599);
+// EXTERNAL MODULE: ./src/coveralls.ts + 47 modules
+var coveralls = __nccwpck_require__(779);
 ;// CONCATENATED MODULE: ./src/gcovr.ts
 
 
@@ -46344,7 +46397,7 @@ async function run(inputs) {
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 /* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(138);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(7611);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(8599);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(779);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(7578);
 /* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(3655);
 
