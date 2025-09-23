@@ -43,8 +43,8 @@ importers:
         specifier: ^24.3.0
         version: 24.3.0
       '@vercel/ncc':
-        specifier: ^0.38.3
-        version: 0.38.3
+        specifier: ^0.38.4
+        version: 0.38.4
       eslint:
         specifier: ^9.35.0
         version: 9.35.0(jiti@2.5.1)
@@ -315,8 +315,8 @@ packages:
     resolution: {integrity: sha512-sOx1PKSuFwnIl7z4RN0Ls7N9AQawmR9r66eI5rFCzLDIs8HTIYrIpH9QjYWoX0lkgGrkLxXhi4QnK7MizPRrIg==}
     engines: {node: '>=20.0.0'}
 
-  '@vercel/ncc@0.38.3':
-    resolution: {integrity: sha512-rnK6hJBS6mwc+Bkab+PGPs9OiS0i/3kdTO+CkI8V0/VrW3vmz7O2Pxjw/owOlmo6PKEIxRSeZKv/kuL9itnpYA==}
+  '@vercel/ncc@0.38.4':
+    resolution: {integrity: sha512-8LwjnlP39s08C08J5NstzriPvW1SP8Zfpp1BvC2sI35kPeZnHfxVkCwu4/+Wodgnd60UtT1n8K8zw+Mp7J9JmQ==}
     hasBin: true
 
   abort-controller@3.0.0:
@@ -1386,7 +1386,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vercel/ncc@0.38.3': {}
+  '@vercel/ncc@0.38.4': {}
 
   abort-controller@3.0.0:
     dependencies:
