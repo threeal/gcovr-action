@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@actions/cache": "^4.0.5",
+    "@actions/cache": "^4.1.0",
     "@actions/exec": "^1.1.1",
     "@actions/io": "^1.1.3",
     "catched-error-message": "^0.0.1",
