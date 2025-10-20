@@ -7564,71 +7564,6 @@ formatters.O = function (v) {
 
 /***/ }),
 
-/***/ 5459:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-const {Transform, PassThrough} = __nccwpck_require__(2203);
-const zlib = __nccwpck_require__(3106);
-const mimicResponse = __nccwpck_require__(3897);
-
-module.exports = response => {
-	const contentEncoding = (response.headers['content-encoding'] || '').toLowerCase();
-
-	if (!['gzip', 'deflate', 'br'].includes(contentEncoding)) {
-		return response;
-	}
-
-	// TODO: Remove this when targeting Node.js 12.
-	const isBrotli = contentEncoding === 'br';
-	if (isBrotli && typeof zlib.createBrotliDecompress !== 'function') {
-		response.destroy(new Error('Brotli is not supported on Node.js < 12'));
-		return response;
-	}
-
-	let isEmpty = true;
-
-	const checker = new Transform({
-		transform(data, _encoding, callback) {
-			isEmpty = false;
-
-			callback(null, data);
-		},
-
-		flush(callback) {
-			callback();
-		}
-	});
-
-	const finalStream = new PassThrough({
-		autoDestroy: false,
-		destroy(error, callback) {
-			response.destroy();
-
-			callback(error);
-		}
-	});
-
-	const decompressStream = isBrotli ? zlib.createBrotliDecompress() : zlib.createUnzip();
-
-	decompressStream.once('error', error => {
-		if (isEmpty && !response.readable) {
-			finalStream.end();
-			return;
-		}
-
-		finalStream.destroy(error);
-	});
-
-	mimicResponse(response, finalStream);
-	response.pipe(checker).pipe(decompressStream).pipe(finalStream);
-
-	return finalStream;
-};
-
-
-/***/ }),
-
 /***/ 6181:
 /***/ ((module, exports) => {
 
@@ -11488,421 +11423,6 @@ function parseProxyResponse(socket) {
 }
 exports.parseProxyResponse = parseProxyResponse;
 //# sourceMappingURL=parse-proxy-response.js.map
-
-/***/ }),
-
-/***/ 8339:
-/***/ ((__unused_webpack_module, exports) => {
-
-//TODO: handle reviver/dehydrate function like normal
-//and handle indentation, like normal.
-//if anyone needs this... please send pull request.
-
-exports.stringify = function stringify (o) {
-  if('undefined' == typeof o) return o
-
-  if(o && Buffer.isBuffer(o))
-    return JSON.stringify(':base64:' + o.toString('base64'))
-
-  if(o && o.toJSON)
-    o =  o.toJSON()
-
-  if(o && 'object' === typeof o) {
-    var s = ''
-    var array = Array.isArray(o)
-    s = array ? '[' : '{'
-    var first = true
-
-    for(var k in o) {
-      var ignore = 'function' == typeof o[k] || (!array && 'undefined' === typeof o[k])
-      if(Object.hasOwnProperty.call(o, k) && !ignore) {
-        if(!first)
-          s += ','
-        first = false
-        if (array) {
-          if(o[k] == undefined)
-            s += 'null'
-          else
-            s += stringify(o[k])
-        } else if (o[k] !== void(0)) {
-          s += stringify(k) + ':' + stringify(o[k])
-        }
-      }
-    }
-
-    s += array ? ']' : '}'
-
-    return s
-  } else if ('string' === typeof o) {
-    return JSON.stringify(/^:/.test(o) ? ':' + o : o)
-  } else if ('undefined' === typeof o) {
-    return 'null';
-  } else
-    return JSON.stringify(o)
-}
-
-exports.parse = function (s) {
-  return JSON.parse(s, function (key, value) {
-    if('string' === typeof value) {
-      if(/^:base64:/.test(value))
-        return Buffer.from(value.substring(8), 'base64')
-      else
-        return /^:/.test(value) ? value.substring(1) : value 
-    }
-    return value
-  })
-}
-
-
-/***/ }),
-
-/***/ 5277:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
-const EventEmitter = __nccwpck_require__(4434);
-const JSONB = __nccwpck_require__(8339);
-
-const loadStore = options => {
-	const adapters = {
-		redis: '@keyv/redis',
-		rediss: '@keyv/redis',
-		mongodb: '@keyv/mongo',
-		mongo: '@keyv/mongo',
-		sqlite: '@keyv/sqlite',
-		postgresql: '@keyv/postgres',
-		postgres: '@keyv/postgres',
-		mysql: '@keyv/mysql',
-		etcd: '@keyv/etcd',
-		offline: '@keyv/offline',
-		tiered: '@keyv/tiered',
-	};
-	if (options.adapter || options.uri) {
-		const adapter = options.adapter || /^[^:+]*/.exec(options.uri)[0];
-		return new (__WEBPACK_EXTERNAL_createRequire(import.meta.url)(adapters[adapter]))(options);
-	}
-
-	return new Map();
-};
-
-const iterableAdapters = [
-	'sqlite',
-	'postgres',
-	'mysql',
-	'mongo',
-	'redis',
-	'tiered',
-];
-
-class Keyv extends EventEmitter {
-	constructor(uri, {emitErrors = true, ...options} = {}) {
-		super();
-		this.opts = {
-			namespace: 'keyv',
-			serialize: JSONB.stringify,
-			deserialize: JSONB.parse,
-			...((typeof uri === 'string') ? {uri} : uri),
-			...options,
-		};
-
-		if (!this.opts.store) {
-			const adapterOptions = {...this.opts};
-			this.opts.store = loadStore(adapterOptions);
-		}
-
-		if (this.opts.compression) {
-			const compression = this.opts.compression;
-			this.opts.serialize = compression.serialize.bind(compression);
-			this.opts.deserialize = compression.deserialize.bind(compression);
-		}
-
-		if (typeof this.opts.store.on === 'function' && emitErrors) {
-			this.opts.store.on('error', error => this.emit('error', error));
-		}
-
-		this.opts.store.namespace = this.opts.namespace;
-
-		const generateIterator = iterator => async function * () {
-			for await (const [key, raw] of typeof iterator === 'function'
-				? iterator(this.opts.store.namespace)
-				: iterator) {
-				const data = await this.opts.deserialize(raw);
-				if (this.opts.store.namespace && !key.includes(this.opts.store.namespace)) {
-					continue;
-				}
-
-				if (typeof data.expires === 'number' && Date.now() > data.expires) {
-					this.delete(key);
-					continue;
-				}
-
-				yield [this._getKeyUnprefix(key), data.value];
-			}
-		};
-
-		// Attach iterators
-		if (typeof this.opts.store[Symbol.iterator] === 'function' && this.opts.store instanceof Map) {
-			this.iterator = generateIterator(this.opts.store);
-		} else if (typeof this.opts.store.iterator === 'function' && this.opts.store.opts
-			&& this._checkIterableAdaptar()) {
-			this.iterator = generateIterator(this.opts.store.iterator.bind(this.opts.store));
-		}
-	}
-
-	_checkIterableAdaptar() {
-		return iterableAdapters.includes(this.opts.store.opts.dialect)
-			|| iterableAdapters.findIndex(element => this.opts.store.opts.url.includes(element)) >= 0;
-	}
-
-	_getKeyPrefix(key) {
-		return `${this.opts.namespace}:${key}`;
-	}
-
-	_getKeyPrefixArray(keys) {
-		return keys.map(key => `${this.opts.namespace}:${key}`);
-	}
-
-	_getKeyUnprefix(key) {
-		return key
-			.split(':')
-			.splice(1)
-			.join(':');
-	}
-
-	get(key, options) {
-		const {store} = this.opts;
-		const isArray = Array.isArray(key);
-		const keyPrefixed = isArray ? this._getKeyPrefixArray(key) : this._getKeyPrefix(key);
-		if (isArray && store.getMany === undefined) {
-			const promises = [];
-			for (const key of keyPrefixed) {
-				promises.push(Promise.resolve()
-					.then(() => store.get(key))
-					.then(data => (typeof data === 'string') ? this.opts.deserialize(data) : (this.opts.compression ? this.opts.deserialize(data) : data))
-					.then(data => {
-						if (data === undefined || data === null) {
-							return undefined;
-						}
-
-						if (typeof data.expires === 'number' && Date.now() > data.expires) {
-							return this.delete(key).then(() => undefined);
-						}
-
-						return (options && options.raw) ? data : data.value;
-					}),
-				);
-			}
-
-			return Promise.allSettled(promises)
-				.then(values => {
-					const data = [];
-					for (const value of values) {
-						data.push(value.value);
-					}
-
-					return data;
-				});
-		}
-
-		return Promise.resolve()
-			.then(() => isArray ? store.getMany(keyPrefixed) : store.get(keyPrefixed))
-			.then(data => (typeof data === 'string') ? this.opts.deserialize(data) : (this.opts.compression ? this.opts.deserialize(data) : data))
-			.then(data => {
-				if (data === undefined || data === null) {
-					return undefined;
-				}
-
-				if (isArray) {
-					return data.map((row, index) => {
-						if ((typeof row === 'string')) {
-							row = this.opts.deserialize(row);
-						}
-
-						if (row === undefined || row === null) {
-							return undefined;
-						}
-
-						if (typeof row.expires === 'number' && Date.now() > row.expires) {
-							this.delete(key[index]).then(() => undefined);
-							return undefined;
-						}
-
-						return (options && options.raw) ? row : row.value;
-					});
-				}
-
-				if (typeof data.expires === 'number' && Date.now() > data.expires) {
-					return this.delete(key).then(() => undefined);
-				}
-
-				return (options && options.raw) ? data : data.value;
-			});
-	}
-
-	set(key, value, ttl) {
-		const keyPrefixed = this._getKeyPrefix(key);
-		if (typeof ttl === 'undefined') {
-			ttl = this.opts.ttl;
-		}
-
-		if (ttl === 0) {
-			ttl = undefined;
-		}
-
-		const {store} = this.opts;
-
-		return Promise.resolve()
-			.then(() => {
-				const expires = (typeof ttl === 'number') ? (Date.now() + ttl) : null;
-				if (typeof value === 'symbol') {
-					this.emit('error', 'symbol cannot be serialized');
-				}
-
-				value = {value, expires};
-				return this.opts.serialize(value);
-			})
-			.then(value => store.set(keyPrefixed, value, ttl))
-			.then(() => true);
-	}
-
-	delete(key) {
-		const {store} = this.opts;
-		if (Array.isArray(key)) {
-			const keyPrefixed = this._getKeyPrefixArray(key);
-			if (store.deleteMany === undefined) {
-				const promises = [];
-				for (const key of keyPrefixed) {
-					promises.push(store.delete(key));
-				}
-
-				return Promise.allSettled(promises)
-					.then(values => values.every(x => x.value === true));
-			}
-
-			return Promise.resolve()
-				.then(() => store.deleteMany(keyPrefixed));
-		}
-
-		const keyPrefixed = this._getKeyPrefix(key);
-		return Promise.resolve()
-			.then(() => store.delete(keyPrefixed));
-	}
-
-	clear() {
-		const {store} = this.opts;
-		return Promise.resolve()
-			.then(() => store.clear());
-	}
-
-	has(key) {
-		const keyPrefixed = this._getKeyPrefix(key);
-		const {store} = this.opts;
-		return Promise.resolve()
-			.then(async () => {
-				if (typeof store.has === 'function') {
-					return store.has(keyPrefixed);
-				}
-
-				const value = await store.get(keyPrefixed);
-				return value !== undefined;
-			});
-	}
-
-	disconnect() {
-		const {store} = this.opts;
-		if (typeof store.disconnect === 'function') {
-			return store.disconnect();
-		}
-	}
-}
-
-module.exports = Keyv;
-
-
-/***/ }),
-
-/***/ 3897:
-/***/ ((module) => {
-
-
-
-// We define these manually to ensure they're always copied
-// even if they would move up the prototype chain
-// https://nodejs.org/api/http.html#http_class_http_incomingmessage
-const knownProperties = [
-	'aborted',
-	'complete',
-	'headers',
-	'httpVersion',
-	'httpVersionMinor',
-	'httpVersionMajor',
-	'method',
-	'rawHeaders',
-	'rawTrailers',
-	'setTimeout',
-	'socket',
-	'statusCode',
-	'statusMessage',
-	'trailers',
-	'url'
-];
-
-module.exports = (fromStream, toStream) => {
-	if (toStream._readableState.autoDestroy) {
-		throw new Error('The second stream must have the `autoDestroy` option set to `false`');
-	}
-
-	const fromProperties = new Set(Object.keys(fromStream).concat(knownProperties));
-
-	const properties = {};
-
-	for (const property of fromProperties) {
-		// Don't overwrite existing properties.
-		if (property in toStream) {
-			continue;
-		}
-
-		properties[property] = {
-			get() {
-				const value = fromStream[property];
-				const isFunction = typeof value === 'function';
-
-				return isFunction ? value.bind(fromStream) : value;
-			},
-			set(value) {
-				fromStream[property] = value;
-			},
-			enumerable: true,
-			configurable: false
-		};
-	}
-
-	Object.defineProperties(toStream, properties);
-
-	fromStream.once('aborted', () => {
-		toStream.destroy();
-
-		toStream.emit('aborted');
-	});
-
-	fromStream.once('close', () => {
-		if (fromStream.complete) {
-			if (toStream.readable) {
-				toStream.once('end', () => {
-					toStream.emit('close');
-				});
-			} else {
-				toStream.emit('close');
-			}
-		} else {
-			toStream.emit('close');
-		}
-	});
-
-	return toStream;
-};
-
 
 /***/ }),
 
@@ -37915,7 +37435,7 @@ function processInputs() {
 
 /***/ }),
 
-/***/ 6634:
+/***/ 2971:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -40328,7 +39848,7 @@ class PCancelable {
 
 Object.setPrototypeOf(PCancelable.prototype, Promise.prototype);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/errors.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/errors.js
 
 // A hacky check to prevent circular references.
 function isRequest(x) {
@@ -40591,320 +40111,10 @@ const timer = (request) => {
 };
 /* harmony default export */ const dist_source = (timer);
 
-;// CONCATENATED MODULE: external "node:url"
-const external_node_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
 // EXTERNAL MODULE: external "node:crypto"
 var external_node_crypto_ = __nccwpck_require__(7598);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/normalize-url@8.1.0/node_modules/normalize-url/index.js
-// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
-const DATA_URL_DEFAULT_MIME_TYPE = 'text/plain';
-const DATA_URL_DEFAULT_CHARSET = 'us-ascii';
-
-const testParameter = (name, filters) => filters.some(filter => filter instanceof RegExp ? filter.test(name) : filter === name);
-
-const supportedProtocols = new Set([
-	'https:',
-	'http:',
-	'file:',
-]);
-
-const hasCustomProtocol = urlString => {
-	try {
-		const {protocol} = new URL(urlString);
-
-		return protocol.endsWith(':')
-			&& !protocol.includes('.')
-			&& !supportedProtocols.has(protocol);
-	} catch {
-		return false;
-	}
-};
-
-const normalizeDataURL = (urlString, {stripHash}) => {
-	const match = /^data:(?<type>[^,]*?),(?<data>[^#]*?)(?:#(?<hash>.*))?$/.exec(urlString);
-
-	if (!match) {
-		throw new Error(`Invalid URL: ${urlString}`);
-	}
-
-	let {type, data, hash} = match.groups;
-	const mediaType = type.split(';');
-	hash = stripHash ? '' : hash;
-
-	let isBase64 = false;
-	if (mediaType[mediaType.length - 1] === 'base64') {
-		mediaType.pop();
-		isBase64 = true;
-	}
-
-	// Lowercase MIME type
-	const mimeType = mediaType.shift()?.toLowerCase() ?? '';
-	const attributes = mediaType
-		.map(attribute => {
-			let [key, value = ''] = attribute.split('=').map(string => string.trim());
-
-			// Lowercase `charset`
-			if (key === 'charset') {
-				value = value.toLowerCase();
-
-				if (value === DATA_URL_DEFAULT_CHARSET) {
-					return '';
-				}
-			}
-
-			return `${key}${value ? `=${value}` : ''}`;
-		})
-		.filter(Boolean);
-
-	const normalizedMediaType = [
-		...attributes,
-	];
-
-	if (isBase64) {
-		normalizedMediaType.push('base64');
-	}
-
-	if (normalizedMediaType.length > 0 || (mimeType && mimeType !== DATA_URL_DEFAULT_MIME_TYPE)) {
-		normalizedMediaType.unshift(mimeType);
-	}
-
-	return `data:${normalizedMediaType.join(';')},${isBase64 ? data.trim() : data}${hash ? `#${hash}` : ''}`;
-};
-
-function normalizeUrl(urlString, options) {
-	options = {
-		defaultProtocol: 'http',
-		normalizeProtocol: true,
-		forceHttp: false,
-		forceHttps: false,
-		stripAuthentication: true,
-		stripHash: false,
-		stripTextFragment: true,
-		stripWWW: true,
-		removeQueryParameters: [/^utm_\w+/i],
-		removeTrailingSlash: true,
-		removeSingleSlash: true,
-		removeDirectoryIndex: false,
-		removeExplicitPort: false,
-		sortQueryParameters: true,
-		removePath: false,
-		transformPath: false,
-		...options,
-	};
-
-	// Legacy: Append `:` to the protocol if missing.
-	if (typeof options.defaultProtocol === 'string' && !options.defaultProtocol.endsWith(':')) {
-		options.defaultProtocol = `${options.defaultProtocol}:`;
-	}
-
-	urlString = urlString.trim();
-
-	// Data URL
-	if (/^data:/i.test(urlString)) {
-		return normalizeDataURL(urlString, options);
-	}
-
-	if (hasCustomProtocol(urlString)) {
-		return urlString;
-	}
-
-	const hasRelativeProtocol = urlString.startsWith('//');
-	const isRelativeUrl = !hasRelativeProtocol && /^\.*\//.test(urlString);
-
-	// Prepend protocol
-	if (!isRelativeUrl) {
-		urlString = urlString.replace(/^(?!(?:\w+:)?\/\/)|^\/\//, options.defaultProtocol);
-	}
-
-	const urlObject = new URL(urlString);
-
-	if (options.forceHttp && options.forceHttps) {
-		throw new Error('The `forceHttp` and `forceHttps` options cannot be used together');
-	}
-
-	if (options.forceHttp && urlObject.protocol === 'https:') {
-		urlObject.protocol = 'http:';
-	}
-
-	if (options.forceHttps && urlObject.protocol === 'http:') {
-		urlObject.protocol = 'https:';
-	}
-
-	// Remove auth
-	if (options.stripAuthentication) {
-		urlObject.username = '';
-		urlObject.password = '';
-	}
-
-	// Remove hash
-	if (options.stripHash) {
-		urlObject.hash = '';
-	} else if (options.stripTextFragment) {
-		urlObject.hash = urlObject.hash.replace(/#?:~:text.*?$/i, '');
-	}
-
-	// Remove duplicate slashes if not preceded by a protocol
-	// NOTE: This could be implemented using a single negative lookbehind
-	// regex, but we avoid that to maintain compatibility with older js engines
-	// which do not have support for that feature.
-	if (urlObject.pathname) {
-		// TODO: Replace everything below with `urlObject.pathname = urlObject.pathname.replace(/(?<!\b[a-z][a-z\d+\-.]{1,50}:)\/{2,}/g, '/');` when Safari supports negative lookbehind.
-
-		// Split the string by occurrences of this protocol regex, and perform
-		// duplicate-slash replacement on the strings between those occurrences
-		// (if any).
-		const protocolRegex = /\b[a-z][a-z\d+\-.]{1,50}:\/\//g;
-
-		let lastIndex = 0;
-		let result = '';
-		for (;;) {
-			const match = protocolRegex.exec(urlObject.pathname);
-			if (!match) {
-				break;
-			}
-
-			const protocol = match[0];
-			const protocolAtIndex = match.index;
-			const intermediate = urlObject.pathname.slice(lastIndex, protocolAtIndex);
-
-			result += intermediate.replace(/\/{2,}/g, '/');
-			result += protocol;
-			lastIndex = protocolAtIndex + protocol.length;
-		}
-
-		const remnant = urlObject.pathname.slice(lastIndex, urlObject.pathname.length);
-		result += remnant.replace(/\/{2,}/g, '/');
-
-		urlObject.pathname = result;
-	}
-
-	// Decode URI octets
-	if (urlObject.pathname) {
-		try {
-			urlObject.pathname = decodeURI(urlObject.pathname).replace(/\\/g, '%5C');
-		} catch {}
-	}
-
-	// Remove directory index
-	if (options.removeDirectoryIndex === true) {
-		options.removeDirectoryIndex = [/^index\.[a-z]+$/];
-	}
-
-	if (Array.isArray(options.removeDirectoryIndex) && options.removeDirectoryIndex.length > 0) {
-		let pathComponents = urlObject.pathname.split('/');
-		const lastComponent = pathComponents[pathComponents.length - 1];
-
-		if (testParameter(lastComponent, options.removeDirectoryIndex)) {
-			pathComponents = pathComponents.slice(0, -1);
-			urlObject.pathname = pathComponents.slice(1).join('/') + '/';
-		}
-	}
-
-	// Remove path
-	if (options.removePath) {
-		urlObject.pathname = '/';
-	}
-
-	// Transform path components
-	if (options.transformPath && typeof options.transformPath === 'function') {
-		const pathComponents = urlObject.pathname.split('/').filter(Boolean);
-		const newComponents = options.transformPath(pathComponents);
-		urlObject.pathname = newComponents?.length > 0 ? `/${newComponents.join('/')}` : '/';
-	}
-
-	if (urlObject.hostname) {
-		// Remove trailing dot
-		urlObject.hostname = urlObject.hostname.replace(/\.$/, '');
-
-		// Remove `www.`
-		if (options.stripWWW && /^www\.(?!www\.)[a-z\-\d]{1,63}\.[a-z.\-\d]{2,63}$/.test(urlObject.hostname)) {
-			// Each label should be max 63 at length (min: 1).
-			// Source: https://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names
-			// Each TLD should be up to 63 characters long (min: 2).
-			// It is technically possible to have a single character TLD, but none currently exist.
-			urlObject.hostname = urlObject.hostname.replace(/^www\./, '');
-		}
-	}
-
-	// Remove query unwanted parameters
-	if (Array.isArray(options.removeQueryParameters)) {
-		// eslint-disable-next-line unicorn/no-useless-spread -- We are intentionally spreading to get a copy.
-		for (const key of [...urlObject.searchParams.keys()]) {
-			if (testParameter(key, options.removeQueryParameters)) {
-				urlObject.searchParams.delete(key);
-			}
-		}
-	}
-
-	if (!Array.isArray(options.keepQueryParameters) && options.removeQueryParameters === true) {
-		urlObject.search = '';
-	}
-
-	// Keep wanted query parameters
-	if (Array.isArray(options.keepQueryParameters) && options.keepQueryParameters.length > 0) {
-		// eslint-disable-next-line unicorn/no-useless-spread -- We are intentionally spreading to get a copy.
-		for (const key of [...urlObject.searchParams.keys()]) {
-			if (!testParameter(key, options.keepQueryParameters)) {
-				urlObject.searchParams.delete(key);
-			}
-		}
-	}
-
-	// Sort query parameters
-	if (options.sortQueryParameters) {
-		const originalSearch = urlObject.search;
-		urlObject.searchParams.sort();
-
-		// Calling `.sort()` encodes the search parameters, so we need to decode them again.
-		try {
-			urlObject.search = decodeURIComponent(urlObject.search);
-		} catch {}
-
-		// Fix parameters that originally had no equals sign but got one added by URLSearchParams
-		const partsWithoutEquals = originalSearch.slice(1).split('&').filter(p => p && !p.includes('='));
-		for (const part of partsWithoutEquals) {
-			const decoded = decodeURIComponent(part);
-			// Only replace at word boundaries to avoid partial matches
-			urlObject.search = urlObject.search.replace(`?${decoded}=`, `?${decoded}`).replace(`&${decoded}=`, `&${decoded}`);
-		}
-	}
-
-	if (options.removeTrailingSlash) {
-		urlObject.pathname = urlObject.pathname.replace(/\/$/, '');
-	}
-
-	// Remove an explicit port number, excluding a default port number, if applicable
-	if (options.removeExplicitPort && urlObject.port) {
-		urlObject.port = '';
-	}
-
-	const oldUrlString = urlString;
-
-	// Take advantage of many of the Node `url` normalizations
-	urlString = urlObject.toString();
-
-	if (!options.removeSingleSlash && urlObject.pathname === '/' && !oldUrlString.endsWith('/') && urlObject.hash === '') {
-		urlString = urlString.replace(/\/$/, '');
-	}
-
-	// Remove ending `/` unless removeSingleSlash is false
-	if ((options.removeTrailingSlash || urlObject.pathname === '/') && urlObject.hash === '' && options.removeSingleSlash) {
-		urlString = urlString.replace(/\/$/, '');
-	}
-
-	// Restore relative protocol, if applicable
-	if (hasRelativeProtocol && !options.normalizeProtocol) {
-		urlString = urlString.replace(/^http:\/\//, '//');
-	}
-
-	// Remove http/https
-	if (options.stripProtocol) {
-		urlString = urlString.replace(/^(?:https?:)?\/\//, '');
-	}
-
-	return urlString;
-}
-
+;// CONCATENATED MODULE: external "node:url"
+const external_node_url_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:url");
 ;// CONCATENATED MODULE: ./node_modules/.pnpm/is-stream@4.0.1/node_modules/is-stream/index.js
 function isStream(stream, {checkOpen = true} = {}) {
 	return stream !== null
@@ -41350,54 +40560,1007 @@ const arrayBufferToNodeBuffer = arrayBuffer => globalThis.Buffer.from(arrayBuffe
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/http-cache-semantics@4.2.0/node_modules/http-cache-semantics/index.js
 var http_cache_semantics = __nccwpck_require__(4625);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/lowercase-keys@3.0.0/node_modules/lowercase-keys/index.js
-function lowercaseKeys(object) {
-	return Object.fromEntries(Object.entries(object).map(([key, value]) => [key.toLowerCase(), value]));
-}
+// EXTERNAL MODULE: external "buffer"
+var external_buffer_ = __nccwpck_require__(181);
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@keyv+serialize@1.1.1/node_modules/@keyv/serialize/dist/index.js
+// src/index.ts
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/responselike@3.0.0/node_modules/responselike/index.js
+var _serialize = (data, escapeColonStrings = true) => {
+  if (data === void 0 || data === null) {
+    return "null";
+  }
+  if (typeof data === "string") {
+    return JSON.stringify(
+      escapeColonStrings && data.startsWith(":") ? `:${data}` : data
+    );
+  }
+  if (external_buffer_.Buffer.isBuffer(data)) {
+    return JSON.stringify(`:base64:${data.toString("base64")}`);
+  }
+  if (data?.toJSON) {
+    data = data.toJSON();
+  }
+  if (typeof data === "object") {
+    let s = "";
+    const array = Array.isArray(data);
+    s = array ? "[" : "{";
+    let first = true;
+    for (const k in data) {
+      const ignore = typeof data[k] === "function" || !array && data[k] === void 0;
+      if (!Object.hasOwn(data, k) || ignore) {
+        continue;
+      }
+      if (!first) {
+        s += ",";
+      }
+      first = false;
+      if (array) {
+        s += _serialize(data[k], escapeColonStrings);
+      } else if (data[k] !== void 0) {
+        s += `${_serialize(k, false)}:${_serialize(data[k], escapeColonStrings)}`;
+      }
+    }
+    s += array ? "]" : "}";
+    return s;
+  }
+  return JSON.stringify(data);
+};
+var defaultSerialize = (data) => {
+  return _serialize(data, true);
+};
+var defaultDeserialize = (data) => JSON.parse(data, (_, value) => {
+  if (typeof value === "string") {
+    if (value.startsWith(":base64:")) {
+      return external_buffer_.Buffer.from(value.slice(8), "base64");
+    }
+    return value.startsWith(":") ? value.slice(1) : value;
+  }
+  return value;
+});
 
 
+;// CONCATENATED MODULE: ./node_modules/.pnpm/keyv@5.5.3/node_modules/keyv/dist/index.js
+// src/index.ts
 
-class Response extends external_node_stream_.Readable {
-	statusCode;
-	headers;
-	body;
-	url;
 
-	constructor({statusCode, headers, body, url}) {
-		if (typeof statusCode !== 'number') {
-			throw new TypeError('Argument `statusCode` should be a number');
-		}
+// src/event-manager.ts
+var EventManager = class {
+  _eventListeners;
+  _maxListeners;
+  constructor() {
+    this._eventListeners = /* @__PURE__ */ new Map();
+    this._maxListeners = 100;
+  }
+  maxListeners() {
+    return this._maxListeners;
+  }
+  // Add an event listener
+  addListener(event, listener) {
+    this.on(event, listener);
+  }
+  on(event, listener) {
+    if (!this._eventListeners.has(event)) {
+      this._eventListeners.set(event, []);
+    }
+    const listeners = this._eventListeners.get(event);
+    if (listeners) {
+      if (listeners.length >= this._maxListeners) {
+        console.warn(
+          `MaxListenersExceededWarning: Possible event memory leak detected. ${listeners.length + 1} ${event} listeners added. Use setMaxListeners() to increase limit.`
+        );
+      }
+      listeners.push(listener);
+    }
+    return this;
+  }
+  // Remove an event listener
+  removeListener(event, listener) {
+    this.off(event, listener);
+  }
+  off(event, listener) {
+    const listeners = this._eventListeners.get(event) ?? [];
+    const index = listeners.indexOf(listener);
+    if (index !== -1) {
+      listeners.splice(index, 1);
+    }
+    if (listeners.length === 0) {
+      this._eventListeners.delete(event);
+    }
+  }
+  once(event, listener) {
+    const onceListener = (...arguments_) => {
+      listener(...arguments_);
+      this.off(event, onceListener);
+    };
+    this.on(event, onceListener);
+  }
+  // Emit an event
+  // biome-ignore lint/suspicious/noExplicitAny: type format
+  emit(event, ...arguments_) {
+    const listeners = this._eventListeners.get(event);
+    if (listeners && listeners.length > 0) {
+      for (const listener of listeners) {
+        listener(...arguments_);
+      }
+    }
+  }
+  // Get all listeners for a specific event
+  listeners(event) {
+    return this._eventListeners.get(event) ?? [];
+  }
+  // Remove all listeners for a specific event
+  removeAllListeners(event) {
+    if (event) {
+      this._eventListeners.delete(event);
+    } else {
+      this._eventListeners.clear();
+    }
+  }
+  // Set the maximum number of listeners for a single event
+  setMaxListeners(n) {
+    this._maxListeners = n;
+  }
+};
+var event_manager_default = EventManager;
 
-		if (typeof headers !== 'object') {
-			throw new TypeError('Argument `headers` should be an object');
-		}
+// src/hooks-manager.ts
+var HooksManager = class extends event_manager_default {
+  _hookHandlers;
+  constructor() {
+    super();
+    this._hookHandlers = /* @__PURE__ */ new Map();
+  }
+  // Adds a handler function for a specific event
+  addHandler(event, handler) {
+    const eventHandlers = this._hookHandlers.get(event);
+    if (eventHandlers) {
+      eventHandlers.push(handler);
+    } else {
+      this._hookHandlers.set(event, [handler]);
+    }
+  }
+  // Removes a specific handler function for a specific event
+  removeHandler(event, handler) {
+    const eventHandlers = this._hookHandlers.get(event);
+    if (eventHandlers) {
+      const index = eventHandlers.indexOf(handler);
+      if (index !== -1) {
+        eventHandlers.splice(index, 1);
+      }
+    }
+  }
+  // Triggers all handlers for a specific event with provided data
+  // biome-ignore lint/suspicious/noExplicitAny: type format
+  trigger(event, data) {
+    const eventHandlers = this._hookHandlers.get(event);
+    if (eventHandlers) {
+      for (const handler of eventHandlers) {
+        try {
+          handler(data);
+        } catch (error) {
+          this.emit(
+            "error",
+            new Error(
+              `Error in hook handler for event "${event}": ${error.message}`
+            )
+          );
+        }
+      }
+    }
+  }
+  // Provides read-only access to the current handlers
+  get handlers() {
+    return new Map(this._hookHandlers);
+  }
+};
+var hooks_manager_default = HooksManager;
 
-		if (!(body instanceof Uint8Array)) {
-			throw new TypeError('Argument `body` should be a buffer');
-		}
+// src/stats-manager.ts
+var StatsManager = class extends event_manager_default {
+  enabled = true;
+  hits = 0;
+  misses = 0;
+  sets = 0;
+  deletes = 0;
+  errors = 0;
+  constructor(enabled) {
+    super();
+    if (enabled !== void 0) {
+      this.enabled = enabled;
+    }
+    this.reset();
+  }
+  hit() {
+    if (this.enabled) {
+      this.hits++;
+    }
+  }
+  miss() {
+    if (this.enabled) {
+      this.misses++;
+    }
+  }
+  set() {
+    if (this.enabled) {
+      this.sets++;
+    }
+  }
+  delete() {
+    if (this.enabled) {
+      this.deletes++;
+    }
+  }
+  hitsOrMisses(array) {
+    for (const item of array) {
+      if (item === void 0) {
+        this.miss();
+      } else {
+        this.hit();
+      }
+    }
+  }
+  reset() {
+    this.hits = 0;
+    this.misses = 0;
+    this.sets = 0;
+    this.deletes = 0;
+    this.errors = 0;
+  }
+};
+var stats_manager_default = StatsManager;
 
-		if (typeof url !== 'string') {
-			throw new TypeError('Argument `url` should be a string');
-		}
+// src/index.ts
+var KeyvHooks = /* @__PURE__ */ ((KeyvHooks2) => {
+  KeyvHooks2["PRE_SET"] = "preSet";
+  KeyvHooks2["POST_SET"] = "postSet";
+  KeyvHooks2["PRE_GET"] = "preGet";
+  KeyvHooks2["POST_GET"] = "postGet";
+  KeyvHooks2["PRE_GET_MANY"] = "preGetMany";
+  KeyvHooks2["POST_GET_MANY"] = "postGetMany";
+  KeyvHooks2["PRE_GET_RAW"] = "preGetRaw";
+  KeyvHooks2["POST_GET_RAW"] = "postGetRaw";
+  KeyvHooks2["PRE_GET_MANY_RAW"] = "preGetManyRaw";
+  KeyvHooks2["POST_GET_MANY_RAW"] = "postGetManyRaw";
+  KeyvHooks2["PRE_DELETE"] = "preDelete";
+  KeyvHooks2["POST_DELETE"] = "postDelete";
+  return KeyvHooks2;
+})(KeyvHooks || {});
+var iterableAdapters = [
+  "sqlite",
+  "postgres",
+  "mysql",
+  "mongo",
+  "redis",
+  "valkey",
+  "etcd"
+];
+var Keyv = class extends event_manager_default {
+  opts;
+  iterator;
+  hooks = new hooks_manager_default();
+  stats = new stats_manager_default(false);
+  /**
+   * Time to live in milliseconds
+   */
+  _ttl;
+  /**
+   * Namespace
+   */
+  _namespace;
+  /**
+   * Store
+   */
+  // biome-ignore lint/suspicious/noExplicitAny: type format
+  _store = /* @__PURE__ */ new Map();
+  _serialize = defaultSerialize;
+  _deserialize = defaultDeserialize;
+  _compression;
+  _useKeyPrefix = true;
+  _throwOnErrors = false;
+  /**
+   * Keyv Constructor
+   * @param {KeyvStoreAdapter | KeyvOptions} store
+   * @param {Omit<KeyvOptions, 'store'>} [options] if you provide the store you can then provide the Keyv Options
+   */
+  constructor(store, options) {
+    super();
+    options ??= {};
+    store ??= {};
+    this.opts = {
+      namespace: "keyv",
+      serialize: defaultSerialize,
+      deserialize: defaultDeserialize,
+      emitErrors: true,
+      // @ts-expect-error - Map is not a KeyvStoreAdapter
+      store: /* @__PURE__ */ new Map(),
+      ...options
+    };
+    if (store && store.get) {
+      this.opts.store = store;
+    } else {
+      this.opts = {
+        ...this.opts,
+        ...store
+      };
+    }
+    this._store = this.opts.store ?? /* @__PURE__ */ new Map();
+    this._compression = this.opts.compression;
+    this._serialize = this.opts.serialize;
+    this._deserialize = this.opts.deserialize;
+    if (this.opts.namespace) {
+      this._namespace = this.opts.namespace;
+    }
+    if (this._store) {
+      if (!this._isValidStorageAdapter(this._store)) {
+        throw new Error("Invalid storage adapter");
+      }
+      if (typeof this._store.on === "function") {
+        this._store.on("error", (error) => this.emit("error", error));
+      }
+      this._store.namespace = this._namespace;
+      if (typeof this._store[Symbol.iterator] === "function" && this._store instanceof Map) {
+        this.iterator = this.generateIterator(
+          this._store
+        );
+      } else if ("iterator" in this._store && this._store.opts && this._checkIterableAdapter()) {
+        this.iterator = this.generateIterator(
+          // biome-ignore lint/style/noNonNullAssertion: need to fix
+          this._store.iterator.bind(this._store)
+        );
+      }
+    }
+    if (this.opts.stats) {
+      this.stats.enabled = this.opts.stats;
+    }
+    if (this.opts.ttl) {
+      this._ttl = this.opts.ttl;
+    }
+    if (this.opts.useKeyPrefix !== void 0) {
+      this._useKeyPrefix = this.opts.useKeyPrefix;
+    }
+    if (this.opts.throwOnErrors !== void 0) {
+      this._throwOnErrors = this.opts.throwOnErrors;
+    }
+  }
+  /**
+   * Get the current store
+   */
+  // biome-ignore lint/suspicious/noExplicitAny: type format
+  get store() {
+    return this._store;
+  }
+  /**
+   * Set the current store. This will also set the namespace, event error handler, and generate the iterator. If the store is not valid it will throw an error.
+   * @param {KeyvStoreAdapter | Map<any, any> | any} store the store to set
+   */
+  // biome-ignore lint/suspicious/noExplicitAny: type format
+  set store(store) {
+    if (this._isValidStorageAdapter(store)) {
+      this._store = store;
+      this.opts.store = store;
+      if (typeof store.on === "function") {
+        store.on("error", (error) => this.emit("error", error));
+      }
+      if (this._namespace) {
+        this._store.namespace = this._namespace;
+      }
+      if (typeof store[Symbol.iterator] === "function" && store instanceof Map) {
+        this.iterator = this.generateIterator(
+          store
+        );
+      } else if ("iterator" in store && store.opts && this._checkIterableAdapter()) {
+        this.iterator = this.generateIterator(store.iterator?.bind(store));
+      }
+    } else {
+      throw new Error("Invalid storage adapter");
+    }
+  }
+  /**
+   * Get the current compression function
+   * @returns {CompressionAdapter} The current compression function
+   */
+  get compression() {
+    return this._compression;
+  }
+  /**
+   * Set the current compression function
+   * @param {CompressionAdapter} compress The compression function to set
+   */
+  set compression(compress) {
+    this._compression = compress;
+  }
+  /**
+   * Get the current namespace.
+   * @returns {string | undefined} The current namespace.
+   */
+  get namespace() {
+    return this._namespace;
+  }
+  /**
+   * Set the current namespace.
+   * @param {string | undefined} namespace The namespace to set.
+   */
+  set namespace(namespace) {
+    this._namespace = namespace;
+    this.opts.namespace = namespace;
+    this._store.namespace = namespace;
+    if (this.opts.store) {
+      this.opts.store.namespace = namespace;
+    }
+  }
+  /**
+   * Get the current TTL.
+   * @returns {number} The current TTL.
+   */
+  get ttl() {
+    return this._ttl;
+  }
+  /**
+   * Set the current TTL.
+   * @param {number} ttl The TTL to set.
+   */
+  set ttl(ttl) {
+    this.opts.ttl = ttl;
+    this._ttl = ttl;
+  }
+  /**
+   * Get the current serialize function.
+   * @returns {Serialize} The current serialize function.
+   */
+  get serialize() {
+    return this._serialize;
+  }
+  /**
+   * Set the current serialize function.
+   * @param {Serialize} serialize The serialize function to set.
+   */
+  set serialize(serialize) {
+    this.opts.serialize = serialize;
+    this._serialize = serialize;
+  }
+  /**
+   * Get the current deserialize function.
+   * @returns {Deserialize} The current deserialize function.
+   */
+  get deserialize() {
+    return this._deserialize;
+  }
+  /**
+   * Set the current deserialize function.
+   * @param {Deserialize} deserialize The deserialize function to set.
+   */
+  set deserialize(deserialize) {
+    this.opts.deserialize = deserialize;
+    this._deserialize = deserialize;
+  }
+  /**
+   * Get the current useKeyPrefix value. This will enable or disable key prefixing.
+   * @returns {boolean} The current useKeyPrefix value.
+   * @default true
+   */
+  get useKeyPrefix() {
+    return this._useKeyPrefix;
+  }
+  /**
+   * Set the current useKeyPrefix value. This will enable or disable key prefixing.
+   * @param {boolean} value The useKeyPrefix value to set.
+   */
+  set useKeyPrefix(value) {
+    this._useKeyPrefix = value;
+    this.opts.useKeyPrefix = value;
+  }
+  /**
+   * Get the current throwErrors value. This will enable or disable throwing errors on methods in addition to emitting them.
+   * @return {boolean} The current throwOnErrors value.
+   */
+  get throwOnErrors() {
+    return this._throwOnErrors;
+  }
+  /**
+   * Set the current throwOnErrors value. This will enable or disable throwing errors on methods in addition to emitting them.
+   * @param {boolean} value The throwOnErrors value to set.
+   */
+  set throwOnErrors(value) {
+    this._throwOnErrors = value;
+    this.opts.throwOnErrors = value;
+  }
+  generateIterator(iterator) {
+    const function_ = async function* () {
+      for await (const [key, raw] of typeof iterator === "function" ? iterator(this._store.namespace) : iterator) {
+        const data = await this.deserializeData(raw);
+        if (this._useKeyPrefix && this._store.namespace && !key.includes(this._store.namespace)) {
+          continue;
+        }
+        if (typeof data.expires === "number" && Date.now() > data.expires) {
+          this.delete(key);
+          continue;
+        }
+        yield [this._getKeyUnprefix(key), data.value];
+      }
+    };
+    return function_.bind(this);
+  }
+  _checkIterableAdapter() {
+    return iterableAdapters.includes(this._store.opts.dialect) || iterableAdapters.some(
+      (element) => this._store.opts.url.includes(element)
+    );
+  }
+  _getKeyPrefix(key) {
+    if (!this._useKeyPrefix) {
+      return key;
+    }
+    if (!this._namespace) {
+      return key;
+    }
+    return `${this._namespace}:${key}`;
+  }
+  _getKeyPrefixArray(keys) {
+    if (!this._useKeyPrefix) {
+      return keys;
+    }
+    if (!this._namespace) {
+      return keys;
+    }
+    return keys.map((key) => `${this._namespace}:${key}`);
+  }
+  _getKeyUnprefix(key) {
+    if (!this._useKeyPrefix) {
+      return key;
+    }
+    return key.split(":").splice(1).join(":");
+  }
+  // biome-ignore lint/suspicious/noExplicitAny: type format
+  _isValidStorageAdapter(store) {
+    return store instanceof Map || typeof store.get === "function" && typeof store.set === "function" && typeof store.delete === "function" && typeof store.clear === "function";
+  }
+  // eslint-disable-next-line @stylistic/max-len
+  async get(key, options) {
+    const { store } = this.opts;
+    const isArray = Array.isArray(key);
+    const keyPrefixed = isArray ? this._getKeyPrefixArray(key) : this._getKeyPrefix(key);
+    const isDataExpired = (data) => typeof data.expires === "number" && Date.now() > data.expires;
+    if (isArray) {
+      if (options?.raw === true) {
+        return this.getMany(key, { raw: true });
+      }
+      return this.getMany(key, { raw: false });
+    }
+    this.hooks.trigger("preGet" /* PRE_GET */, { key: keyPrefixed });
+    let rawData;
+    try {
+      rawData = await store.get(keyPrefixed);
+    } catch (error) {
+      if (this.throwOnErrors) {
+        throw error;
+      }
+    }
+    const deserializedData = typeof rawData === "string" || this.opts.compression ? await this.deserializeData(rawData) : rawData;
+    if (deserializedData === void 0 || deserializedData === null) {
+      this.stats.miss();
+      return void 0;
+    }
+    if (isDataExpired(deserializedData)) {
+      await this.delete(key);
+      this.stats.miss();
+      return void 0;
+    }
+    this.hooks.trigger("postGet" /* POST_GET */, {
+      key: keyPrefixed,
+      value: deserializedData
+    });
+    this.stats.hit();
+    return options?.raw ? deserializedData : deserializedData.value;
+  }
+  async getMany(keys, options) {
+    const { store } = this.opts;
+    const keyPrefixed = this._getKeyPrefixArray(keys);
+    const isDataExpired = (data) => typeof data.expires === "number" && Date.now() > data.expires;
+    this.hooks.trigger("preGetMany" /* PRE_GET_MANY */, { keys: keyPrefixed });
+    if (store.getMany === void 0) {
+      const promises = keyPrefixed.map(async (key) => {
+        const rawData2 = await store.get(key);
+        const deserializedRow = typeof rawData2 === "string" || this.opts.compression ? await this.deserializeData(rawData2) : rawData2;
+        if (deserializedRow === void 0 || deserializedRow === null) {
+          return void 0;
+        }
+        if (isDataExpired(deserializedRow)) {
+          await this.delete(key);
+          return void 0;
+        }
+        return options?.raw ? deserializedRow : deserializedRow.value;
+      });
+      const deserializedRows = await Promise.allSettled(promises);
+      const result2 = deserializedRows.map(
+        // biome-ignore lint/suspicious/noExplicitAny: type format
+        (row) => row.value
+      );
+      this.hooks.trigger("postGetMany" /* POST_GET_MANY */, result2);
+      if (result2.length > 0) {
+        this.stats.hit();
+      }
+      return result2;
+    }
+    const rawData = await store.getMany(keyPrefixed);
+    const result = [];
+    const expiredKeys = [];
+    for (const index in rawData) {
+      let row = rawData[index];
+      if (typeof row === "string") {
+        row = await this.deserializeData(row);
+      }
+      if (row === void 0 || row === null) {
+        result.push(void 0);
+        continue;
+      }
+      if (isDataExpired(row)) {
+        expiredKeys.push(keys[index]);
+        result.push(void 0);
+        continue;
+      }
+      const value = options?.raw ? row : row.value;
+      result.push(value);
+    }
+    if (expiredKeys.length > 0) {
+      await this.deleteMany(expiredKeys);
+    }
+    this.hooks.trigger("postGetMany" /* POST_GET_MANY */, result);
+    if (result.length > 0) {
+      this.stats.hit();
+    }
+    return result;
+  }
+  /**
+   * Get the raw value of a key. This is the replacement for setting raw to true in the get() method.
+   * @param {string} key the key to get
+   * @returns {Promise<StoredDataRaw<Value> | undefined>} will return a StoredDataRaw<Value> or undefined if the key does not exist or is expired.
+   */
+  async getRaw(key) {
+    const { store } = this.opts;
+    const keyPrefixed = this._getKeyPrefix(key);
+    this.hooks.trigger("preGetRaw" /* PRE_GET_RAW */, { key: keyPrefixed });
+    const rawData = await store.get(keyPrefixed);
+    if (rawData === void 0 || rawData === null) {
+      this.stats.miss();
+      return void 0;
+    }
+    const deserializedData = typeof rawData === "string" || this.opts.compression ? await this.deserializeData(rawData) : rawData;
+    if (deserializedData !== void 0 && deserializedData.expires !== void 0 && deserializedData.expires !== null && // biome-ignore lint/style/noNonNullAssertion: need to fix
+    deserializedData.expires < Date.now()) {
+      this.stats.miss();
+      await this.delete(key);
+      return void 0;
+    }
+    this.stats.hit();
+    this.hooks.trigger("postGetRaw" /* POST_GET_RAW */, {
+      key: keyPrefixed,
+      value: deserializedData
+    });
+    return deserializedData;
+  }
+  /**
+   * Get the raw values of many keys. This is the replacement for setting raw to true in the getMany() method.
+   * @param {string[]} keys the keys to get
+   * @returns {Promise<Array<StoredDataRaw<Value>>>} will return an array of StoredDataRaw<Value> or undefined if the key does not exist or is expired.
+   */
+  async getManyRaw(keys) {
+    const { store } = this.opts;
+    const keyPrefixed = this._getKeyPrefixArray(keys);
+    if (keys.length === 0) {
+      const result2 = Array.from({ length: keys.length }).fill(
+        void 0
+      );
+      this.stats.misses += keys.length;
+      this.hooks.trigger("postGetManyRaw" /* POST_GET_MANY_RAW */, {
+        keys: keyPrefixed,
+        values: result2
+      });
+      return result2;
+    }
+    let result = [];
+    if (store.getMany === void 0) {
+      const promises = keyPrefixed.map(async (key) => {
+        const rawData = await store.get(key);
+        if (rawData !== void 0 && rawData !== null) {
+          return this.deserializeData(rawData);
+        }
+        return void 0;
+      });
+      const deserializedRows = await Promise.allSettled(promises);
+      result = deserializedRows.map(
+        // biome-ignore lint/suspicious/noExplicitAny: type format
+        (row) => row.value
+      );
+    } else {
+      const rawData = await store.getMany(keyPrefixed);
+      for (const row of rawData) {
+        if (row !== void 0 && row !== null) {
+          result.push(await this.deserializeData(row));
+        } else {
+          result.push(void 0);
+        }
+      }
+    }
+    const expiredKeys = [];
+    const isDataExpired = (data) => typeof data.expires === "number" && Date.now() > data.expires;
+    for (const [index, row] of result.entries()) {
+      if (row !== void 0 && isDataExpired(row)) {
+        expiredKeys.push(keyPrefixed[index]);
+        result[index] = void 0;
+      }
+    }
+    if (expiredKeys.length > 0) {
+      await this.deleteMany(expiredKeys);
+    }
+    this.stats.hitsOrMisses(result);
+    this.hooks.trigger("postGetManyRaw" /* POST_GET_MANY_RAW */, {
+      keys: keyPrefixed,
+      values: result
+    });
+    return result;
+  }
+  /**
+   * Set an item to the store
+   * @param {string | Array<KeyvEntry>} key the key to use. If you pass in an array of KeyvEntry it will set many items
+   * @param {Value} value the value of the key
+   * @param {number} [ttl] time to live in milliseconds
+   * @returns {boolean} if it sets then it will return a true. On failure will return false.
+   */
+  async set(key, value, ttl) {
+    const data = { key, value, ttl };
+    this.hooks.trigger("preSet" /* PRE_SET */, data);
+    const keyPrefixed = this._getKeyPrefix(data.key);
+    data.ttl ??= this._ttl;
+    if (data.ttl === 0) {
+      data.ttl = void 0;
+    }
+    const { store } = this.opts;
+    const expires = typeof data.ttl === "number" ? Date.now() + data.ttl : void 0;
+    if (typeof data.value === "symbol") {
+      this.emit("error", "symbol cannot be serialized");
+      throw new Error("symbol cannot be serialized");
+    }
+    const formattedValue = { value: data.value, expires };
+    const serializedValue = await this.serializeData(formattedValue);
+    let result = true;
+    try {
+      const value2 = await store.set(keyPrefixed, serializedValue, data.ttl);
+      if (typeof value2 === "boolean") {
+        result = value2;
+      }
+    } catch (error) {
+      result = false;
+      this.emit("error", error);
+      if (this._throwOnErrors) {
+        throw error;
+      }
+    }
+    this.hooks.trigger("postSet" /* POST_SET */, {
+      key: keyPrefixed,
+      value: serializedValue,
+      ttl
+    });
+    this.stats.set();
+    return result;
+  }
+  /**
+   * Set many items to the store
+   * @param {Array<KeyvEntry>} entries the entries to set
+   * @returns {boolean[]} will return an array of booleans if it sets then it will return a true. On failure will return false.
+   */
+  // biome-ignore lint/correctness/noUnusedVariables: type format
+  async setMany(entries) {
+    let results = [];
+    try {
+      if (this._store.setMany === void 0) {
+        const promises = [];
+        for (const entry of entries) {
+          promises.push(this.set(entry.key, entry.value, entry.ttl));
+        }
+        const promiseResults = await Promise.all(promises);
+        results = promiseResults;
+      } else {
+        const serializedEntries = await Promise.all(
+          entries.map(async ({ key, value, ttl }) => {
+            ttl ??= this._ttl;
+            if (ttl === 0) {
+              ttl = void 0;
+            }
+            const expires = typeof ttl === "number" ? Date.now() + ttl : void 0;
+            if (typeof value === "symbol") {
+              this.emit("error", "symbol cannot be serialized");
+              throw new Error("symbol cannot be serialized");
+            }
+            const formattedValue = { value, expires };
+            const serializedValue = await this.serializeData(formattedValue);
+            const keyPrefixed = this._getKeyPrefix(key);
+            return { key: keyPrefixed, value: serializedValue, ttl };
+          })
+        );
+        results = await this._store.setMany(serializedEntries);
+      }
+    } catch (error) {
+      this.emit("error", error);
+      if (this._throwOnErrors) {
+        throw error;
+      }
+      results = entries.map(() => false);
+    }
+    return results;
+  }
+  /**
+   * Delete an Entry
+   * @param {string | string[]} key the key to be deleted. if an array it will delete many items
+   * @returns {boolean} will return true if item or items are deleted. false if there is an error
+   */
+  async delete(key) {
+    const { store } = this.opts;
+    if (Array.isArray(key)) {
+      return this.deleteMany(key);
+    }
+    const keyPrefixed = this._getKeyPrefix(key);
+    this.hooks.trigger("preDelete" /* PRE_DELETE */, { key: keyPrefixed });
+    let result = true;
+    try {
+      const value = await store.delete(keyPrefixed);
+      if (typeof value === "boolean") {
+        result = value;
+      }
+    } catch (error) {
+      result = false;
+      this.emit("error", error);
+      if (this._throwOnErrors) {
+        throw error;
+      }
+    }
+    this.hooks.trigger("postDelete" /* POST_DELETE */, {
+      key: keyPrefixed,
+      value: result
+    });
+    this.stats.delete();
+    return result;
+  }
+  /**
+   * Delete many items from the store
+   * @param {string[]} keys the keys to be deleted
+   * @returns {boolean} will return true if item or items are deleted. false if there is an error
+   */
+  async deleteMany(keys) {
+    try {
+      const { store } = this.opts;
+      const keyPrefixed = this._getKeyPrefixArray(keys);
+      this.hooks.trigger("preDelete" /* PRE_DELETE */, { key: keyPrefixed });
+      if (store.deleteMany !== void 0) {
+        return await store.deleteMany(keyPrefixed);
+      }
+      const promises = keyPrefixed.map(async (key) => store.delete(key));
+      const results = await Promise.all(promises);
+      const returnResult = results.every(Boolean);
+      this.hooks.trigger("postDelete" /* POST_DELETE */, {
+        key: keyPrefixed,
+        value: returnResult
+      });
+      return returnResult;
+    } catch (error) {
+      this.emit("error", error);
+      if (this._throwOnErrors) {
+        throw error;
+      }
+      return false;
+    }
+  }
+  /**
+   * Clear the store
+   * @returns {void}
+   */
+  async clear() {
+    this.emit("clear");
+    const { store } = this.opts;
+    try {
+      await store.clear();
+    } catch (error) {
+      this.emit("error", error);
+      if (this._throwOnErrors) {
+        throw error;
+      }
+    }
+  }
+  async has(key) {
+    if (Array.isArray(key)) {
+      return this.hasMany(key);
+    }
+    const keyPrefixed = this._getKeyPrefix(key);
+    const { store } = this.opts;
+    if (store.has !== void 0 && !(store instanceof Map)) {
+      return store.has(keyPrefixed);
+    }
+    let rawData;
+    try {
+      rawData = await store.get(keyPrefixed);
+    } catch (error) {
+      this.emit("error", error);
+      if (this._throwOnErrors) {
+        throw error;
+      }
+      return false;
+    }
+    if (rawData) {
+      const data = await this.deserializeData(rawData);
+      if (data) {
+        if (data.expires === void 0 || data.expires === null) {
+          return true;
+        }
+        return data.expires > Date.now();
+      }
+    }
+    return false;
+  }
+  /**
+   * Check if many keys exist
+   * @param {string[]} keys the keys to check
+   * @returns {boolean[]} will return an array of booleans if the keys exist
+   */
+  async hasMany(keys) {
+    const keyPrefixed = this._getKeyPrefixArray(keys);
+    const { store } = this.opts;
+    if (store.hasMany !== void 0) {
+      return store.hasMany(keyPrefixed);
+    }
+    const results = [];
+    for (const key of keys) {
+      results.push(await this.has(key));
+    }
+    return results;
+  }
+  /**
+   * Will disconnect the store. This is only available if the store has a disconnect method
+   * @returns {Promise<void>}
+   */
+  async disconnect() {
+    const { store } = this.opts;
+    this.emit("disconnect");
+    if (typeof store.disconnect === "function") {
+      return store.disconnect();
+    }
+  }
+  // biome-ignore lint/suspicious/noExplicitAny: type format
+  emit(event, ...arguments_) {
+    if (event === "error" && !this.opts.emitErrors) {
+      return;
+    }
+    super.emit(event, ...arguments_);
+  }
+  async serializeData(data) {
+    if (!this._serialize) {
+      return data;
+    }
+    if (this._compression?.compress) {
+      return this._serialize({
+        value: await this._compression.compress(data.value),
+        expires: data.expires
+      });
+    }
+    return this._serialize(data);
+  }
+  async deserializeData(data) {
+    if (!this._deserialize) {
+      return data;
+    }
+    if (this._compression?.decompress && typeof data === "string") {
+      const result = await this._deserialize(data);
+      return {
+        value: await this._compression.decompress(result?.value),
+        expires: result?.expires
+      };
+    }
+    if (typeof data === "string") {
+      return this._deserialize(data);
+    }
+    return void 0;
+  }
+};
+var index_default = (/* unused pure expression or super */ null && (Keyv));
 
-		super({
-			read() {
-				this.push(body);
-				this.push(null);
-			},
-		});
 
-		this.statusCode = statusCode;
-		this.headers = lowercaseKeys(headers);
-		this.body = body;
-		this.url = url;
-	}
-}
-
-// EXTERNAL MODULE: ./node_modules/.pnpm/keyv@4.5.4/node_modules/keyv/src/index.js
-var src = __nccwpck_require__(5277);
 ;// CONCATENATED MODULE: ./node_modules/.pnpm/mimic-response@4.0.0/node_modules/mimic-response/index.js
 // We define these manually to ensure they're always copied
 // even if they would move up the prototype chain
@@ -41475,7 +41638,363 @@ function mimicResponse(fromStream, toStream) {
 	return toStream;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@12.0.1/node_modules/cacheable-request/dist/types.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/normalize-url@8.1.0/node_modules/normalize-url/index.js
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
+const DATA_URL_DEFAULT_MIME_TYPE = 'text/plain';
+const DATA_URL_DEFAULT_CHARSET = 'us-ascii';
+
+const testParameter = (name, filters) => filters.some(filter => filter instanceof RegExp ? filter.test(name) : filter === name);
+
+const supportedProtocols = new Set([
+	'https:',
+	'http:',
+	'file:',
+]);
+
+const hasCustomProtocol = urlString => {
+	try {
+		const {protocol} = new URL(urlString);
+
+		return protocol.endsWith(':')
+			&& !protocol.includes('.')
+			&& !supportedProtocols.has(protocol);
+	} catch {
+		return false;
+	}
+};
+
+const normalizeDataURL = (urlString, {stripHash}) => {
+	const match = /^data:(?<type>[^,]*?),(?<data>[^#]*?)(?:#(?<hash>.*))?$/.exec(urlString);
+
+	if (!match) {
+		throw new Error(`Invalid URL: ${urlString}`);
+	}
+
+	let {type, data, hash} = match.groups;
+	const mediaType = type.split(';');
+	hash = stripHash ? '' : hash;
+
+	let isBase64 = false;
+	if (mediaType[mediaType.length - 1] === 'base64') {
+		mediaType.pop();
+		isBase64 = true;
+	}
+
+	// Lowercase MIME type
+	const mimeType = mediaType.shift()?.toLowerCase() ?? '';
+	const attributes = mediaType
+		.map(attribute => {
+			let [key, value = ''] = attribute.split('=').map(string => string.trim());
+
+			// Lowercase `charset`
+			if (key === 'charset') {
+				value = value.toLowerCase();
+
+				if (value === DATA_URL_DEFAULT_CHARSET) {
+					return '';
+				}
+			}
+
+			return `${key}${value ? `=${value}` : ''}`;
+		})
+		.filter(Boolean);
+
+	const normalizedMediaType = [
+		...attributes,
+	];
+
+	if (isBase64) {
+		normalizedMediaType.push('base64');
+	}
+
+	if (normalizedMediaType.length > 0 || (mimeType && mimeType !== DATA_URL_DEFAULT_MIME_TYPE)) {
+		normalizedMediaType.unshift(mimeType);
+	}
+
+	return `data:${normalizedMediaType.join(';')},${isBase64 ? data.trim() : data}${hash ? `#${hash}` : ''}`;
+};
+
+function normalizeUrl(urlString, options) {
+	options = {
+		defaultProtocol: 'http',
+		normalizeProtocol: true,
+		forceHttp: false,
+		forceHttps: false,
+		stripAuthentication: true,
+		stripHash: false,
+		stripTextFragment: true,
+		stripWWW: true,
+		removeQueryParameters: [/^utm_\w+/i],
+		removeTrailingSlash: true,
+		removeSingleSlash: true,
+		removeDirectoryIndex: false,
+		removeExplicitPort: false,
+		sortQueryParameters: true,
+		removePath: false,
+		transformPath: false,
+		...options,
+	};
+
+	// Legacy: Append `:` to the protocol if missing.
+	if (typeof options.defaultProtocol === 'string' && !options.defaultProtocol.endsWith(':')) {
+		options.defaultProtocol = `${options.defaultProtocol}:`;
+	}
+
+	urlString = urlString.trim();
+
+	// Data URL
+	if (/^data:/i.test(urlString)) {
+		return normalizeDataURL(urlString, options);
+	}
+
+	if (hasCustomProtocol(urlString)) {
+		return urlString;
+	}
+
+	const hasRelativeProtocol = urlString.startsWith('//');
+	const isRelativeUrl = !hasRelativeProtocol && /^\.*\//.test(urlString);
+
+	// Prepend protocol
+	if (!isRelativeUrl) {
+		urlString = urlString.replace(/^(?!(?:\w+:)?\/\/)|^\/\//, options.defaultProtocol);
+	}
+
+	const urlObject = new URL(urlString);
+
+	if (options.forceHttp && options.forceHttps) {
+		throw new Error('The `forceHttp` and `forceHttps` options cannot be used together');
+	}
+
+	if (options.forceHttp && urlObject.protocol === 'https:') {
+		urlObject.protocol = 'http:';
+	}
+
+	if (options.forceHttps && urlObject.protocol === 'http:') {
+		urlObject.protocol = 'https:';
+	}
+
+	// Remove auth
+	if (options.stripAuthentication) {
+		urlObject.username = '';
+		urlObject.password = '';
+	}
+
+	// Remove hash
+	if (options.stripHash) {
+		urlObject.hash = '';
+	} else if (options.stripTextFragment) {
+		urlObject.hash = urlObject.hash.replace(/#?:~:text.*?$/i, '');
+	}
+
+	// Remove duplicate slashes if not preceded by a protocol
+	// NOTE: This could be implemented using a single negative lookbehind
+	// regex, but we avoid that to maintain compatibility with older js engines
+	// which do not have support for that feature.
+	if (urlObject.pathname) {
+		// TODO: Replace everything below with `urlObject.pathname = urlObject.pathname.replace(/(?<!\b[a-z][a-z\d+\-.]{1,50}:)\/{2,}/g, '/');` when Safari supports negative lookbehind.
+
+		// Split the string by occurrences of this protocol regex, and perform
+		// duplicate-slash replacement on the strings between those occurrences
+		// (if any).
+		const protocolRegex = /\b[a-z][a-z\d+\-.]{1,50}:\/\//g;
+
+		let lastIndex = 0;
+		let result = '';
+		for (;;) {
+			const match = protocolRegex.exec(urlObject.pathname);
+			if (!match) {
+				break;
+			}
+
+			const protocol = match[0];
+			const protocolAtIndex = match.index;
+			const intermediate = urlObject.pathname.slice(lastIndex, protocolAtIndex);
+
+			result += intermediate.replace(/\/{2,}/g, '/');
+			result += protocol;
+			lastIndex = protocolAtIndex + protocol.length;
+		}
+
+		const remnant = urlObject.pathname.slice(lastIndex, urlObject.pathname.length);
+		result += remnant.replace(/\/{2,}/g, '/');
+
+		urlObject.pathname = result;
+	}
+
+	// Decode URI octets
+	if (urlObject.pathname) {
+		try {
+			urlObject.pathname = decodeURI(urlObject.pathname).replace(/\\/g, '%5C');
+		} catch {}
+	}
+
+	// Remove directory index
+	if (options.removeDirectoryIndex === true) {
+		options.removeDirectoryIndex = [/^index\.[a-z]+$/];
+	}
+
+	if (Array.isArray(options.removeDirectoryIndex) && options.removeDirectoryIndex.length > 0) {
+		let pathComponents = urlObject.pathname.split('/');
+		const lastComponent = pathComponents[pathComponents.length - 1];
+
+		if (testParameter(lastComponent, options.removeDirectoryIndex)) {
+			pathComponents = pathComponents.slice(0, -1);
+			urlObject.pathname = pathComponents.slice(1).join('/') + '/';
+		}
+	}
+
+	// Remove path
+	if (options.removePath) {
+		urlObject.pathname = '/';
+	}
+
+	// Transform path components
+	if (options.transformPath && typeof options.transformPath === 'function') {
+		const pathComponents = urlObject.pathname.split('/').filter(Boolean);
+		const newComponents = options.transformPath(pathComponents);
+		urlObject.pathname = newComponents?.length > 0 ? `/${newComponents.join('/')}` : '/';
+	}
+
+	if (urlObject.hostname) {
+		// Remove trailing dot
+		urlObject.hostname = urlObject.hostname.replace(/\.$/, '');
+
+		// Remove `www.`
+		if (options.stripWWW && /^www\.(?!www\.)[a-z\-\d]{1,63}\.[a-z.\-\d]{2,63}$/.test(urlObject.hostname)) {
+			// Each label should be max 63 at length (min: 1).
+			// Source: https://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names
+			// Each TLD should be up to 63 characters long (min: 2).
+			// It is technically possible to have a single character TLD, but none currently exist.
+			urlObject.hostname = urlObject.hostname.replace(/^www\./, '');
+		}
+	}
+
+	// Remove query unwanted parameters
+	if (Array.isArray(options.removeQueryParameters)) {
+		// eslint-disable-next-line unicorn/no-useless-spread -- We are intentionally spreading to get a copy.
+		for (const key of [...urlObject.searchParams.keys()]) {
+			if (testParameter(key, options.removeQueryParameters)) {
+				urlObject.searchParams.delete(key);
+			}
+		}
+	}
+
+	if (!Array.isArray(options.keepQueryParameters) && options.removeQueryParameters === true) {
+		urlObject.search = '';
+	}
+
+	// Keep wanted query parameters
+	if (Array.isArray(options.keepQueryParameters) && options.keepQueryParameters.length > 0) {
+		// eslint-disable-next-line unicorn/no-useless-spread -- We are intentionally spreading to get a copy.
+		for (const key of [...urlObject.searchParams.keys()]) {
+			if (!testParameter(key, options.keepQueryParameters)) {
+				urlObject.searchParams.delete(key);
+			}
+		}
+	}
+
+	// Sort query parameters
+	if (options.sortQueryParameters) {
+		const originalSearch = urlObject.search;
+		urlObject.searchParams.sort();
+
+		// Calling `.sort()` encodes the search parameters, so we need to decode them again.
+		try {
+			urlObject.search = decodeURIComponent(urlObject.search);
+		} catch {}
+
+		// Fix parameters that originally had no equals sign but got one added by URLSearchParams
+		const partsWithoutEquals = originalSearch.slice(1).split('&').filter(p => p && !p.includes('='));
+		for (const part of partsWithoutEquals) {
+			const decoded = decodeURIComponent(part);
+			// Only replace at word boundaries to avoid partial matches
+			urlObject.search = urlObject.search.replace(`?${decoded}=`, `?${decoded}`).replace(`&${decoded}=`, `&${decoded}`);
+		}
+	}
+
+	if (options.removeTrailingSlash) {
+		urlObject.pathname = urlObject.pathname.replace(/\/$/, '');
+	}
+
+	// Remove an explicit port number, excluding a default port number, if applicable
+	if (options.removeExplicitPort && urlObject.port) {
+		urlObject.port = '';
+	}
+
+	const oldUrlString = urlString;
+
+	// Take advantage of many of the Node `url` normalizations
+	urlString = urlObject.toString();
+
+	if (!options.removeSingleSlash && urlObject.pathname === '/' && !oldUrlString.endsWith('/') && urlObject.hash === '') {
+		urlString = urlString.replace(/\/$/, '');
+	}
+
+	// Remove ending `/` unless removeSingleSlash is false
+	if ((options.removeTrailingSlash || urlObject.pathname === '/') && urlObject.hash === '' && options.removeSingleSlash) {
+		urlString = urlString.replace(/\/$/, '');
+	}
+
+	// Restore relative protocol, if applicable
+	if (hasRelativeProtocol && !options.normalizeProtocol) {
+		urlString = urlString.replace(/^http:\/\//, '//');
+	}
+
+	// Remove http/https
+	if (options.stripProtocol) {
+		urlString = urlString.replace(/^(?:https?:)?\/\//, '');
+	}
+
+	return urlString;
+}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/lowercase-keys@3.0.0/node_modules/lowercase-keys/index.js
+function lowercaseKeys(object) {
+	return Object.fromEntries(Object.entries(object).map(([key, value]) => [key.toLowerCase(), value]));
+}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/responselike@3.0.0/node_modules/responselike/index.js
+
+
+
+class Response extends external_node_stream_.Readable {
+	statusCode;
+	headers;
+	body;
+	url;
+
+	constructor({statusCode, headers, body, url}) {
+		if (typeof statusCode !== 'number') {
+			throw new TypeError('Argument `statusCode` should be a number');
+		}
+
+		if (typeof headers !== 'object') {
+			throw new TypeError('Argument `headers` should be an object');
+		}
+
+		if (!(body instanceof Uint8Array)) {
+			throw new TypeError('Argument `body` should be a buffer');
+		}
+
+		if (typeof url !== 'string') {
+			throw new TypeError('Argument `url` should be a string');
+		}
+
+		super({
+			read() {
+				this.push(body);
+				this.push(null);
+			},
+		});
+
+		this.statusCode = statusCode;
+		this.headers = lowercaseKeys(headers);
+		this.body = body;
+		this.url = url;
+	}
+}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@13.0.12/node_modules/cacheable-request/dist/types.js
 // Type definitions for cacheable-request 6.0
 // Project: https://github.com/lukechilds/cacheable-request#readme
 // Definitions by: BendingBender <https://github.com/BendingBender>
@@ -41485,17 +42004,19 @@ function mimicResponse(fromStream, toStream) {
 class types_RequestError extends Error {
     constructor(error) {
         super(error.message);
-        Object.assign(this, error);
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors(error));
     }
 }
 class types_CacheError extends Error {
     constructor(error) {
         super(error.message);
-        Object.assign(this, error);
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors(error));
     }
 }
 //# sourceMappingURL=types.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@12.0.1/node_modules/cacheable-request/dist/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@13.0.12/node_modules/cacheable-request/dist/index.js
+// biome-ignore-all lint/suspicious/noImplicitAnyLet: legacy format
+// biome-ignore-all lint/suspicious/noExplicitAny: legacy format
 
 
 
@@ -41509,37 +42030,39 @@ class types_CacheError extends Error {
 
 class CacheableRequest {
     constructor(cacheRequest, cacheAdapter) {
+        this.cache = new Keyv({ namespace: "cacheable-request" });
         this.hooks = new Map();
         this.request = () => (options, callback) => {
             let url;
-            if (typeof options === 'string') {
-                url = normalizeUrlObject(external_node_url_namespaceObject.parse(options));
+            if (typeof options === "string") {
+                url = normalizeUrlObject(parseWithWhatwg(options));
                 options = {};
             }
             else if (options instanceof external_node_url_namespaceObject.URL) {
-                url = normalizeUrlObject(external_node_url_namespaceObject.parse(options.toString()));
+                url = normalizeUrlObject(parseWithWhatwg(options.toString()));
                 options = {};
             }
             else {
-                const [pathname, ...searchParts] = (options.path ?? '').split('?');
-                const search = searchParts.length > 0
-                    ? `?${searchParts.join('?')}`
-                    : '';
+                const [pathname, ...searchParts] = (options.path ?? "").split("?");
+                const search = searchParts.length > 0 ? `?${searchParts.join("?")}` : "";
                 url = normalizeUrlObject({ ...options, pathname, search });
             }
             options = {
                 headers: {},
-                method: 'GET',
+                method: "GET",
                 cache: true,
                 strictTtl: false,
                 automaticFailover: false,
                 ...options,
                 ...urlObjectToRequestOptions(url),
             };
-            options.headers = Object.fromEntries(entries(options.headers).map(([key, value]) => [key.toLowerCase(), value]));
+            options.headers = Object.fromEntries(entries(options.headers).map(([key, value]) => [
+                key.toLowerCase(),
+                value,
+            ]));
             const ee = new external_node_events_();
             const normalizedUrlString = normalizeUrl(external_node_url_namespaceObject.format(url), {
-                stripWWW: false, // eslint-disable-line @typescript-eslint/naming-convention
+                stripWWW: false,
                 removeTrailingSlash: false,
                 stripAuthentication: false,
             });
@@ -41547,7 +42070,9 @@ class CacheableRequest {
             // POST, PATCH, and PUT requests may be cached, depending on the response
             // cache-control headers. As a result, the body of the request should be
             // added to the cache key in order to avoid collisions.
-            if (options.body && options.method !== undefined && ['POST', 'PATCH', 'PUT'].includes(options.method)) {
+            if (options.body &&
+                options.method !== undefined &&
+                ["POST", "PATCH", "PUT"].includes(options.method)) {
                 if (options.body instanceof external_node_stream_.Readable) {
                     // Streamed bodies should completely skip the cache because they may
                     // or may not be hashable and in either case the stream would need to
@@ -41555,7 +42080,7 @@ class CacheableRequest {
                     options.cache = false;
                 }
                 else {
-                    key += `:${external_node_crypto_.createHash('md5').update(options.body).digest('hex')}`;
+                    key += `:${external_node_crypto_.createHash("md5").update(options.body).digest("hex")}`;
                 }
             }
             let revalidate = false;
@@ -41563,8 +42088,11 @@ class CacheableRequest {
             const makeRequest = (options_) => {
                 madeRequest = true;
                 let requestErrored = false;
-                let requestErrorCallback = () => { };
-                const requestErrorPromise = new Promise(resolve => {
+                /* c8 ignore next 4 */
+                let requestErrorCallback = () => {
+                    /* do nothing */
+                };
+                const requestErrorPromise = new Promise((resolve) => {
                     requestErrorCallback = () => {
                         if (!requestErrored) {
                             requestErrored = true;
@@ -41578,14 +42106,16 @@ class CacheableRequest {
                         const revalidatedPolicy = http_cache_semantics.fromObject(revalidate.cachePolicy).revalidatedPolicy(options_, response);
                         if (!revalidatedPolicy.modified) {
                             response.resume();
-                            await new Promise(resolve => {
+                            await new Promise((resolve) => {
                                 // Skipping 'error' handler cause 'error' event should't be emitted for 304 response
-                                response
-                                    .once('end', resolve);
+                                response.once("end", resolve);
                             });
                             const headers = convertHeaders(revalidatedPolicy.policy.responseHeaders());
                             response = new Response({
-                                statusCode: revalidate.statusCode, headers, body: revalidate.body, url: revalidate.url,
+                                statusCode: revalidate.statusCode,
+                                headers,
+                                body: revalidate.body,
+                                url: revalidate.url,
                             });
                             response.cachePolicy = revalidatedPolicy.policy;
                             response.fromCache = true;
@@ -41603,31 +42133,34 @@ class CacheableRequest {
                                 const bodyPromise = getStreamAsBuffer(response);
                                 await Promise.race([
                                     requestErrorPromise,
-                                    new Promise(resolve => response.once('end', resolve)), // eslint-disable-line no-promise-executor-return
-                                    new Promise(resolve => response.once('close', resolve)), // eslint-disable-line no-promise-executor-return
+                                    new Promise((resolve) => response.once("end", resolve)),
+                                    new Promise((resolve) => response.once("close", resolve)),
                                 ]);
                                 const body = await bodyPromise;
                                 let value = {
                                     url: response.url,
-                                    statusCode: response.fromCache ? revalidate.statusCode : response.statusCode,
+                                    statusCode: response.fromCache
+                                        ? revalidate.statusCode
+                                        : response.statusCode,
                                     body,
                                     cachePolicy: response.cachePolicy.toObject(),
                                 };
-                                let ttl = options_.strictTtl ? response.cachePolicy.timeToLive() : undefined;
+                                let ttl = options_.strictTtl
+                                    ? response.cachePolicy.timeToLive()
+                                    : undefined;
                                 if (options_.maxTtl) {
                                     ttl = ttl ? Math.min(ttl, options_.maxTtl) : options_.maxTtl;
                                 }
                                 if (this.hooks.size > 0) {
-                                    /* eslint-disable no-await-in-loop */
                                     for (const key_ of this.hooks.keys()) {
                                         value = await this.runHook(key_, value, response);
                                     }
-                                    /* eslint-enable no-await-in-loop */
                                 }
                                 await this.cache.set(key, value, ttl);
                             }
                             catch (error) {
-                                ee.emit('error', new types_CacheError(error));
+                                /* c8 ignore next 2 */
+                                ee.emit("error", new types_CacheError(error));
                             }
                         })();
                     }
@@ -41637,48 +42170,59 @@ class CacheableRequest {
                                 await this.cache.delete(key);
                             }
                             catch (error) {
-                                ee.emit('error', new types_CacheError(error));
+                                /* c8 ignore next 2 */
+                                ee.emit("error", new types_CacheError(error));
                             }
                         })();
                     }
-                    ee.emit('response', clonedResponse ?? response);
-                    if (typeof callback === 'function') {
+                    ee.emit("response", clonedResponse ?? response);
+                    if (typeof callback === "function") {
                         callback(clonedResponse ?? response);
                     }
                 };
                 try {
                     const request_ = this.cacheRequest(options_, handler);
-                    request_.once('error', requestErrorCallback);
-                    request_.once('abort', requestErrorCallback);
-                    request_.once('destroy', requestErrorCallback);
-                    ee.emit('request', request_);
+                    request_.once("error", requestErrorCallback);
+                    request_.once("abort", requestErrorCallback);
+                    request_.once("destroy", requestErrorCallback);
+                    ee.emit("request", request_);
                 }
                 catch (error) {
-                    ee.emit('error', new types_RequestError(error));
+                    ee.emit("error", new types_RequestError(error));
                 }
             };
             (async () => {
                 const get = async (options_) => {
                     await Promise.resolve();
-                    const cacheEntry = options_.cache ? await this.cache.get(key) : undefined;
+                    const cacheEntry = options_.cache
+                        ? await this.cache.get(key)
+                        : undefined;
                     if (cacheEntry === undefined && !options_.forceRefresh) {
                         makeRequest(options_);
                         return;
                     }
                     const policy = http_cache_semantics.fromObject(cacheEntry.cachePolicy);
-                    if (policy.satisfiesWithoutRevalidation(options_) && !options_.forceRefresh) {
+                    if (policy.satisfiesWithoutRevalidation(options_) &&
+                        !options_.forceRefresh) {
                         const headers = convertHeaders(policy.responseHeaders());
+                        const bodyBuffer = cacheEntry.body;
+                        const body = Buffer.from(bodyBuffer);
                         const response = new Response({
-                            statusCode: cacheEntry.statusCode, headers, body: cacheEntry.body, url: cacheEntry.url,
+                            statusCode: cacheEntry.statusCode,
+                            headers,
+                            body,
+                            url: cacheEntry.url,
                         });
                         response.cachePolicy = policy;
                         response.fromCache = true;
-                        ee.emit('response', response);
-                        if (typeof callback === 'function') {
+                        ee.emit("response", response);
+                        if (typeof callback === "function") {
                             callback(response);
                         }
                     }
-                    else if (policy.satisfiesWithoutRevalidation(options_) && Date.now() >= policy.timeToLive() && options_.forceRefresh) {
+                    else if (policy.satisfiesWithoutRevalidation(options_) &&
+                        Date.now() >= policy.timeToLive() &&
+                        options_.forceRefresh) {
                         await this.cache.delete(key);
                         options_.headers = policy.revalidationHeaders(options_);
                         makeRequest(options_);
@@ -41689,21 +42233,26 @@ class CacheableRequest {
                         makeRequest(options_);
                     }
                 };
-                const errorHandler = (error) => ee.emit('error', new types_CacheError(error));
-                if (this.cache instanceof src) {
+                const errorHandler = (error) => ee.emit("error", new types_CacheError(error));
+                if (this.cache instanceof Keyv) {
                     const cachek = this.cache;
-                    cachek.once('error', errorHandler);
-                    ee.on('error', () => cachek.removeListener('error', errorHandler));
-                    ee.on('response', () => cachek.removeListener('error', errorHandler));
+                    cachek.once("error", errorHandler);
+                    ee.on("error", () => {
+                        cachek.removeListener("error", errorHandler);
+                    });
+                    ee.on("response", () => {
+                        cachek.removeListener("error", errorHandler);
+                    });
                 }
                 try {
                     await get(options);
                 }
                 catch (error) {
+                    /* c8 ignore next 3 */
                     if (options.automaticFailover && !madeRequest) {
                         makeRequest(options);
                     }
-                    ee.emit('error', new types_CacheError(error));
+                    ee.emit("error", new types_CacheError(error));
                 }
             })();
             return ee;
@@ -41716,20 +42265,16 @@ class CacheableRequest {
         this.removeHook = (name) => this.hooks.delete(name);
         this.getHook = (name) => this.hooks.get(name);
         this.runHook = async (name, ...arguments_) => this.hooks.get(name)?.(...arguments_);
-        if (cacheAdapter instanceof src) {
-            this.cache = cacheAdapter;
-        }
-        else if (typeof cacheAdapter === 'string') {
-            this.cache = new src({
-                uri: cacheAdapter,
-                namespace: 'cacheable-request',
-            });
-        }
-        else {
-            this.cache = new src({
-                store: cacheAdapter,
-                namespace: 'cacheable-request',
-            });
+        if (cacheAdapter) {
+            if (cacheAdapter instanceof Keyv) {
+                this.cache = cacheAdapter;
+            }
+            else {
+                this.cache = new Keyv({
+                    store: cacheAdapter,
+                    namespace: "cacheable-request",
+                });
+            }
         }
         this.request = this.request.bind(this);
         this.cacheRequest = cacheRequest;
@@ -41743,7 +42288,7 @@ const cloneResponse = (response) => {
 };
 const urlObjectToRequestOptions = (url) => {
     const options = { ...url };
-    options.path = `${url.pathname || '/'}${url.search || ''}`;
+    options.path = `${url.pathname || "/"}${url.search || ""}`;
     delete options.pathname;
     delete options.search;
     return options;
@@ -41759,7 +42304,7 @@ const normalizeUrlObject = (url) =>
 ({
     protocol: url.protocol,
     auth: url.auth,
-    hostname: url.hostname || url.host || 'localhost',
+    hostname: url.hostname || url.host || "localhost",
     port: url.port,
     pathname: url.pathname,
     search: url.search,
@@ -41771,12 +42316,123 @@ const convertHeaders = (headers) => {
     }
     return result;
 };
+const parseWithWhatwg = (raw) => {
+    const u = new external_node_url_namespaceObject.URL(raw);
+    // If normalizeUrlObject expects the same fields as url.parse()
+    return {
+        protocol: u.protocol, // E.g. 'https:'
+        slashes: true, // Always true for WHATWG URLs
+        /* c8 ignore next 3 */
+        auth: u.username || u.password ? `${u.username}:${u.password}` : undefined,
+        host: u.host, // E.g. 'example.com:8080'
+        port: u.port, // E.g. '8080'
+        hostname: u.hostname, // E.g. 'example.com'
+        hash: u.hash, // E.g. '#quux'
+        search: u.search, // E.g. '?bar=baz'
+        query: Object.fromEntries(u.searchParams), // { bar: 'baz' }
+        pathname: u.pathname, // E.g. '/foo'
+        path: u.pathname + u.search, // '/foo?bar=baz'
+        href: u.href, // Full serialized URL
+    };
+};
 /* harmony default export */ const cacheable_request_dist = (CacheableRequest);
 
-const onResponse = 'onResponse';
+const onResponse = "onResponse";
 //# sourceMappingURL=index.js.map
-// EXTERNAL MODULE: ./node_modules/.pnpm/decompress-response@6.0.0/node_modules/decompress-response/index.js
-var decompress_response = __nccwpck_require__(5459);
+// EXTERNAL MODULE: external "node:zlib"
+var external_node_zlib_ = __nccwpck_require__(8522);
+;// CONCATENATED MODULE: ./node_modules/.pnpm/decompress-response@10.0.0/node_modules/decompress-response/index.js
+
+
+
+
+// Detect zstd support (available in Node.js >= 22.15.0)
+const supportsZstd = typeof external_node_zlib_.createZstdDecompress === 'function';
+
+function decompressResponse(response) {
+	const contentEncoding = (response.headers['content-encoding'] || '').toLowerCase();
+	const supportedEncodings = ['gzip', 'deflate', 'br'];
+	if (supportsZstd) {
+		supportedEncodings.push('zstd');
+	}
+
+	if (!supportedEncodings.includes(contentEncoding)) {
+		return response;
+	}
+
+	let isEmpty = true;
+
+	// Clone headers to avoid modifying the original response headers
+	const headers = {...response.headers};
+
+	const finalStream = new external_node_stream_.PassThrough({
+		autoDestroy: false,
+	});
+
+	// Only destroy response on error, not on normal completion
+	finalStream.once('error', () => {
+		response.destroy();
+	});
+
+	function handleContentEncoding(data) {
+		let decompressStream;
+
+		if (contentEncoding === 'zstd') {
+			decompressStream = external_node_zlib_.createZstdDecompress();
+		} else if (contentEncoding === 'br') {
+			decompressStream = external_node_zlib_.createBrotliDecompress();
+		} else if (contentEncoding === 'deflate' && data.length > 0 && (data[0] & 0x08) === 0) { // eslint-disable-line no-bitwise
+			decompressStream = external_node_zlib_.createInflateRaw();
+		} else {
+			decompressStream = external_node_zlib_.createUnzip();
+		}
+
+		decompressStream.once('error', error => {
+			if (isEmpty && !response.readable) {
+				finalStream.end();
+				return;
+			}
+
+			finalStream.destroy(error);
+		});
+
+		checker.pipe(decompressStream).pipe(finalStream);
+	}
+
+	const checker = new external_node_stream_.Transform({
+		transform(data, _encoding, callback) {
+			if (isEmpty === false) {
+				callback(null, data);
+				return;
+			}
+
+			isEmpty = false;
+
+			handleContentEncoding(data);
+
+			callback(null, data);
+		},
+
+		flush(callback) {
+			if (isEmpty) {
+				finalStream.end();
+			}
+
+			callback();
+		},
+	});
+
+	delete headers['content-encoding'];
+	delete headers['content-length'];
+	finalStream.headers = headers;
+
+	mimicResponse(response, finalStream);
+
+	response.pipe(checker);
+
+	return finalStream;
+}
+
 ;// CONCATENATED MODULE: ./node_modules/.pnpm/form-data-encoder@4.1.0/node_modules/form-data-encoder/lib/index.js
 var __typeError = (msg) => {
   throw TypeError(msg);
@@ -42124,13 +42780,13 @@ getContentLength_fn = function() {
 
 // EXTERNAL MODULE: external "node:util"
 var external_node_util_ = __nccwpck_require__(7975);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/is-form-data.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/is-form-data.js
 
 function is_form_data_isFormData(body) {
     return distribution.nodeStream(body) && distribution.function(body.getBoundary);
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/get-body-size.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/get-body-size.js
 
 
 
@@ -42148,13 +42804,29 @@ async function getBodySize(body, headers) {
     if (distribution.buffer(body)) {
         return body.length;
     }
+    if (distribution.typedArray(body)) {
+        return body.byteLength;
+    }
     if (is_form_data_isFormData(body)) {
-        return (0,external_node_util_.promisify)(body.getLength.bind(body))();
+        try {
+            return await (0,external_node_util_.promisify)(body.getLength.bind(body))();
+        }
+        catch (error) {
+            const typedError = error;
+            throw new Error('Cannot determine content-length for form-data with stream(s) of unknown length. '
+                + 'This is a limitation of the `form-data` package. '
+                + 'To fix this, either:\n'
+                + '1. Use the `knownLength` option when appending streams:\n'
+                + '   form.append(\'file\', stream, {knownLength: 12345});\n'
+                + '2. Switch to spec-compliant FormData (formdata-node package)\n'
+                + 'See: https://github.com/form-data/form-data#alternative-submission-methods\n'
+                + `Original error: ${typedError.message}`);
+        }
     }
     return undefined;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/proxy-events.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/proxy-events.js
 function proxyEvents(from, to, events) {
     const eventFunctions = {};
     for (const event of events) {
@@ -42173,7 +42845,7 @@ function proxyEvents(from, to, events) {
 
 ;// CONCATENATED MODULE: external "node:net"
 const external_node_net_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:net");
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/unhandle.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/unhandle.js
 // When attaching listeners, it's very easy to forget about them.
 // Especially if you do error handling and set timeouts.
 // So instead of checking if it's proper to throw an error on every timeout ever,
@@ -42195,7 +42867,7 @@ function unhandle() {
     };
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/timed-out.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/timed-out.js
 
 
 const reentry = Symbol('reentry');
@@ -42334,7 +43006,7 @@ function timedOut(request, delays, options) {
     return cancelTimeouts;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/url-to-options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/url-to-options.js
 
 function urlToOptions(url) {
     // Cast to URL
@@ -42358,7 +43030,7 @@ function urlToOptions(url) {
     return options;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/weakable-map.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/weakable-map.js
 class WeakableMap {
     weakMap;
     map;
@@ -42388,7 +43060,7 @@ class WeakableMap {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/calculate-retry-delay.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/calculate-retry-delay.js
 const calculateRetryDelay = ({ attemptCount, retryOptions, error, retryAfter, computedValue, }) => {
     if (error.name === 'RetryError') {
         return 1;
@@ -42877,7 +43549,7 @@ class CacheableLookup {
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/http2-wrapper@2.2.1/node_modules/http2-wrapper/source/index.js
 var http2_wrapper_source = __nccwpck_require__(882);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/parse-link-header.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/parse-link-header.js
 function parseLinkHeader(link) {
     const parsed = [];
     const items = link.split(',');
@@ -42912,7 +43584,7 @@ function parseLinkHeader(link) {
     return parsed;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/options.js
 
 
 
@@ -42926,11 +43598,43 @@ function parseLinkHeader(link) {
 
 
 const [major, minor] = external_node_process_.versions.node.split('.').map(Number);
+/**
+Generic helper that wraps any assertion function to add context to error messages.
+*/
+function wrapAssertionWithContext(optionName, assertionFn) {
+    try {
+        assertionFn();
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            error.message = `Option '${optionName}': ${error.message}`;
+        }
+        throw error;
+    }
+}
+/**
+Helper function that wraps assert.any() to provide better error messages.
+When assertion fails, it includes the option name in the error message.
+*/
+function options_assertAny(optionName, validators, value) {
+    wrapAssertionWithContext(optionName, () => {
+        assert.any(validators, value);
+    });
+}
+/**
+Helper function that wraps assert.plainObject() to provide better error messages.
+When assertion fails, it includes the option name in the error message.
+*/
+function options_assertPlainObject(optionName, value) {
+    wrapAssertionWithContext(optionName, () => {
+        assert.plainObject(value);
+    });
+}
 function validateSearchParameters(searchParameters) {
     // eslint-disable-next-line guard-for-in
     for (const key in searchParameters) {
         const value = searchParameters[key];
-        assert.any([distribution.string, distribution.number, distribution.boolean, distribution.null, distribution.undefined], value);
+        options_assertAny(`searchParams.${key}`, [distribution.string, distribution.number, distribution.boolean, distribution.null, distribution.undefined], value);
     }
 }
 const globalCache = new Map();
@@ -42941,6 +43645,39 @@ const getGlobalDnsCache = () => {
     }
     globalDnsCache = new CacheableLookup();
     return globalDnsCache;
+};
+// Detects and wraps QuickLRU v7+ instances to make them compatible with the StorageAdapter interface
+const wrapQuickLruIfNeeded = (value) => {
+    // Check if this is QuickLRU v7+ using Symbol.toStringTag and the evict method (added in v7)
+    if (value?.[Symbol.toStringTag] === 'QuickLRU' && typeof value.evict === 'function') {
+        // QuickLRU v7+ uses set(key, value, {maxAge: number}) but StorageAdapter expects set(key, value, ttl)
+        // Wrap it to translate the interface
+        return {
+            get(key) {
+                return value.get(key);
+            },
+            set(key, cacheValue, ttl) {
+                if (ttl === undefined) {
+                    value.set(key, cacheValue);
+                }
+                else {
+                    value.set(key, cacheValue, { maxAge: ttl });
+                }
+                return true;
+            },
+            delete(key) {
+                return value.delete(key);
+            },
+            clear() {
+                return value.clear();
+            },
+            has(key) {
+                return value.has(key);
+            },
+        };
+    }
+    // QuickLRU v5 and other caches work as-is
+    return value;
 };
 const defaultInternals = {
     request: undefined,
@@ -43030,6 +43767,8 @@ const defaultInternals = {
         calculateDelay: ({ computedValue }) => computedValue,
         backoffLimit: Number.POSITIVE_INFINITY,
         noise: 100,
+        // TODO: Change default to `true` in the next major version to fix https://github.com/sindresorhus/got/issues/2243
+        enforceRetryRules: false,
     },
     localAddress: undefined,
     method: 'GET',
@@ -43044,6 +43783,7 @@ const defaultInternals = {
         alpnProtocols: undefined,
         rejectUnauthorized: undefined,
         checkServerIdentity: undefined,
+        serverName: undefined,
         certificateAuthority: undefined,
         key: undefined,
         certificate: undefined,
@@ -43058,6 +43798,7 @@ const defaultInternals = {
         dhparam: undefined,
         ecdhCurve: undefined,
         certificateRevocationLists: undefined,
+        secureOptions: undefined,
     },
     encoding: undefined,
     resolveBodyOnly: false,
@@ -43096,6 +43837,7 @@ const defaultInternals = {
     maxHeaderSize: undefined,
     signal: undefined,
     enableUnixSockets: false,
+    strictContentLength: false,
 };
 const cloneInternals = (internals) => {
     const { hooks, retry } = internals;
@@ -43215,9 +43957,9 @@ class Options {
     _merging;
     _init;
     constructor(input, options, defaults) {
-        assert.any([distribution.string, distribution.urlInstance, distribution.object, distribution.undefined], input);
-        assert.any([distribution.object, distribution.undefined], options);
-        assert.any([distribution.object, distribution.undefined], defaults);
+        options_assertAny('input', [distribution.string, distribution.urlInstance, distribution.object, distribution.undefined], input);
+        options_assertAny('options', [distribution.object, distribution.undefined], options);
+        options_assertAny('defaults', [distribution.object, distribution.undefined], defaults);
         if (input instanceof Options || options instanceof Options) {
             throw new TypeError('The defaults must be passed as the third argument');
         }
@@ -43301,6 +44043,10 @@ class Options {
                 if (key === 'url') {
                     continue;
                 }
+                // Never merge `preserveHooks` - it's a control flag, not a persistent option
+                if (key === 'preserveHooks') {
+                    continue;
+                }
                 if (!(key in this)) {
                     throw new Error(`Unexpected option: ${key}`);
                 }
@@ -43331,7 +44077,7 @@ class Options {
         return this._internals.request;
     }
     set request(value) {
-        assert.any([distribution.function, distribution.undefined], value);
+        options_assertAny('request', [distribution.function, distribution.undefined], value);
         this._internals.request = value;
     }
     /**
@@ -43360,14 +44106,14 @@ class Options {
         return this._internals.agent;
     }
     set agent(value) {
-        assert.plainObject(value);
+        options_assertPlainObject('agent', value);
         // eslint-disable-next-line guard-for-in
         for (const key in value) {
             if (!(key in this._internals.agent)) {
                 throw new TypeError(`Unexpected agent option: ${key}`);
             }
             // @ts-expect-error - No idea why `value[key]` doesn't work here.
-            assert.any([distribution.object, distribution.undefined], value[key]);
+            options_assertAny(`agent.${key}`, [distribution.object, distribution.undefined, (v) => v === false], value[key]);
         }
         if (this._merging) {
             Object.assign(this._internals.agent, value);
@@ -43420,14 +44166,14 @@ class Options {
         return this._internals.timeout;
     }
     set timeout(value) {
-        assert.plainObject(value);
+        options_assertPlainObject('timeout', value);
         // eslint-disable-next-line guard-for-in
         for (const key in value) {
             if (!(key in this._internals.timeout)) {
                 throw new Error(`Unexpected timeout option: ${key}`);
             }
             // @ts-expect-error - No idea why `value[key]` doesn't work here.
-            assert.any([distribution.number, distribution.undefined], value[key]);
+            options_assertAny(`timeout.${key}`, [distribution.number, distribution.undefined], value[key]);
         }
         if (this._merging) {
             Object.assign(this._internals.timeout, value);
@@ -43481,7 +44227,7 @@ class Options {
         return this._internals.prefixUrl;
     }
     set prefixUrl(value) {
-        assert.any([distribution.string, distribution.urlInstance], value);
+        options_assertAny('prefixUrl', [distribution.string, distribution.urlInstance], value);
         if (value === '') {
             this._internals.prefixUrl = '';
             return;
@@ -43505,15 +44251,32 @@ class Options {
 
     __Note #4__: This option is not enumerable and will not be merged with the instance defaults.
 
-    The `content-length` header will be automatically set if `body` is a `string` / `Buffer` / [`FormData`](https://developer.mozilla.org/en-US/docs/Web/API/FormData) / [`form-data` instance](https://github.com/form-data/form-data), and `content-length` and `transfer-encoding` are not manually set in `options.headers`.
+    The `content-length` header will be automatically set if `body` is a `string` / `Buffer` / typed array ([`Uint8Array`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array), etc.) / [`FormData`](https://developer.mozilla.org/en-US/docs/Web/API/FormData) / [`form-data` instance](https://github.com/form-data/form-data), and `content-length` and `transfer-encoding` are not manually set in `options.headers`.
 
     Since Got 12, the `content-length` is not automatically set when `body` is a `fs.createReadStream`.
+
+    You can use `Iterable` and `AsyncIterable` objects as request body, including Web [`ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream):
+
+    @example
+    ```
+    import got from 'got';
+
+    // Using an async generator
+    async function* generateData() {
+        yield 'Hello, ';
+        yield 'world!';
+    }
+
+    await got.post('https://httpbin.org/anything', {
+        body: generateData()
+    });
+    ```
     */
     get body() {
         return this._internals.body;
     }
     set body(value) {
-        assert.any([distribution.string, distribution.buffer, distribution.nodeStream, distribution.generator, distribution.asyncGenerator, lib_isFormData, distribution.undefined], value);
+        options_assertAny('body', [distribution.string, distribution.buffer, distribution.nodeStream, distribution.generator, distribution.asyncGenerator, distribution.iterable, distribution.asyncIterable, lib_isFormData, distribution.typedArray, distribution.undefined], value);
         if (distribution.nodeStream(value)) {
             assert.truthy(value.readable);
         }
@@ -43536,7 +44299,7 @@ class Options {
         return this._internals.form;
     }
     set form(value) {
-        assert.any([distribution.plainObject, distribution.undefined], value);
+        options_assertAny('form', [distribution.plainObject, distribution.undefined], value);
         if (value !== undefined) {
             assert.undefined(this._internals.body);
             assert.undefined(this._internals.json);
@@ -43544,7 +44307,9 @@ class Options {
         this._internals.form = value;
     }
     /**
-    JSON body. If the `Content-Type` header is not set, it will be set to `application/json`.
+    JSON request body. If the `content-type` header is not set, it will be set to `application/json`.
+
+    __Important__: This option only affects the request body you send to the server. To parse the response as JSON, you must either call `.json()` on the promise or set `responseType: 'json'` in the options.
 
     __Note #1__: If you provide this option, `got.stream()` will be read-only.
 
@@ -43582,7 +44347,7 @@ class Options {
         return this._internals.url;
     }
     set url(value) {
-        assert.any([distribution.string, distribution.urlInstance, distribution.undefined], value);
+        options_assertAny('url', [distribution.string, distribution.urlInstance, distribution.undefined], value);
         if (value === undefined) {
             this._internals.url = undefined;
             return;
@@ -43642,7 +44407,7 @@ class Options {
         return this._internals.cookieJar;
     }
     set cookieJar(value) {
-        assert.any([distribution.object, distribution.undefined], value);
+        options_assertAny('cookieJar', [distribution.object, distribution.undefined], value);
         if (value === undefined) {
             this._internals.cookieJar = undefined;
             return;
@@ -43729,7 +44494,7 @@ class Options {
         return this._internals.searchParams;
     }
     set searchParams(value) {
-        assert.any([distribution.string, distribution.object, distribution.undefined], value);
+        options_assertAny('searchParams', [distribution.string, distribution.object, distribution.undefined], value);
         const url = this._internals.url;
         if (value === undefined) {
             this._internals.searchParams = undefined;
@@ -43789,7 +44554,7 @@ class Options {
         return this._internals.dnsLookup;
     }
     set dnsLookup(value) {
-        assert.any([distribution.function, distribution.undefined], value);
+        options_assertAny('dnsLookup', [distribution.function, distribution.undefined], value);
         this._internals.dnsLookup = value;
     }
     /**
@@ -43806,7 +44571,7 @@ class Options {
         return this._internals.dnsCache;
     }
     set dnsCache(value) {
-        assert.any([distribution.object, distribution.boolean, distribution.undefined], value);
+        options_assertAny('dnsCache', [distribution.object, distribution.boolean, distribution.undefined], value);
         if (value === true) {
             this._internals.dnsCache = getGlobalDnsCache();
         }
@@ -43876,7 +44641,7 @@ class Options {
             }
             const typedKnownHookEvent = knownHookEvent;
             const hooks = value[typedKnownHookEvent];
-            assert.any([distribution.array, distribution.undefined], hooks);
+            options_assertAny(`hooks.${knownHookEvent}`, [distribution.array, distribution.undefined], hooks);
             if (hooks) {
                 for (const hook of hooks) {
                     assert.function(hook);
@@ -43911,7 +44676,7 @@ class Options {
         return this._internals.followRedirect;
     }
     set followRedirect(value) {
-        assert.any([distribution.boolean, distribution.function], value);
+        options_assertAny('followRedirect', [distribution.boolean, distribution.function], value);
         this._internals.followRedirect = value;
     }
     get followRedirects() {
@@ -43941,7 +44706,7 @@ class Options {
         return this._internals.cache;
     }
     set cache(value) {
-        assert.any([distribution.object, distribution.string, distribution.boolean, distribution.undefined], value);
+        options_assertAny('cache', [distribution.object, distribution.string, distribution.boolean, distribution.undefined], value);
         if (value === true) {
             this._internals.cache = globalCache;
         }
@@ -43949,7 +44714,7 @@ class Options {
             this._internals.cache = undefined;
         }
         else {
-            this._internals.cache = value;
+            this._internals.cache = wrapQuickLruIfNeeded(value);
         }
     }
     /**
@@ -44054,7 +44819,7 @@ class Options {
         return this._internals.headers;
     }
     set headers(value) {
-        assert.plainObject(value);
+        options_assertPlainObject('headers', value);
         if (this._merging) {
             Object.assign(this._internals.headers, lowercaseKeys(value));
         }
@@ -44176,7 +44941,9 @@ class Options {
     The `calculateDelay` property is a `function` that receives an object with `attemptCount`, `retryOptions`, `error` and `computedValue` properties for current retry count, the retry options, error and default computed value.
     The function must return a delay in milliseconds (or a Promise resolving with it) (`0` return value cancels retry).
 
-    __Note:__ When you provide `calculateDelay`, you take full control of retry decisions. The `limit` option is not automatically enforced - you must check `attemptCount` yourself or return `0` when `computedValue` is `0` to respect the default retry logic.
+    The `enforceRetryRules` property is a `boolean` that, when set to `true`, enforces the `limit`, `methods`, `statusCodes`, and `errorCodes` options before calling `calculateDelay`. Your `calculateDelay` function is only invoked when a retry is allowed based on these criteria. When `false` (default), `calculateDelay` receives the computed value but can override all retry logic.
+
+    __Note:__ When `enforceRetryRules` is `false`, you must check `computedValue` in your `calculateDelay` function to respect the default retry logic. When `true`, the retry rules are enforced automatically.
 
     By default, it retries *only* on the specified methods, status codes, and on these network errors:
 
@@ -44196,14 +44963,15 @@ class Options {
         return this._internals.retry;
     }
     set retry(value) {
-        assert.plainObject(value);
-        assert.any([distribution.function, distribution.undefined], value.calculateDelay);
-        assert.any([distribution.number, distribution.undefined], value.maxRetryAfter);
-        assert.any([distribution.number, distribution.undefined], value.limit);
-        assert.any([distribution.array, distribution.undefined], value.methods);
-        assert.any([distribution.array, distribution.undefined], value.statusCodes);
-        assert.any([distribution.array, distribution.undefined], value.errorCodes);
-        assert.any([distribution.number, distribution.undefined], value.noise);
+        options_assertPlainObject('retry', value);
+        options_assertAny('retry.calculateDelay', [distribution.function, distribution.undefined], value.calculateDelay);
+        options_assertAny('retry.maxRetryAfter', [distribution.number, distribution.undefined], value.maxRetryAfter);
+        options_assertAny('retry.limit', [distribution.number, distribution.undefined], value.limit);
+        options_assertAny('retry.methods', [distribution.array, distribution.undefined], value.methods);
+        options_assertAny('retry.statusCodes', [distribution.array, distribution.undefined], value.statusCodes);
+        options_assertAny('retry.errorCodes', [distribution.array, distribution.undefined], value.errorCodes);
+        options_assertAny('retry.noise', [distribution.number, distribution.undefined], value.noise);
+        options_assertAny('retry.enforceRetryRules', [distribution.boolean, distribution.undefined], value.enforceRetryRules);
         if (value.noise && Math.abs(value.noise) > 100) {
             throw new Error(`The maximum acceptable retry noise is +/- 100ms, got ${value.noise}`);
         }
@@ -44232,7 +45000,7 @@ class Options {
         return this._internals.localAddress;
     }
     set localAddress(value) {
-        assert.any([distribution.string, distribution.undefined], value);
+        options_assertAny('localAddress', [distribution.string, distribution.undefined], value);
         this._internals.localAddress = value;
     }
     /**
@@ -44251,7 +45019,7 @@ class Options {
         return this._internals.createConnection;
     }
     set createConnection(value) {
-        assert.any([distribution.function, distribution.undefined], value);
+        options_assertAny('createConnection', [distribution.function, distribution.undefined], value);
         this._internals.createConnection = value;
     }
     /**
@@ -44263,11 +45031,11 @@ class Options {
         return this._internals.cacheOptions;
     }
     set cacheOptions(value) {
-        assert.plainObject(value);
-        assert.any([distribution.boolean, distribution.undefined], value.shared);
-        assert.any([distribution.number, distribution.undefined], value.cacheHeuristic);
-        assert.any([distribution.number, distribution.undefined], value.immutableMinTimeToLive);
-        assert.any([distribution.boolean, distribution.undefined], value.ignoreCargoCult);
+        options_assertPlainObject('cacheOptions', value);
+        options_assertAny('cacheOptions.shared', [distribution.boolean, distribution.undefined], value.shared);
+        options_assertAny('cacheOptions.cacheHeuristic', [distribution.number, distribution.undefined], value.cacheHeuristic);
+        options_assertAny('cacheOptions.immutableMinTimeToLive', [distribution.number, distribution.undefined], value.immutableMinTimeToLive);
+        options_assertAny('cacheOptions.ignoreCargoCult', [distribution.boolean, distribution.undefined], value.ignoreCargoCult);
         for (const key in value) {
             if (!(key in this._internals.cacheOptions)) {
                 throw new Error(`Cache option \`${key}\` does not exist`);
@@ -44287,24 +45055,26 @@ class Options {
         return this._internals.https;
     }
     set https(value) {
-        assert.plainObject(value);
-        assert.any([distribution.boolean, distribution.undefined], value.rejectUnauthorized);
-        assert.any([distribution.function, distribution.undefined], value.checkServerIdentity);
-        assert.any([distribution.string, distribution.object, distribution.array, distribution.undefined], value.certificateAuthority);
-        assert.any([distribution.string, distribution.object, distribution.array, distribution.undefined], value.key);
-        assert.any([distribution.string, distribution.object, distribution.array, distribution.undefined], value.certificate);
-        assert.any([distribution.string, distribution.undefined], value.passphrase);
-        assert.any([distribution.string, distribution.buffer, distribution.array, distribution.undefined], value.pfx);
-        assert.any([distribution.array, distribution.undefined], value.alpnProtocols);
-        assert.any([distribution.string, distribution.undefined], value.ciphers);
-        assert.any([distribution.string, distribution.buffer, distribution.undefined], value.dhparam);
-        assert.any([distribution.string, distribution.undefined], value.signatureAlgorithms);
-        assert.any([distribution.string, distribution.undefined], value.minVersion);
-        assert.any([distribution.string, distribution.undefined], value.maxVersion);
-        assert.any([distribution.boolean, distribution.undefined], value.honorCipherOrder);
-        assert.any([distribution.number, distribution.undefined], value.tlsSessionLifetime);
-        assert.any([distribution.string, distribution.undefined], value.ecdhCurve);
-        assert.any([distribution.string, distribution.buffer, distribution.array, distribution.undefined], value.certificateRevocationLists);
+        options_assertPlainObject('https', value);
+        options_assertAny('https.rejectUnauthorized', [distribution.boolean, distribution.undefined], value.rejectUnauthorized);
+        options_assertAny('https.checkServerIdentity', [distribution.function, distribution.undefined], value.checkServerIdentity);
+        options_assertAny('https.serverName', [distribution.string, distribution.undefined], value.serverName);
+        options_assertAny('https.certificateAuthority', [distribution.string, distribution.object, distribution.array, distribution.undefined], value.certificateAuthority);
+        options_assertAny('https.key', [distribution.string, distribution.object, distribution.array, distribution.undefined], value.key);
+        options_assertAny('https.certificate', [distribution.string, distribution.object, distribution.array, distribution.undefined], value.certificate);
+        options_assertAny('https.passphrase', [distribution.string, distribution.undefined], value.passphrase);
+        options_assertAny('https.pfx', [distribution.string, distribution.buffer, distribution.array, distribution.undefined], value.pfx);
+        options_assertAny('https.alpnProtocols', [distribution.array, distribution.undefined], value.alpnProtocols);
+        options_assertAny('https.ciphers', [distribution.string, distribution.undefined], value.ciphers);
+        options_assertAny('https.dhparam', [distribution.string, distribution.buffer, distribution.undefined], value.dhparam);
+        options_assertAny('https.signatureAlgorithms', [distribution.string, distribution.undefined], value.signatureAlgorithms);
+        options_assertAny('https.minVersion', [distribution.string, distribution.undefined], value.minVersion);
+        options_assertAny('https.maxVersion', [distribution.string, distribution.undefined], value.maxVersion);
+        options_assertAny('https.honorCipherOrder', [distribution.boolean, distribution.undefined], value.honorCipherOrder);
+        options_assertAny('https.tlsSessionLifetime', [distribution.number, distribution.undefined], value.tlsSessionLifetime);
+        options_assertAny('https.ecdhCurve', [distribution.string, distribution.undefined], value.ecdhCurve);
+        options_assertAny('https.certificateRevocationLists', [distribution.string, distribution.buffer, distribution.array, distribution.undefined], value.certificateRevocationLists);
+        options_assertAny('https.secureOptions', [distribution.number, distribution.undefined], value.secureOptions);
         for (const key in value) {
             if (!(key in this._internals.https)) {
                 throw new Error(`HTTPS option \`${key}\` does not exist`);
@@ -44334,7 +45104,7 @@ class Options {
         if (value === null) {
             throw new TypeError('To get a Buffer, set `options.responseType` to `buffer` instead');
         }
-        assert.any([distribution.string, distribution.undefined], value);
+        options_assertAny('encoding', [distribution.string, distribution.undefined], value);
         this._internals.encoding = value;
     }
     /**
@@ -44434,7 +45204,7 @@ class Options {
         return this._internals.maxHeaderSize;
     }
     set maxHeaderSize(value) {
-        assert.any([distribution.number, distribution.undefined], value);
+        options_assertAny('maxHeaderSize', [distribution.number, distribution.undefined], value);
         this._internals.maxHeaderSize = value;
     }
     get enableUnixSockets() {
@@ -44443,6 +45213,23 @@ class Options {
     set enableUnixSockets(value) {
         assert.boolean(value);
         this._internals.enableUnixSockets = value;
+    }
+    /**
+    Throw an error if the server response's `content-length` header value doesn't match the number of bytes received.
+
+    This is useful for detecting truncated responses and follows RFC 9112 requirements for message completeness.
+
+    __Note__: Responses without a `content-length` header are not validated.
+    __Note__: When enabled and validation fails, a `ReadError` with code `ERR_HTTP_CONTENT_LENGTH_MISMATCH` will be thrown.
+
+    @default false
+    */
+    get strictContentLength() {
+        return this._internals.strictContentLength;
+    }
+    set strictContentLength(value) {
+        assert.boolean(value);
+        this._internals.strictContentLength = value;
     }
     // eslint-disable-next-line @typescript-eslint/naming-convention
     toJSON() {
@@ -44456,7 +45243,17 @@ class Options {
         const url = internals.url;
         let agent;
         if (url.protocol === 'https:') {
-            agent = internals.http2 ? internals.agent : internals.agent.https;
+            if (internals.http2) {
+                // Ensure HTTP/2 agent is configured for connection reuse
+                // If no custom agent.http2 is provided, use the global agent for connection pooling
+                agent = {
+                    ...internals.agent,
+                    http2: internals.agent.http2 ?? http2_wrapper_source.globalAgent,
+                };
+            }
+            else {
+                agent = internals.agent.https;
+            }
         }
         else {
             agent = internals.agent.http;
@@ -44482,6 +45279,7 @@ class Options {
             pfx: https.pfx,
             rejectUnauthorized: https.rejectUnauthorized,
             checkServerIdentity: https.checkServerIdentity ?? external_node_tls_namespaceObject.checkServerIdentity,
+            servername: https.serverName,
             ciphers: https.ciphers,
             honorCipherOrder: https.honorCipherOrder,
             minVersion: https.minVersion,
@@ -44491,6 +45289,7 @@ class Options {
             dhparam: https.dhparam,
             ecdhCurve: https.ecdhCurve,
             crl: https.certificateRevocationLists,
+            secureOptions: https.secureOptions,
             // HTTP options
             lookup: internals.dnsLookup ?? internals.dnsCache?.lookup,
             family: internals.dnsLookupIpVersion,
@@ -44554,7 +45353,7 @@ class Options {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/response.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/response.js
 
 const isResponseOk = (response) => {
     const { statusCode } = response;
@@ -44597,19 +45396,40 @@ const parseBody = (response, responseType, parseJson, encoding) => {
     }, response);
 };
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/is-client-request.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/is-client-request.js
 function isClientRequest(clientRequest) {
     return clientRequest.writable && !clientRequest.writableEnded;
 }
 /* harmony default export */ const is_client_request = (isClientRequest);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function isUnixSocketURL(url) {
     return url.protocol === 'unix:' || url.hostname === 'unix';
 }
+/**
+Extract the socket path from a UNIX socket URL.
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/core/index.js
+@example
+```
+getUnixSocketPath(new URL('http://unix/foo:/path'));
+//=> '/foo'
+
+getUnixSocketPath(new URL('unix:/foo:/path'));
+//=> '/foo'
+
+getUnixSocketPath(new URL('http://example.com'));
+//=> undefined
+```
+*/
+function getUnixSocketPath(url) {
+    if (!isUnixSocketURL(url)) {
+        return undefined;
+    }
+    return /(?<socketPath>.+?):(?<path>.+)/.exec(`${url.pathname}${url.search}`)?.groups?.socketPath;
+}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/index.js
 
 
 
@@ -44633,6 +45453,8 @@ function isUnixSocketURL(url) {
 
 const supportsBrotli = distribution.string(external_node_process_.versions.brotli);
 const methodsWithoutBody = new Set(['GET', 'HEAD']);
+// Methods that should auto-end streams when no body is provided
+const methodsWithoutBodyStream = new Set(['OPTIONS', 'DELETE', 'PATCH']);
 const cacheableStore = new WeakableMap();
 const redirectCodes = new Set([300, 301, 302, 303, 304, 307, 308]);
 const proxiedRequestEvents = [
@@ -44643,6 +45465,17 @@ const proxiedRequestEvents = [
     'upgrade',
 ];
 const core_noop = () => { };
+/**
+Stream transform that counts bytes passing through.
+Used to track compressed bytes before decompression for content-length validation.
+*/
+class ByteCounter extends external_node_stream_.Transform {
+    count = 0;
+    _transform(chunk, _encoding, callback) {
+        this.count += chunk.length;
+        callback(null, chunk);
+    }
+}
 class Request extends external_node_stream_.Duplex {
     // @ts-expect-error - Ignoring for now.
     ['constructor'];
@@ -44653,23 +45486,24 @@ class Request extends external_node_stream_.Duplex {
     requestUrl;
     redirectUrls;
     retryCount;
+    _stopReading;
     _stopRetry;
     _downloadedSize;
     _uploadedSize;
-    _stopReading;
     _pipedServerResponses;
     _request;
     _responseSize;
     _bodySize;
     _unproxyEvents;
     _isFromCache;
-    _cannotHaveBody;
     _triggerRead;
     _cancelTimeouts;
     _removeListeners;
     _nativeResponse;
     _flushed;
     _aborted;
+    _expectedContentLength;
+    _byteCounter;
     // We need this because `this._request` if `undefined` when using cache
     _requestInitialized;
     constructor(url, options, defaults) {
@@ -44683,7 +45517,6 @@ class Request extends external_node_stream_.Duplex {
         this._uploadedSize = 0;
         this._stopReading = false;
         this._pipedServerResponses = new Set();
-        this._cannotHaveBody = false;
         this._unproxyEvents = core_noop;
         this._triggerRead = false;
         this._cancelTimeouts = core_noop;
@@ -44722,7 +45555,18 @@ class Request extends external_node_stream_.Duplex {
             }
             this.flush = async () => {
                 this.flush = async () => { };
-                this.destroy(error);
+                // Defer error emission to next tick to allow user to attach error handlers
+                external_node_process_.nextTick(() => {
+                    // _beforeError requires options to access retry logic and hooks
+                    if (this.options) {
+                        this._beforeError(error);
+                    }
+                    else {
+                        // Options is undefined, skip _beforeError and destroy directly
+                        const requestError = error instanceof RequestError ? error : new RequestError(error.message, error, this);
+                        this.destroy(requestError);
+                    }
+                });
             };
             return;
         }
@@ -44833,19 +45677,29 @@ class Request extends external_node_stream_.Duplex {
                         }
                     }
                     const retryOptions = options.retry;
-                    backoff = await retryOptions.calculateDelay({
+                    const computedValue = calculate_retry_delay({
                         attemptCount,
                         retryOptions,
                         error: typedError,
                         retryAfter,
-                        computedValue: calculate_retry_delay({
+                        computedValue: retryOptions.maxRetryAfter ?? options.timeout.request ?? Number.POSITIVE_INFINITY,
+                    });
+                    // When enforceRetryRules is true, respect the retry rules (limit, methods, statusCodes, errorCodes)
+                    // before calling the user's calculateDelay function. If computedValue is 0 (meaning retry is not allowed
+                    // based on these rules), skip calling calculateDelay entirely.
+                    // When false (default), always call calculateDelay, allowing it to override retry decisions.
+                    if (retryOptions.enforceRetryRules && computedValue === 0) {
+                        backoff = 0;
+                    }
+                    else {
+                        backoff = await retryOptions.calculateDelay({
                             attemptCount,
                             retryOptions,
                             error: typedError,
                             retryAfter,
-                            computedValue: retryOptions.maxRetryAfter ?? options.timeout.request ?? Number.POSITIVE_INFINITY,
-                        }),
-                    });
+                            computedValue,
+                        });
+                    }
                 }
                 catch (error_) {
                     void this._error(new RequestError(error_.message, error_, this));
@@ -44968,6 +45822,19 @@ class Request extends external_node_stream_.Duplex {
         if (this._request) {
             this._request.destroy();
         }
+        // Workaround: http-timer only sets timings.end when the response emits 'end'.
+        // When a stream is destroyed before completion, the 'end' event may not fire,
+        // leaving timings.end undefined. This should ideally be fixed in http-timer
+        // by listening to the 'close' event, but we handle it here for now.
+        // Only set timings.end if there was no error or abort (to maintain semantic correctness).
+        const timings = this._request?.timings;
+        if (timings && distribution.undefined(timings.end) && !distribution.undefined(timings.response) && distribution.undefined(timings.error) && distribution.undefined(timings.abort)) {
+            timings.end = Date.now();
+            if (distribution.undefined(timings.phases.total)) {
+                timings.phases.download = timings.end - timings.response;
+                timings.phases.total = timings.end - timings.start;
+            }
+        }
         if (error !== null && !distribution.undefined(error) && !(error instanceof RequestError)) {
             error = new RequestError(error.message, error, this);
         }
@@ -44986,6 +45853,22 @@ class Request extends external_node_stream_.Duplex {
         super.unpipe(destination);
         return this;
     }
+    _checkContentLengthMismatch() {
+        if (this.options.strictContentLength && this._expectedContentLength !== undefined) {
+            // Use ByteCounter's count when available (for compressed responses),
+            // otherwise use _downloadedSize (for uncompressed responses)
+            const actualSize = this._byteCounter?.count ?? this._downloadedSize;
+            if (actualSize !== this._expectedContentLength) {
+                this._beforeError(new ReadError({
+                    message: `Content-Length mismatch: expected ${this._expectedContentLength} bytes, received ${actualSize} bytes`,
+                    name: 'Error',
+                    code: 'ERR_HTTP_CONTENT_LENGTH_MISMATCH',
+                }, this));
+                return true;
+            }
+        }
+        return false;
+    }
     async _finalizeBody() {
         const { options } = this;
         const { headers } = options;
@@ -44994,7 +45877,6 @@ class Request extends external_node_stream_.Duplex {
         const isJSON = !distribution.undefined(options.json);
         const isBody = !distribution.undefined(options.body);
         const cannotHaveBody = methodsWithoutBody.has(options.method) && !(options.method === 'GET' && options.allowGetBody);
-        this._cannotHaveBody = cannotHaveBody;
         if (isForm || isJSON || isBody) {
             if (cannotHaveBody) {
                 throw new TypeError(`The \`${options.method}\` method cannot be used with a body`);
@@ -45075,10 +45957,18 @@ class Request extends external_node_stream_.Duplex {
             || statusCode === 205
             || statusCode === 304;
         if (options.decompress && !hasNoBody) {
-            response = decompress_response(response);
+            // When strictContentLength is enabled, track compressed bytes by listening to
+            // the native response's data events before decompression
+            if (options.strictContentLength) {
+                this._byteCounter = new ByteCounter();
+                this._nativeResponse.on('data', (chunk) => {
+                    this._byteCounter.count += chunk.length;
+                });
+            }
+            response = decompressResponse(response);
         }
         const typedResponse = response;
-        typedResponse.statusMessage = typedResponse.statusMessage ?? external_node_http_.STATUS_CODES[statusCode];
+        typedResponse.statusMessage = typedResponse.statusMessage || external_node_http_.STATUS_CODES[statusCode]; // eslint-disable-line @typescript-eslint/prefer-nullish-coalescing -- The status message can be empty.
         typedResponse.url = options.url.toString();
         typedResponse.requestUrl = this.requestUrl;
         typedResponse.redirectUrls = this.redirectUrls;
@@ -45090,10 +45980,18 @@ class Request extends external_node_stream_.Duplex {
         this._isFromCache = typedResponse.isFromCache;
         this._responseSize = Number(response.headers['content-length']) || undefined;
         this.response = typedResponse;
-        response.once('end', () => {
-            this._responseSize = this._downloadedSize;
-            this.emit('downloadProgress', this.downloadProgress);
-        });
+        // Workaround for http-timer bug: when connecting to an IP address (no DNS lookup),
+        // http-timer sets lookup = connect instead of lookup = socket, resulting in
+        // dns = lookup - socket being a small positive number instead of 0.
+        // See https://github.com/sindresorhus/got/issues/2279
+        const { timings } = response;
+        if (timings?.lookup !== undefined && timings.socket !== undefined && timings.connect !== undefined && timings.lookup === timings.connect && timings.phases.dns !== 0) {
+            // Fix the DNS phase to be 0 and set lookup to socket time
+            timings.phases.dns = 0;
+            timings.lookup = timings.socket;
+            // Recalculate TCP time to be the full time from socket to connect
+            timings.phases.tcp = timings.connect - timings.socket;
+        }
         response.once('error', (error) => {
             this._aborted = true;
             // Force clean-up, because some packages don't do this.
@@ -45103,13 +46001,15 @@ class Request extends external_node_stream_.Duplex {
         });
         response.once('aborted', () => {
             this._aborted = true;
-            this._beforeError(new ReadError({
-                name: 'Error',
-                message: 'The server aborted pending request',
-                code: 'ECONNRESET',
-            }, this));
+            // Check if there's a content-length mismatch to provide a more specific error
+            if (!this._checkContentLengthMismatch()) {
+                this._beforeError(new ReadError({
+                    name: 'Error',
+                    message: 'The server aborted pending request',
+                    code: 'ECONNRESET',
+                }, this));
+            }
         });
-        this.emit('downloadProgress', this.downloadProgress);
         const rawCookies = response.headers['set-cookie'];
         if (distribution.object(options.cookieJar) && rawCookies) {
             let promises = rawCookies.map(async (rawCookie) => options.cookieJar.setCookie(rawCookie, url.toString()));
@@ -45148,6 +46048,8 @@ class Request extends external_node_stream_.Duplex {
                     return;
                 }
                 this._request = undefined;
+                // Reset download progress for the new request
+                this._downloadedSize = 0;
                 const updatedOptions = new Options(undefined, undefined, this.options);
                 const serverRequestedGet = statusCode === 303 && updatedOptions.method !== 'GET' && updatedOptions.method !== 'HEAD';
                 const canRewrite = statusCode !== 307 && statusCode !== 308;
@@ -45168,7 +46070,11 @@ class Request extends external_node_stream_.Duplex {
                         return;
                     }
                     // Redirecting to a different site, clear sensitive data.
-                    if (redirectUrl.hostname !== url.hostname || redirectUrl.port !== url.port) {
+                    // For UNIX sockets, different socket paths are also different origins.
+                    const isDifferentOrigin = redirectUrl.hostname !== url.hostname
+                        || redirectUrl.port !== url.port
+                        || getUnixSocketPath(url) !== getUnixSocketPath(redirectUrl);
+                    if (isDifferentOrigin) {
                         if ('host' in updatedOptions.headers) {
                             delete updatedOptions.headers.host;
                         }
@@ -45213,6 +46119,33 @@ class Request extends external_node_stream_.Duplex {
             this._beforeError(new HTTPError(typedResponse));
             return;
         }
+        // Store the expected content-length from the native response for validation.
+        // This is the content-length before decompression, which is what actually gets transferred.
+        // Skip storing for responses that shouldn't have bodies per RFC 9110.
+        // When decompression occurs, only store if strictContentLength is enabled.
+        const wasDecompressed = response !== this._nativeResponse;
+        if (!hasNoBody && (!wasDecompressed || options.strictContentLength)) {
+            const contentLengthHeader = this._nativeResponse.headers['content-length'];
+            if (contentLengthHeader !== undefined) {
+                const expectedLength = Number(contentLengthHeader);
+                if (!Number.isNaN(expectedLength) && expectedLength >= 0) {
+                    this._expectedContentLength = expectedLength;
+                }
+            }
+        }
+        // Set up end listener AFTER redirect check to avoid emitting progress for redirect responses
+        response.once('end', () => {
+            // Validate content-length if it was provided
+            // Per RFC 9112: "If the sender closes the connection before the indicated number
+            // of octets are received, the recipient MUST consider the message to be incomplete"
+            if (this._checkContentLengthMismatch()) {
+                return;
+            }
+            this._responseSize = this._downloadedSize;
+            this.emit('downloadProgress', this.downloadProgress);
+            this.push(null);
+        });
+        this.emit('downloadProgress', this.downloadProgress);
         response.on('readable', () => {
             if (this._triggerRead) {
                 this._read();
@@ -45223,9 +46156,6 @@ class Request extends external_node_stream_.Duplex {
         });
         this.on('pause', () => {
             response.pause();
-        });
-        response.once('end', () => {
-            this.push(null);
         });
         if (this._noPipe) {
             const success = await this._setRawBody();
@@ -45239,12 +46169,22 @@ class Request extends external_node_stream_.Duplex {
             if (destination.headersSent) {
                 continue;
             }
-            // eslint-disable-next-line guard-for-in
+            // Check if decompression actually occurred by comparing stream objects.
+            // decompressResponse wraps the response stream when it decompresses,
+            // so response !== this._nativeResponse indicates decompression happened.
+            const wasDecompressed = response !== this._nativeResponse;
             for (const key in response.headers) {
-                const isAllowed = options.decompress ? key !== 'content-encoding' : true;
-                const value = response.headers[key];
-                if (isAllowed) {
-                    destination.setHeader(key, value);
+                if (Object.hasOwn(response.headers, key)) {
+                    const value = response.headers[key];
+                    // When decompression occurred, skip content-encoding and content-length
+                    // as they refer to the compressed data, not the decompressed stream.
+                    if (wasDecompressed && (key === 'content-encoding' || key === 'content-length')) {
+                        continue;
+                    }
+                    // Skip if value is undefined
+                    if (value !== undefined) {
+                        destination.setHeader(key, value);
+                    }
                 }
             }
             destination.statusCode = statusCode;
@@ -45281,11 +46221,19 @@ class Request extends external_node_stream_.Duplex {
         const { options } = this;
         const { timeout, url } = options;
         dist_source(request);
+        this._cancelTimeouts = timedOut(request, timeout, url);
         if (this.options.http2) {
             // Unset stream timeout, as the `timeout` option was used only for connection timeout.
-            request.setTimeout(0);
+            // We remove all 'timeout' listeners instead of calling setTimeout(0) because:
+            // 1. setTimeout(0) causes a memory leak (see https://github.com/sindresorhus/got/issues/690)
+            // 2. With HTTP/2 connection reuse, setTimeout(0) accumulates listeners on the socket
+            // 3. removeAllListeners('timeout') properly cleans up without the memory leak
+            request.removeAllListeners('timeout');
+            // For HTTP/2, wait for socket and remove timeout listeners from it
+            request.once('socket', (socket) => {
+                socket.removeAllListeners('timeout');
+            });
         }
-        this._cancelTimeouts = timedOut(request, timeout, url);
         const responseEventName = options.cache ? 'cacheableResponse' : 'response';
         request.once(responseEventName, (response) => {
             void this._onResponse(response);
@@ -45321,7 +46269,20 @@ class Request extends external_node_stream_.Duplex {
         if (distribution.nodeStream(body)) {
             body.pipe(currentRequest);
         }
-        else if (distribution.generator(body) || distribution.asyncGenerator(body)) {
+        else if (distribution.buffer(body)) {
+            // Buffer should be sent directly without conversion
+            this._writeRequest(body, undefined, () => { });
+            currentRequest.end();
+        }
+        else if (distribution.typedArray(body)) {
+            // Typed arrays should be treated like buffers, not iterated over
+            // Create a Uint8Array view over the data (Node.js streams accept Uint8Array)
+            const typedArray = body;
+            const uint8View = new Uint8Array(typedArray.buffer, typedArray.byteOffset, typedArray.byteLength);
+            this._writeRequest(uint8View, undefined, () => { });
+            currentRequest.end();
+        }
+        else if (distribution.asyncIterable(body) || (distribution.iterable(body) && !distribution.string(body) && !isBuffer(body))) {
             (async () => {
                 try {
                     for await (const chunk of body) {
@@ -45334,11 +46295,16 @@ class Request extends external_node_stream_.Duplex {
                 }
             })();
         }
-        else if (!distribution.undefined(body)) {
-            this._writeRequest(body, undefined, () => { });
-            currentRequest.end();
+        else if (distribution.undefined(body)) {
+            // No body to send, end the request
+            const cannotHaveBody = methodsWithoutBody.has(this.options.method) && !(this.options.method === 'GET' && this.options.allowGetBody);
+            const shouldAutoEndStream = methodsWithoutBodyStream.has(this.options.method);
+            if ((this._noPipe ?? false) || cannotHaveBody || currentRequest !== this || shouldAutoEndStream) {
+                currentRequest.end();
+            }
         }
-        else if (this._cannotHaveBody || this._noPipe) {
+        else {
+            this._writeRequest(body, undefined, () => { });
             currentRequest.end();
         }
     }
@@ -45395,8 +46361,14 @@ class Request extends external_node_stream_.Duplex {
                 response._readableState.autoDestroy = false;
                 if (request) {
                     const fix = () => {
+                        // For ResponseLike objects from cache, set complete to true if not already set.
+                        // For real HTTP responses, copy from the underlying response.
                         if (response.req) {
                             response.complete = response.req.res.complete;
+                        }
+                        else if (response.complete === undefined) {
+                            // ResponseLike from cache should have complete = true
+                            response.complete = true;
                         }
                     };
                     response.prependOnceListener('end', fix);
@@ -45444,7 +46416,7 @@ class Request extends external_node_stream_.Duplex {
         let request;
         for (const hook of options.hooks.beforeRequest) {
             // eslint-disable-next-line no-await-in-loop
-            const result = await hook(options);
+            const result = await hook(options, { retryCount: this.retryCount });
             if (!distribution.undefined(result)) {
                 // @ts-expect-error Skip the type mismatch to support abstract responses
                 request = () => result;
@@ -45458,7 +46430,12 @@ class Request extends external_node_stream_.Duplex {
             this._requestOptions._request = request;
             this._requestOptions.cache = options.cache;
             this._requestOptions.body = options.body;
-            this._prepareCache(options.cache);
+            try {
+                this._prepareCache(options.cache);
+            }
+            catch (error) {
+                throw new CacheError(error, this);
+            }
         }
         // Cache support
         const function_ = options.cache ? this._createCacheableRequest : request;
@@ -45498,12 +46475,12 @@ class Request extends external_node_stream_.Duplex {
     }
     async _error(error) {
         try {
-            if (error instanceof HTTPError && !this.options.throwHttpErrors) {
+            if (this.options && error instanceof HTTPError && !this.options.throwHttpErrors) {
                 // This branch can be reached only when using the Promise API
                 // Skip calling the hooks on purpose.
                 // See https://github.com/sindresorhus/got/issues/2103
             }
-            else {
+            else if (this.options) {
                 for (const hook of this.options.hooks.beforeError) {
                     // eslint-disable-next-line no-await-in-loop
                     error = await hook(error);
@@ -45514,10 +46491,22 @@ class Request extends external_node_stream_.Duplex {
             error = new RequestError(error_.message, error_, this);
         }
         this.destroy(error);
+        // Manually emit error for Promise API to ensure it receives it.
+        // Node.js streams may not re-emit if an error was already emitted during retry attempts.
+        // Only emit for Promise API (_noPipe = true) to avoid double emissions in stream mode.
+        // Use process.nextTick to defer emission and allow destroy() to complete first.
+        // See https://github.com/sindresorhus/got/issues/1995
+        if (this._noPipe) {
+            external_node_process_.nextTick(() => {
+                this.emit('error', error);
+            });
+        }
     }
     _writeRequest(chunk, encoding, callback) {
         if (!this._request || this._request.destroyed) {
-            // Probably the `ClientRequest` instance will throw
+            // When there's no request (e.g., using cached response from beforeRequest hook),
+            // we still need to call the callback to allow the stream to finish properly.
+            callback();
             return;
         }
         this._request.write(chunk, encoding, (error) => {
@@ -45628,7 +46617,7 @@ class Request extends external_node_stream_.Duplex {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/as-promise/types.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/as-promise/types.js
 
 /**
 An error to be thrown when the request is aborted with `.cancel()`.
@@ -45647,7 +46636,7 @@ class types_CancelError extends RequestError {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/as-promise/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/as-promise/index.js
 
 
 
@@ -45668,12 +46657,14 @@ function asPromise(firstRequest) {
     let globalResponse;
     let normalizedOptions;
     const emitter = new external_node_events_.EventEmitter();
+    let promiseSettled = false;
     const promise = new PCancelable((resolve, reject, onCancel) => {
         onCancel(() => {
             globalRequest.destroy();
         });
         onCancel.shouldReject = false;
         onCancel(() => {
+            promiseSettled = true;
             reject(new types_CancelError(globalRequest));
         });
         const makeRequest = (retryCount) => {
@@ -45718,6 +46709,7 @@ function asPromise(firstRequest) {
                         // @ts-expect-error TS doesn't notice that CancelableRequest is a Promise
                         // eslint-disable-next-line no-await-in-loop
                         response = await hook(response, async (updatedOptions) => {
+                            const preserveHooks = updatedOptions.preserveHooks ?? false;
                             options.merge(updatedOptions);
                             options.prefixUrl = '';
                             if (updatedOptions.url) {
@@ -45725,10 +46717,13 @@ function asPromise(firstRequest) {
                             }
                             // Remove any further hooks for that request, because we'll call them anyway.
                             // The loop continues. We don't want duplicates (asPromise recursion).
-                            options.hooks.afterResponse = options.hooks.afterResponse.slice(0, index);
+                            // Unless preserveHooks is true, in which case we keep the remaining hooks.
+                            if (!preserveHooks) {
+                                options.hooks.afterResponse = options.hooks.afterResponse.slice(0, index);
+                            }
                             throw new RetryError(request);
                         });
-                        if (!(distribution.object(response) && distribution.number(response.statusCode) && !distribution.nullOrUndefined(response.body))) {
+                        if (!(distribution.object(response) && distribution.number(response.statusCode) && 'body' in response)) {
                             throw new TypeError('The `afterResponse` hook returned an invalid value');
                         }
                     }
@@ -45743,12 +46738,27 @@ function asPromise(firstRequest) {
                     return;
                 }
                 request.destroy();
+                promiseSettled = true;
                 resolve(request.options.resolveBodyOnly ? response.body : response);
             });
+            let handledFinalError = false;
             const onError = (error) => {
                 if (promise.isCanceled) {
                     return;
                 }
+                // Route errors emitted directly on the stream (e.g., EPIPE from Node.js)
+                // through retry logic first, then handle them here after retries are exhausted.
+                // See https://github.com/sindresorhus/got/issues/1995
+                if (!request._stopReading) {
+                    request._beforeError(error);
+                    return;
+                }
+                // Allow the manual re-emission from Request to land only once.
+                if (handledFinalError) {
+                    return;
+                }
+                handledFinalError = true;
+                promiseSettled = true;
                 const { options } = request;
                 if (error instanceof HTTPError && !options.throwHttpErrors) {
                     const { response } = error;
@@ -45758,10 +46768,21 @@ function asPromise(firstRequest) {
                 }
                 reject(error);
             };
-            request.once('error', onError);
+            // Use .on() instead of .once() to keep the listener active across retries.
+            // When _stopReading is false, we return early and the error gets re-emitted
+            // after retry logic completes, so we need this listener to remain active.
+            // See https://github.com/sindresorhus/got/issues/1995
+            request.on('error', onError);
             const previousBody = request.options?.body;
             request.once('retry', (newRetryCount, error) => {
                 firstRequest = undefined;
+                // If promise already settled, don't retry
+                // This prevents the race condition in #1489 where a late error
+                // (e.g., ECONNRESET after successful response) triggers retry
+                // after the promise has already resolved/rejected
+                if (promiseSettled) {
+                    return;
+                }
                 const newBody = request.options.body;
                 if (previousBody === newBody && distribution.nodeStream(newBody)) {
                     error.message = 'Cannot retry with consumed body stream';
@@ -45813,7 +46834,7 @@ function asPromise(firstRequest) {
     return promise;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/create.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/create.js
 
 
 
@@ -45955,7 +46976,15 @@ const create = (defaults) => {
             }
             else {
                 normalizedOptions.merge(optionsToMerge);
-                assert.any([distribution.urlInstance, distribution.undefined], optionsToMerge.url);
+                try {
+                    assert.any([distribution.urlInstance, distribution.undefined], optionsToMerge.url);
+                }
+                catch (error) {
+                    if (error instanceof Error) {
+                        error.message = `Option 'pagination.paginate.url': ${error.message}`;
+                    }
+                    throw error;
+                }
                 if (optionsToMerge.url !== undefined) {
                     normalizedOptions.prefixUrl = '';
                     normalizedOptions.url = optionsToMerge.url;
@@ -45995,7 +47024,7 @@ const create = (defaults) => {
 };
 /* harmony default export */ const source_create = (create);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.4.9/node_modules/got/dist/source/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/index.js
 
 
 const defaults = {
@@ -46246,8 +47275,8 @@ var index_esm = __nccwpck_require__(5313);
 var dist = __nccwpck_require__(7867);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
-// EXTERNAL MODULE: ./src/coveralls.ts + 47 modules
-var coveralls = __nccwpck_require__(6634);
+// EXTERNAL MODULE: ./src/coveralls.ts + 50 modules
+var coveralls = __nccwpck_require__(2971);
 ;// CONCATENATED MODULE: ./src/gcovr.ts
 
 
@@ -46397,7 +47426,7 @@ async function run(inputs) {
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 /* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7867);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(9334);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(6634);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2971);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2386);
 /* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(386);
 
@@ -51543,7 +52572,7 @@ Object.defineProperty(exports, "bearerTokenAuthenticationPolicyName", ({ enumera
 var ndJsonPolicy_js_1 = __nccwpck_require__(4496);
 Object.defineProperty(exports, "ndJsonPolicy", ({ enumerable: true, get: function () { return ndJsonPolicy_js_1.ndJsonPolicy; } }));
 Object.defineProperty(exports, "ndJsonPolicyName", ({ enumerable: true, get: function () { return ndJsonPolicy_js_1.ndJsonPolicyName; } }));
-var auxiliaryAuthenticationHeaderPolicy_js_1 = __nccwpck_require__(720);
+var auxiliaryAuthenticationHeaderPolicy_js_1 = __nccwpck_require__(8339);
 Object.defineProperty(exports, "auxiliaryAuthenticationHeaderPolicy", ({ enumerable: true, get: function () { return auxiliaryAuthenticationHeaderPolicy_js_1.auxiliaryAuthenticationHeaderPolicy; } }));
 Object.defineProperty(exports, "auxiliaryAuthenticationHeaderPolicyName", ({ enumerable: true, get: function () { return auxiliaryAuthenticationHeaderPolicy_js_1.auxiliaryAuthenticationHeaderPolicyName; } }));
 var agentPolicy_js_1 = __nccwpck_require__(1955);
@@ -51638,7 +52667,7 @@ function agentPolicy(agent) {
 
 /***/ }),
 
-/***/ 720:
+/***/ 8339:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 
@@ -53467,7 +54496,7 @@ var delay_js_1 = __nccwpck_require__(8136);
 Object.defineProperty(exports, "delay", ({ enumerable: true, get: function () { return delay_js_1.delay; } }));
 var error_js_1 = __nccwpck_require__(9581);
 Object.defineProperty(exports, "getErrorMessage", ({ enumerable: true, get: function () { return error_js_1.getErrorMessage; } }));
-var typeGuards_js_1 = __nccwpck_require__(6278);
+var typeGuards_js_1 = __nccwpck_require__(3897);
 Object.defineProperty(exports, "isDefined", ({ enumerable: true, get: function () { return typeGuards_js_1.isDefined; } }));
 Object.defineProperty(exports, "isObjectWithProperties", ({ enumerable: true, get: function () { return typeGuards_js_1.isObjectWithProperties; } }));
 Object.defineProperty(exports, "objectHasProperty", ({ enumerable: true, get: function () { return typeGuards_js_1.objectHasProperty; } }));
@@ -53597,7 +54626,7 @@ function stringToUint8Array(value, format) {
 
 /***/ }),
 
-/***/ 6278:
+/***/ 3897:
 /***/ ((__unused_webpack_module, exports) => {
 
 
