@@ -37435,7 +37435,7 @@ function processInputs() {
 
 /***/ }),
 
-/***/ 2971:
+/***/ 5831:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -39848,7 +39848,7 @@ class PCancelable {
 
 Object.setPrototypeOf(PCancelable.prototype, Promise.prototype);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/errors.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/errors.js
 
 // A hacky check to prevent circular references.
 function isRequest(x) {
@@ -39859,8 +39859,9 @@ An error to be thrown when a request fails.
 Contains a `code` property with error class code, like `ECONNREFUSED`.
 */
 class RequestError extends Error {
+    name = 'RequestError';
+    code = 'ERR_GOT_REQUEST_ERROR';
     input;
-    code;
     stack;
     response;
     request;
@@ -39868,8 +39869,9 @@ class RequestError extends Error {
     constructor(message, error, self) {
         super(message, { cause: error });
         Error.captureStackTrace(this, this.constructor);
-        this.name = 'RequestError';
-        this.code = error.code ?? 'ERR_GOT_REQUEST_ERROR';
+        if (error.code) {
+            this.code = error.code;
+        }
         this.input = error.input;
         if (isRequest(self)) {
             Object.defineProperty(this, 'request', {
@@ -39904,10 +39906,10 @@ An error to be thrown when the server redirects you more than ten times.
 Includes a `response` property.
 */
 class MaxRedirectsError extends RequestError {
+    name = 'MaxRedirectsError';
+    code = 'ERR_TOO_MANY_REDIRECTS';
     constructor(request) {
         super(`Redirected ${request.options.maxRedirects} times. Aborting.`, {}, request);
-        this.name = 'MaxRedirectsError';
-        this.code = 'ERR_TOO_MANY_REDIRECTS';
     }
 }
 /**
@@ -39917,10 +39919,10 @@ Includes a `response` property.
 // TODO: Change `HTTPError<T = any>` to `HTTPError<T = unknown>` in the next major version to enforce type usage.
 // eslint-disable-next-line @typescript-eslint/naming-convention
 class HTTPError extends RequestError {
+    name = 'HTTPError';
+    code = 'ERR_NON_2XX_3XX_RESPONSE';
     constructor(response) {
-        super(`Response code ${response.statusCode} (${response.statusMessage})`, {}, response.request);
-        this.name = 'HTTPError';
-        this.code = 'ERR_NON_2XX_3XX_RESPONSE';
+        super(`Request failed with status code ${response.statusCode} (${response.statusMessage}): ${response.request.options.method} ${response.request.options.url.toString()}`, {}, response.request);
     }
 }
 /**
@@ -39928,20 +39930,24 @@ An error to be thrown when a cache method fails.
 For example, if the database goes down or there's a filesystem error.
 */
 class CacheError extends RequestError {
+    name = 'CacheError';
     constructor(error, request) {
         super(error.message, error, request);
-        this.name = 'CacheError';
-        this.code = this.code === 'ERR_GOT_REQUEST_ERROR' ? 'ERR_CACHE_ACCESS' : this.code;
+        if (this.code === 'ERR_GOT_REQUEST_ERROR') {
+            this.code = 'ERR_CACHE_ACCESS';
+        }
     }
 }
 /**
 An error to be thrown when the request body is a stream and an error occurs while reading from that stream.
 */
 class UploadError extends RequestError {
+    name = 'UploadError';
     constructor(error, request) {
         super(error.message, error, request);
-        this.name = 'UploadError';
-        this.code = this.code === 'ERR_GOT_REQUEST_ERROR' ? 'ERR_UPLOAD' : this.code;
+        if (this.code === 'ERR_GOT_REQUEST_ERROR') {
+            this.code = 'ERR_UPLOAD';
+        }
     }
 }
 /**
@@ -39949,11 +39955,11 @@ An error to be thrown when the request is aborted due to a timeout.
 Includes an `event` and `timings` property.
 */
 class TimeoutError extends RequestError {
+    name = 'TimeoutError';
     timings;
     event;
     constructor(error, timings, request) {
         super(error.message, error, request);
-        this.name = 'TimeoutError';
         this.event = error.event;
         this.timings = timings;
     }
@@ -39962,30 +39968,32 @@ class TimeoutError extends RequestError {
 An error to be thrown when reading from response stream fails.
 */
 class ReadError extends RequestError {
+    name = 'ReadError';
     constructor(error, request) {
         super(error.message, error, request);
-        this.name = 'ReadError';
-        this.code = this.code === 'ERR_GOT_REQUEST_ERROR' ? 'ERR_READING_RESPONSE_STREAM' : this.code;
+        if (this.code === 'ERR_GOT_REQUEST_ERROR') {
+            this.code = 'ERR_READING_RESPONSE_STREAM';
+        }
     }
 }
 /**
 An error which always triggers a new retry when thrown.
 */
 class RetryError extends RequestError {
+    name = 'RetryError';
+    code = 'ERR_RETRYING';
     constructor(request) {
         super('Retrying', {}, request);
-        this.name = 'RetryError';
-        this.code = 'ERR_RETRYING';
     }
 }
 /**
 An error to be thrown when the request is aborted by AbortController.
 */
 class AbortError extends RequestError {
+    name = 'AbortError';
+    code = 'ERR_ABORTED';
     constructor(request) {
         super('This operation was aborted.', {}, request);
-        this.code = 'ERR_ABORTED';
-        this.name = 'AbortError';
     }
 }
 
@@ -42780,14 +42788,13 @@ getContentLength_fn = function() {
 
 // EXTERNAL MODULE: external "node:util"
 var external_node_util_ = __nccwpck_require__(7975);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/is-form-data.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/is-form-data.js
 
 function is_form_data_isFormData(body) {
     return distribution.nodeStream(body) && distribution.function(body.getBoundary);
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/get-body-size.js
-
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/get-body-size.js
 
 
 
@@ -42799,7 +42806,7 @@ async function getBodySize(body, headers) {
         return 0;
     }
     if (distribution.string(body)) {
-        return external_node_buffer_.Buffer.byteLength(body);
+        return new TextEncoder().encode(body).byteLength;
     }
     if (distribution.buffer(body)) {
         return body.length;
@@ -42826,7 +42833,7 @@ async function getBodySize(body, headers) {
     return undefined;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/proxy-events.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/proxy-events.js
 function proxyEvents(from, to, events) {
     const eventFunctions = {};
     for (const event of events) {
@@ -42845,7 +42852,7 @@ function proxyEvents(from, to, events) {
 
 ;// CONCATENATED MODULE: external "node:net"
 const external_node_net_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:net");
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/unhandle.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/unhandle.js
 // When attaching listeners, it's very easy to forget about them.
 // Especially if you do error handling and set timeouts.
 // So instead of checking if it's proper to throw an error on every timeout ever,
@@ -42867,19 +42874,18 @@ function unhandle() {
     };
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/timed-out.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/timed-out.js
 
 
 const reentry = Symbol('reentry');
 const timed_out_noop = () => { };
 class timed_out_TimeoutError extends Error {
     event;
-    code;
+    name = 'TimeoutError';
+    code = 'ETIMEDOUT';
     constructor(threshold, event) {
         super(`Timeout awaiting '${event}' for ${threshold}ms`);
         this.event = event;
-        this.name = 'TimeoutError';
-        this.code = 'ETIMEDOUT';
     }
 }
 function timedOut(request, delays, options) {
@@ -43006,7 +43012,7 @@ function timedOut(request, delays, options) {
     return cancelTimeouts;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/url-to-options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/url-to-options.js
 
 function urlToOptions(url) {
     // Cast to URL
@@ -43030,14 +43036,10 @@ function urlToOptions(url) {
     return options;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/weakable-map.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/weakable-map.js
 class WeakableMap {
-    weakMap;
-    map;
-    constructor() {
-        this.weakMap = new WeakMap();
-        this.map = new Map();
-    }
+    weakMap = new WeakMap();
+    map = new Map();
     set(key, value) {
         if (typeof key === 'object') {
             this.weakMap.set(key, value);
@@ -43060,7 +43062,7 @@ class WeakableMap {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/calculate-retry-delay.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/calculate-retry-delay.js
 const calculateRetryDelay = ({ attemptCount, retryOptions, error, retryAfter, computedValue, }) => {
     if (error.name === 'RetryError') {
         return 1;
@@ -43549,7 +43551,7 @@ class CacheableLookup {
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/http2-wrapper@2.2.1/node_modules/http2-wrapper/source/index.js
 var http2_wrapper_source = __nccwpck_require__(882);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/parse-link-header.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/parse-link-header.js
 function parseLinkHeader(link) {
     const parsed = [];
     const items = link.split(',');
@@ -43584,7 +43586,7 @@ function parseLinkHeader(link) {
     return parsed;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/options.js
 
 
 
@@ -43714,6 +43716,7 @@ const defaultInternals = {
         beforeError: [],
         beforeRedirect: [],
         beforeRetry: [],
+        beforeCache: [],
         afterResponse: [],
     },
     followRedirect: true,
@@ -43724,6 +43727,7 @@ const defaultInternals = {
     password: '',
     http2: false,
     allowGetBody: false,
+    copyPipedHeaders: true,
     headers: {
         'user-agent': 'got (https://github.com/sindresorhus/got)',
     },
@@ -43861,14 +43865,12 @@ const cloneInternals = (internals) => {
             beforeError: [...hooks.beforeError],
             beforeRedirect: [...hooks.beforeRedirect],
             beforeRetry: [...hooks.beforeRetry],
+            beforeCache: [...hooks.beforeCache],
             afterResponse: [...hooks.afterResponse],
         },
         searchParams: internals.searchParams ? new URLSearchParams(internals.searchParams) : undefined,
         pagination: { ...internals.pagination },
     };
-    if (result.url !== undefined) {
-        result.prefixUrl = '';
-    }
     return result;
 };
 const cloneRaw = (raw) => {
@@ -43926,11 +43928,24 @@ const cloneRaw = (raw) => {
         if (distribution.array(hooks.beforeRetry)) {
             result.hooks.beforeRetry = [...hooks.beforeRetry];
         }
+        if (distribution.array(hooks.beforeCache)) {
+            result.hooks.beforeCache = [...hooks.beforeCache];
+        }
         if (distribution.array(hooks.afterResponse)) {
             result.hooks.afterResponse = [...hooks.afterResponse];
         }
     }
-    // TODO: raw.searchParams
+    if (raw.searchParams) {
+        if (distribution.string(raw.searchParams)) {
+            result.searchParams = raw.searchParams;
+        }
+        else if (raw.searchParams instanceof URLSearchParams) {
+            result.searchParams = new URLSearchParams(raw.searchParams);
+        }
+        else if (distribution.object(raw.searchParams)) {
+            result.searchParams = { ...raw.searchParams };
+        }
+    }
     if (distribution.object(raw.pagination)) {
         result.pagination = { ...raw.pagination };
     }
@@ -43954,7 +43969,7 @@ const init = (options, withOptions, self) => {
 class Options {
     _unixOptions;
     _internals;
-    _merging;
+    _merging = false;
     _init;
     constructor(input, options, defaults) {
         options_assertAny('input', [distribution.string, distribution.urlInstance, distribution.object, distribution.undefined], input);
@@ -43965,8 +43980,6 @@ class Options {
         }
         this._internals = cloneInternals(defaults?._internals ?? defaults ?? defaultInternals);
         this._init = [...(defaults?._init ?? [])];
-        this._merging = false;
-        this._unixOptions = undefined;
         // This rule allows `finally` to be considered more important.
         // Meaning no matter the error thrown in the `try` block,
         // if `finally` throws then the `finally` error will be thrown.
@@ -44355,7 +44368,11 @@ class Options {
         if (distribution.string(value) && value.startsWith('/')) {
             throw new Error('`url` must not start with a slash');
         }
-        const urlString = `${this.prefixUrl}${value.toString()}`;
+        // Detect if URL is already absolute (has a protocol/scheme)
+        const valueString = value.toString();
+        const isAbsolute = distribution.urlInstance(value) || /^[a-z][a-z\d+.-]*:/i.test(valueString);
+        // Only concatenate prefixUrl if the URL is relative
+        const urlString = isAbsolute ? valueString : `${this.prefixUrl}${valueString}`;
         const url = new URL(urlString);
         this._internals.url = url;
         if (url.protocol === 'unix:') {
@@ -44807,6 +44824,62 @@ class Options {
     set allowGetBody(value) {
         assert.boolean(value);
         this._internals.allowGetBody = value;
+    }
+    /**
+    Automatically copy headers from piped streams.
+
+    When piping a request into a Got stream (e.g., `request.pipe(got.stream(url))`), this controls whether headers from the source stream are automatically merged into the Got request headers.
+
+    Note: Piped headers overwrite any explicitly set headers with the same name. To override this, either set `copyPipedHeaders` to `false` and manually copy safe headers, or use a `beforeRequest` hook to force specific header values after piping.
+
+    Useful for proxy scenarios, but you may want to disable this to filter out headers like `Host`, `Connection`, `Authorization`, etc.
+
+    @default true
+
+    @example
+    ```
+    import got from 'got';
+    import {pipeline} from 'node:stream/promises';
+
+    // Disable automatic header copying and manually copy only safe headers
+    server.get('/proxy', async (request, response) => {
+        const gotStream = got.stream('https://example.com', {
+            copyPipedHeaders: false,
+            headers: {
+                'user-agent': request.headers['user-agent'],
+                'accept': request.headers['accept'],
+                // Explicitly NOT copying host, connection, authorization, etc.
+            }
+        });
+
+        await pipeline(request, gotStream, response);
+    });
+    ```
+
+    @example
+    ```
+    import got from 'got';
+
+    // Override piped headers using beforeRequest hook
+    const gotStream = got.stream('https://example.com', {
+        hooks: {
+            beforeRequest: [
+                options => {
+                    // Force specific header values after piping
+                    options.headers.host = 'example.com';
+                    delete options.headers.authorization;
+                }
+            ]
+        }
+    });
+    ```
+    */
+    get copyPipedHeaders() {
+        return this._internals.copyPipedHeaders;
+    }
+    set copyPipedHeaders(value) {
+        assert.boolean(value);
+        this._internals.copyPipedHeaders = value;
     }
     /**
     Request headers.
@@ -45353,7 +45426,7 @@ class Options {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/response.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/response.js
 
 const isResponseOk = (response) => {
     const { statusCode } = response;
@@ -45367,11 +45440,11 @@ An error to be thrown when server response code is 2xx, and parsing body fails.
 Includes a `response` property.
 */
 class ParseError extends RequestError {
+    name = 'ParseError';
+    code = 'ERR_BODY_PARSE_FAILURE';
     constructor(error, response) {
         const { options } = response.request;
         super(`${error.message} in "${options.url.toString()}"`, error, response.request);
-        this.name = 'ParseError';
-        this.code = 'ERR_BODY_PARSE_FAILURE';
     }
 }
 const parseBody = (response, responseType, parseJson, encoding) => {
@@ -45396,13 +45469,13 @@ const parseBody = (response, responseType, parseJson, encoding) => {
     }, response);
 };
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/is-client-request.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/is-client-request.js
 function isClientRequest(clientRequest) {
     return clientRequest.writable && !clientRequest.writableEnded;
 }
 /* harmony default export */ const is_client_request = (isClientRequest);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function isUnixSocketURL(url) {
     return url.protocol === 'unix:' || url.hostname === 'unix';
@@ -45429,7 +45502,61 @@ function getUnixSocketPath(url) {
     return /(?<socketPath>.+?):(?<path>.+)/.exec(`${url.pathname}${url.search}`)?.groups?.socketPath;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/core/index.js
+;// CONCATENATED MODULE: external "node:diagnostics_channel"
+const external_node_diagnostics_channel_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:diagnostics_channel");
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/diagnostics-channel.js
+
+
+const channels = {
+    requestCreate: external_node_diagnostics_channel_namespaceObject.channel('got:request:create'),
+    requestStart: external_node_diagnostics_channel_namespaceObject.channel('got:request:start'),
+    responseStart: external_node_diagnostics_channel_namespaceObject.channel('got:response:start'),
+    responseEnd: external_node_diagnostics_channel_namespaceObject.channel('got:response:end'),
+    retry: external_node_diagnostics_channel_namespaceObject.channel('got:request:retry'),
+    error: external_node_diagnostics_channel_namespaceObject.channel('got:request:error'),
+    redirect: external_node_diagnostics_channel_namespaceObject.channel('got:response:redirect'),
+};
+function generateRequestId() {
+    return (0,external_node_crypto_.randomUUID)();
+}
+function publishRequestCreate(message) {
+    if (channels.requestCreate.hasSubscribers) {
+        channels.requestCreate.publish(message);
+    }
+}
+function publishRequestStart(message) {
+    if (channels.requestStart.hasSubscribers) {
+        channels.requestStart.publish(message);
+    }
+}
+function publishResponseStart(message) {
+    if (channels.responseStart.hasSubscribers) {
+        channels.responseStart.publish(message);
+    }
+}
+function publishResponseEnd(message) {
+    if (channels.responseEnd.hasSubscribers) {
+        channels.responseEnd.publish(message);
+    }
+}
+function publishRetry(message) {
+    if (channels.retry.hasSubscribers) {
+        channels.retry.publish(message);
+    }
+}
+function publishError(message) {
+    if (channels.error.hasSubscribers) {
+        channels.error.publish(message);
+    }
+}
+function publishRedirect(message) {
+    if (channels.redirect.hasSubscribers) {
+        channels.redirect.publish(message);
+    }
+}
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/index.js
+
 
 
 
@@ -45452,11 +45579,14 @@ function getUnixSocketPath(url) {
 
 
 const supportsBrotli = distribution.string(external_node_process_.versions.brotli);
+const core_supportsZstd = distribution.string(external_node_process_.versions.zstd);
 const methodsWithoutBody = new Set(['GET', 'HEAD']);
 // Methods that should auto-end streams when no body is provided
 const methodsWithoutBodyStream = new Set(['OPTIONS', 'DELETE', 'PATCH']);
 const cacheableStore = new WeakableMap();
 const redirectCodes = new Set([300, 301, 302, 303, 304, 307, 308]);
+// Track errors that have been processed by beforeError hooks to preserve custom error types
+const errorsProcessedByHooks = new WeakSet();
 const proxiedRequestEvents = [
     'socket',
     'connect',
@@ -45484,28 +45614,30 @@ class Request extends external_node_stream_.Duplex {
     options;
     response;
     requestUrl;
-    redirectUrls;
-    retryCount;
-    _stopReading;
-    _stopRetry;
-    _downloadedSize;
-    _uploadedSize;
-    _pipedServerResponses;
+    redirectUrls = [];
+    retryCount = 0;
+    _stopReading = false;
+    _stopRetry = core_noop;
+    _downloadedSize = 0;
+    _uploadedSize = 0;
+    _pipedServerResponses = new Set();
     _request;
     _responseSize;
     _bodySize;
-    _unproxyEvents;
+    _unproxyEvents = core_noop;
     _isFromCache;
-    _triggerRead;
-    _cancelTimeouts;
-    _removeListeners;
+    _triggerRead = false;
+    _jobs = [];
+    _cancelTimeouts = core_noop;
+    _removeListeners = core_noop;
     _nativeResponse;
-    _flushed;
-    _aborted;
+    _flushed = false;
+    _aborted = false;
     _expectedContentLength;
     _byteCounter;
+    _requestId = generateRequestId();
     // We need this because `this._request` if `undefined` when using cache
-    _requestInitialized;
+    _requestInitialized = false;
     constructor(url, options, defaults) {
         super({
             // Don't destroy immediately, as the error may be emitted on unsuccessful retry
@@ -45513,23 +45645,8 @@ class Request extends external_node_stream_.Duplex {
             // It needs to be zero because we're just proxying the data to another stream
             highWaterMark: 0,
         });
-        this._downloadedSize = 0;
-        this._uploadedSize = 0;
-        this._stopReading = false;
-        this._pipedServerResponses = new Set();
-        this._unproxyEvents = core_noop;
-        this._triggerRead = false;
-        this._cancelTimeouts = core_noop;
-        this._removeListeners = core_noop;
-        this._jobs = [];
-        this._flushed = false;
-        this._requestInitialized = false;
-        this._aborted = false;
-        this.redirectUrls = [];
-        this.retryCount = 0;
-        this._stopRetry = core_noop;
         this.on('pipe', (source) => {
-            if (source?.headers) {
+            if (this.options.copyPipedHeaders && source?.headers) {
                 Object.assign(this.options.headers, source.headers);
             }
         });
@@ -45547,6 +45664,12 @@ class Request extends external_node_stream_.Duplex {
                 this.options.url = '';
             }
             this.requestUrl = this.options.url;
+            // Publish request creation event
+            publishRequestCreate({
+                requestId: this._requestId,
+                url: this.options.url?.toString() ?? '',
+                method: this.options.method,
+            });
         }
         catch (error) {
             const { options } = error;
@@ -45717,6 +45840,8 @@ class Request extends external_node_stream_.Duplex {
                     if (this.destroyed) {
                         return;
                     }
+                    // Capture body BEFORE hooks run to detect reassignment
+                    const bodyBeforeHooks = this.options.body;
                     try {
                         for (const hook of this.options.hooks.beforeRetry) {
                             // eslint-disable-next-line no-await-in-loop
@@ -45724,14 +45849,58 @@ class Request extends external_node_stream_.Duplex {
                         }
                     }
                     catch (error_) {
-                        void this._error(new RequestError(error_.message, error, this));
+                        void this._error(new RequestError(error_.message, error_, this));
                         return;
                     }
                     // Something forced us to abort the retry
                     if (this.destroyed) {
                         return;
                     }
-                    this.destroy();
+                    // Preserve stream body reassigned in beforeRetry hooks.
+                    const bodyAfterHooks = this.options.body;
+                    const bodyWasReassigned = bodyBeforeHooks !== bodyAfterHooks;
+                    // Resource cleanup and preservation logic for retry with body reassignment.
+                    // The Promise wrapper (as-promise/index.ts) compares body identity to detect consumed streams,
+                    // so we must preserve the body reference across destroy(). However, destroy() calls _destroy()
+                    // which destroys this.options.body, creating a complex dance of clear/restore operations.
+                    //
+                    // Key constraints:
+                    // 1. If body was reassigned, we must NOT destroy the NEW stream (it will be used for retry)
+                    // 2. If body was reassigned, we MUST destroy the OLD stream to prevent memory leaks
+                    // 3. We must restore the body reference after destroy() for identity checks in promise wrapper
+                    // 4. We cannot use the normal setter after destroy() because it validates stream readability
+                    if (bodyWasReassigned) {
+                        const oldBody = bodyBeforeHooks;
+                        // Temporarily clear body to prevent destroy() from destroying the new stream
+                        this.options.body = undefined;
+                        this.destroy();
+                        // Clean up the old stream resource if it's a stream and different from new body
+                        // (edge case: if old and new are same stream object, don't destroy it)
+                        if (distribution.nodeStream(oldBody) && oldBody !== bodyAfterHooks) {
+                            oldBody.destroy();
+                        }
+                        // Restore new body for promise wrapper's identity check
+                        // We bypass the setter because it validates stream.readable (which fails for destroyed request)
+                        // Type assertion is necessary here to access private _internals without exposing internal API
+                        if (distribution.nodeStream(bodyAfterHooks) && (bodyAfterHooks.readableEnded || bodyAfterHooks.destroyed)) {
+                            throw new TypeError('The reassigned stream body must be readable. Ensure you provide a fresh, readable stream in the beforeRetry hook.');
+                        }
+                        this.options._internals.body = bodyAfterHooks;
+                    }
+                    else {
+                        // Body wasn't reassigned - use normal destroy flow which handles body cleanup
+                        this.destroy();
+                        // Note: We do NOT restore the body reference here. The stream was destroyed by _destroy()
+                        // and should not be accessed. The promise wrapper will see that body identity hasn't changed
+                        // and will detect it's a consumed stream, which is the correct behavior.
+                    }
+                    // Publish retry event
+                    publishRetry({
+                        requestId: this._requestId,
+                        retryCount: this.retryCount + 1,
+                        error: typedError,
+                        delay: backoff,
+                    });
                     this.emit('retry', this.retryCount + 1, error, (updatedOptions) => {
                         const request = new Request(options.url, updatedOptions, options);
                         request.retryCount = this.retryCount + 1;
@@ -45835,8 +46004,15 @@ class Request extends external_node_stream_.Duplex {
                 timings.phases.total = timings.end - timings.start;
             }
         }
-        if (error !== null && !distribution.undefined(error) && !(error instanceof RequestError)) {
-            error = new RequestError(error.message, error, this);
+        // Preserve custom errors returned by beforeError hooks.
+        // For other errors, wrap non-RequestError instances for consistency.
+        if (error !== null && !distribution.undefined(error)) {
+            const processedByHooks = error instanceof Error && errorsProcessedByHooks.has(error);
+            if (!processedByHooks && !(error instanceof RequestError)) {
+                error = error instanceof Error
+                    ? new RequestError(error.message, error, this)
+                    : new RequestError(String(error), {}, this);
+            }
         }
         callback(error);
     }
@@ -45980,6 +46156,14 @@ class Request extends external_node_stream_.Duplex {
         this._isFromCache = typedResponse.isFromCache;
         this._responseSize = Number(response.headers['content-length']) || undefined;
         this.response = typedResponse;
+        // Publish response start event
+        publishResponseStart({
+            requestId: this._requestId,
+            url: typedResponse.url,
+            statusCode,
+            headers: response.headers,
+            isFromCache: typedResponse.isFromCache,
+        });
         // Workaround for http-timer bug: when connecting to an IP address (no DNS lookup),
         // http-timer sets lookup = connect instead of lookup = socket, resulting in
         // dns = lookup - socket being a small positive number instead of 0.
@@ -45991,6 +46175,15 @@ class Request extends external_node_stream_.Duplex {
             timings.lookup = timings.socket;
             // Recalculate TCP time to be the full time from socket to connect
             timings.phases.tcp = timings.connect - timings.socket;
+        }
+        // Workaround for http-timer limitation with HTTP/2:
+        // When using HTTP/2, the socket is a proxy that http-timer discards,
+        // so lookup, connect, and secureConnect events are never captured.
+        // This results in phases.request being NaN (undefined - undefined).
+        // Set it to undefined to be consistent with other unavailable timings.
+        // See https://github.com/sindresorhus/got/issues/1958
+        if (timings && Number.isNaN(timings.phases.request)) {
+            timings.phases.request = undefined;
         }
         response.once('error', (error) => {
             this._aborted = true;
@@ -46094,12 +46287,18 @@ class Request extends external_node_stream_.Duplex {
                         redirectUrl.password = updatedOptions.password;
                     }
                     this.redirectUrls.push(redirectUrl);
-                    updatedOptions.prefixUrl = '';
                     updatedOptions.url = redirectUrl;
                     for (const hook of updatedOptions.hooks.beforeRedirect) {
                         // eslint-disable-next-line no-await-in-loop
                         await hook(updatedOptions, typedResponse);
                     }
+                    // Publish redirect event
+                    publishRedirect({
+                        requestId: this._requestId,
+                        fromUrl: url.toString(),
+                        toUrl: redirectUrl.toString(),
+                        statusCode,
+                    });
                     this.emit('redirect', updatedOptions, typedResponse);
                     this.options = updatedOptions;
                     await this._makeRequest();
@@ -46143,6 +46342,14 @@ class Request extends external_node_stream_.Duplex {
             }
             this._responseSize = this._downloadedSize;
             this.emit('downloadProgress', this.downloadProgress);
+            // Publish response end event
+            publishResponseEnd({
+                requestId: this._requestId,
+                url: typedResponse.url,
+                statusCode,
+                bodySize: this._downloadedSize,
+                timings: this.timings,
+            });
             this.push(null);
         });
         this.emit('downloadProgress', this.downloadProgress);
@@ -46220,6 +46427,13 @@ class Request extends external_node_stream_.Duplex {
     _onRequest(request) {
         const { options } = this;
         const { timeout, url } = options;
+        // Publish request start event
+        publishRequestStart({
+            requestId: this._requestId,
+            url: url?.toString() ?? '',
+            method: options.method,
+            headers: options.headers,
+        });
         dist_source(request);
         this._cancelTimeouts = timedOut(request, timeout, url);
         if (this.options.http2) {
@@ -46309,47 +46523,111 @@ class Request extends external_node_stream_.Duplex {
         }
     }
     _prepareCache(cache) {
-        if (!cacheableStore.has(cache)) {
-            const cacheableRequest = new cacheable_request_dist(((requestOptions, handler) => {
-                const result = requestOptions._request(requestOptions, handler);
-                // TODO: remove this when `cacheable-request` supports async request functions.
-                if (distribution.promise(result)) {
-                    // We only need to implement the error handler in order to support HTTP2 caching.
-                    // The result will be a promise anyway.
-                    // @ts-expect-error ignore
-                    result.once = (event, handler) => {
-                        if (event === 'error') {
-                            (async () => {
-                                try {
-                                    await result;
-                                }
-                                catch (error) {
-                                    handler(error);
-                                }
-                            })();
-                        }
-                        else if (event === 'abort' || event === 'destroy') {
-                            // The empty catch is needed here in case when
-                            // it rejects before it's `await`ed in `_makeRequest`.
-                            (async () => {
-                                try {
-                                    const request = (await result);
-                                    request.once(event, handler);
-                                }
-                                catch { }
-                            })();
-                        }
-                        else {
-                            /* istanbul ignore next: safety check */
-                            throw new Error(`Unknown HTTP2 promise event: ${event}`);
-                        }
-                        return result;
-                    };
-                }
-                return result;
-            }), cache);
-            cacheableStore.set(cache, cacheableRequest.request());
+        if (cacheableStore.has(cache)) {
+            return;
         }
+        const cacheableRequest = new cacheable_request_dist(((requestOptions, handler) => {
+            /**
+            Wraps the cacheable-request handler to run beforeCache hooks.
+            These hooks control caching behavior by:
+            - Directly mutating the response object (changes apply to what gets cached)
+            - Returning `false` to prevent caching
+            - Returning `void`/`undefined` to use default caching behavior
+
+            Hooks use direct mutation - they can modify response.headers, response.statusCode, etc.
+            Mutations take effect immediately and determine what gets cached.
+            */
+            const wrappedHandler = handler ? (response) => {
+                const { beforeCacheHooks, gotRequest } = requestOptions;
+                // Early return if no hooks - cache the original response
+                if (!beforeCacheHooks || beforeCacheHooks.length === 0) {
+                    handler(response);
+                    return;
+                }
+                try {
+                    // Call each beforeCache hook with the response
+                    // Hooks can directly mutate the response - mutations take effect immediately
+                    for (const hook of beforeCacheHooks) {
+                        const result = hook(response);
+                        if (result === false) {
+                            // Prevent caching by adding no-cache headers
+                            // Mutate the response directly to add headers
+                            response.headers['cache-control'] = 'no-cache, no-store, must-revalidate';
+                            response.headers.pragma = 'no-cache';
+                            response.headers.expires = '0';
+                            handler(response);
+                            // Don't call remaining hooks - we've decided not to cache
+                            return;
+                        }
+                        if (distribution.promise(result)) {
+                            // BeforeCache hooks must be synchronous because cacheable-request's handler is synchronous
+                            throw new TypeError('beforeCache hooks must be synchronous. The hook returned a Promise, but this hook must return synchronously. If you need async logic, use beforeRequest hook instead.');
+                        }
+                        if (result !== undefined) {
+                            // Hooks should return false or undefined only
+                            // Mutations work directly - no need to return the response
+                            throw new TypeError('beforeCache hook must return false or undefined. To modify the response, mutate it directly.');
+                        }
+                        // Else: void/undefined = continue
+                    }
+                }
+                catch (error) {
+                    // Convert hook errors to RequestError and propagate
+                    // This is consistent with how other hooks handle errors
+                    if (gotRequest) {
+                        gotRequest._beforeError(error instanceof RequestError ? error : new RequestError(error.message, error, gotRequest));
+                        // Don't call handler when error was propagated successfully
+                        return;
+                    }
+                    // If gotRequest is missing, log the error to aid debugging
+                    // We still call the handler to prevent the request from hanging
+                    console.error('Got: beforeCache hook error (request context unavailable):', error);
+                    // Call handler with response (potentially partially modified)
+                    handler(response);
+                    return;
+                }
+                // All hooks ran successfully
+                // Cache the response with any mutations applied
+                handler(response);
+            } : handler;
+            const result = requestOptions._request(requestOptions, wrappedHandler);
+            // TODO: remove this when `cacheable-request` supports async request functions.
+            if (distribution.promise(result)) {
+                // We only need to implement the error handler in order to support HTTP2 caching.
+                // The result will be a promise anyway.
+                // @ts-expect-error ignore
+                result.once = (event, handler) => {
+                    if (event === 'error') {
+                        (async () => {
+                            try {
+                                await result;
+                            }
+                            catch (error) {
+                                handler(error);
+                            }
+                        })();
+                    }
+                    else if (event === 'abort' || event === 'destroy') {
+                        // The empty catch is needed here in case when
+                        // it rejects before it's `await`ed in `_makeRequest`.
+                        (async () => {
+                            try {
+                                const request = (await result);
+                                request.once(event, handler);
+                            }
+                            catch { }
+                        })();
+                    }
+                    else {
+                        /* istanbul ignore next: safety check */
+                        throw new Error(`Unknown HTTP2 promise event: ${event}`);
+                    }
+                    return result;
+                };
+            }
+            return result;
+        }), cache);
+        cacheableStore.set(cache, cacheableRequest.request());
     }
     async _createCacheableRequest(url, options) {
         return new Promise((resolve, reject) => {
@@ -46398,7 +46676,14 @@ class Request extends external_node_stream_.Duplex {
             }
         }
         if (options.decompress && distribution.undefined(headers['accept-encoding'])) {
-            headers['accept-encoding'] = supportsBrotli ? 'gzip, deflate, br' : 'gzip, deflate';
+            const encodings = ['gzip', 'deflate'];
+            if (supportsBrotli) {
+                encodings.push('br');
+            }
+            if (core_supportsZstd) {
+                encodings.push('zstd');
+            }
+            headers['accept-encoding'] = encodings.join(', ');
         }
         if (username || password) {
             const credentials = external_node_buffer_.Buffer.from(`${username}:${password}`).toString('base64');
@@ -46411,8 +46696,6 @@ class Request extends external_node_stream_.Duplex {
                 headers.cookie = cookieString;
             }
         }
-        // Reset `prefixUrl`
-        options.prefixUrl = '';
         let request;
         for (const hook of options.hooks.beforeRequest) {
             // eslint-disable-next-line no-await-in-loop
@@ -46430,6 +46713,8 @@ class Request extends external_node_stream_.Duplex {
             this._requestOptions._request = request;
             this._requestOptions.cache = options.cache;
             this._requestOptions.body = options.body;
+            this._requestOptions.beforeCacheHooks = options.hooks.beforeCache;
+            this._requestOptions.gotRequest = this;
             try {
                 this._prepareCache(options.cache);
             }
@@ -46456,14 +46741,14 @@ class Request extends external_node_stream_.Duplex {
             if (is_client_request(requestOrResponse)) {
                 this._onRequest(requestOrResponse);
             }
-            else if (this.writable) {
+            else if (this.writableEnded) {
+                void this._onResponse(requestOrResponse);
+            }
+            else {
                 this.once('finish', () => {
                     void this._onResponse(requestOrResponse);
                 });
                 this._sendBody();
-            }
-            else {
-                void this._onResponse(requestOrResponse);
             }
         }
         catch (error) {
@@ -46481,15 +46766,35 @@ class Request extends external_node_stream_.Duplex {
                 // See https://github.com/sindresorhus/got/issues/2103
             }
             else if (this.options) {
-                for (const hook of this.options.hooks.beforeError) {
-                    // eslint-disable-next-line no-await-in-loop
-                    error = await hook(error);
+                const hooks = this.options.hooks.beforeError;
+                if (hooks.length > 0) {
+                    for (const hook of hooks) {
+                        // eslint-disable-next-line no-await-in-loop
+                        error = await hook(error);
+                        // Validate hook return value
+                        if (!(error instanceof Error)) {
+                            throw new TypeError(`The \`beforeError\` hook must return an Error instance. Received ${distribution.string(error) ? 'string' : String(typeof error)}.`);
+                        }
+                    }
+                    // Mark this error as processed by hooks so _destroy preserves custom error types.
+                    // Only mark non-RequestError errors, since RequestErrors are already preserved
+                    // by the instanceof check in _destroy (line 642).
+                    if (!(error instanceof RequestError)) {
+                        errorsProcessedByHooks.add(error);
+                    }
                 }
             }
         }
         catch (error_) {
             error = new RequestError(error_.message, error_, this);
         }
+        // Publish error event
+        publishError({
+            requestId: this._requestId,
+            url: this.options?.url?.toString() ?? '',
+            error,
+            timings: this.timings,
+        });
         this.destroy(error);
         // Manually emit error for Promise API to ensure it receives it.
         // Node.js streams may not re-emit if an error was already emitted during retry attempts.
@@ -46615,9 +46920,15 @@ class Request extends external_node_stream_.Duplex {
     get reusedSocket() {
         return this._request?.reusedSocket;
     }
+    /**
+    Whether the stream is read-only. Returns `true` when `body`, `json`, or `form` options are provided.
+    */
+    get isReadonly() {
+        return !distribution.undefined(this.options?.body) || !distribution.undefined(this.options?.json) || !distribution.undefined(this.options?.form);
+    }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/as-promise/types.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/as-promise/types.js
 
 /**
 An error to be thrown when the request is aborted with `.cancel()`.
@@ -46636,7 +46947,7 @@ class types_CancelError extends RequestError {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/as-promise/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/as-promise/index.js
 
 
 
@@ -46679,7 +46990,7 @@ function asPromise(firstRequest) {
             request.once('response', async (response) => {
                 // Parse body
                 const contentEncoding = (response.headers['content-encoding'] ?? '').toLowerCase();
-                const isCompressed = contentEncoding === 'gzip' || contentEncoding === 'deflate' || contentEncoding === 'br';
+                const isCompressed = contentEncoding === 'gzip' || contentEncoding === 'deflate' || contentEncoding === 'br' || contentEncoding === 'zstd';
                 const { options } = request;
                 if (isCompressed && !options.decompress) {
                     response.body = response.rawBody;
@@ -46809,32 +47120,40 @@ function asPromise(firstRequest) {
         emitter.off(event, function_);
         return promise;
     };
-    const shortcut = (responseType) => {
+    const shortcut = (promiseToAwait, responseType) => {
         const newPromise = (async () => {
             // Wait until downloading has ended
-            await promise;
+            await promiseToAwait;
             const { options } = globalResponse.request;
             return parseBody(globalResponse, responseType, options.parseJson, options.encoding);
         })();
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        Object.defineProperties(newPromise, Object.getOwnPropertyDescriptors(promise));
+        Object.defineProperties(newPromise, Object.getOwnPropertyDescriptors(promiseToAwait));
         return newPromise;
     };
-    promise.json = () => {
+    // Note: These use `function` syntax (not arrows) to access `this` context.
+    // When custom handlers wrap the promise to transform errors, these methods
+    // are copied to the handler's promise. Using `this` ensures we await the
+    // handler's wrapped promise, not the original, so errors propagate correctly.
+    promise.json = function () {
         if (globalRequest.options) {
             const { headers } = globalRequest.options;
             if (!globalRequest.writableFinished && !('accept' in headers)) {
                 headers.accept = 'application/json';
             }
         }
-        return shortcut('json');
+        return shortcut(this, 'json');
     };
-    promise.buffer = () => shortcut('buffer');
-    promise.text = () => shortcut('text');
+    promise.buffer = function () {
+        return shortcut(this, 'buffer');
+    };
+    promise.text = function () {
+        return shortcut(this, 'text');
+    };
     return promise;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/create.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/create.js
 
 
 
@@ -47024,7 +47343,7 @@ const create = (defaults) => {
 };
 /* harmony default export */ const source_create = (create);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.0/node_modules/got/dist/source/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/index.js
 
 
 const defaults = {
@@ -47035,6 +47354,7 @@ const defaults = {
 const got = source_create(defaults);
 /* harmony default export */ const got_dist_source = (got);
 // TODO: Remove this in the next major version.
+
 
 
 
@@ -47275,8 +47595,8 @@ var index_esm = __nccwpck_require__(5313);
 var dist = __nccwpck_require__(7867);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
-// EXTERNAL MODULE: ./src/coveralls.ts + 50 modules
-var coveralls = __nccwpck_require__(2971);
+// EXTERNAL MODULE: ./src/coveralls.ts + 52 modules
+var coveralls = __nccwpck_require__(5831);
 ;// CONCATENATED MODULE: ./src/gcovr.ts
 
 
@@ -47426,7 +47746,7 @@ async function run(inputs) {
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 /* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7867);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(9334);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2971);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(5831);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2386);
 /* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(386);
 
