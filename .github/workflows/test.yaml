@@ -13,7 +13,7 @@ jobs:
         os: [ubuntu-24.04, macos-14, windows-2022]
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Install LLVM
         run: sudo apt-get install -y llvm
@@ -61,7 +61,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -115,7 +115,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -169,7 +169,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -193,7 +193,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -217,7 +217,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -242,7 +242,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -267,7 +267,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -292,7 +292,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
@@ -316,7 +316,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Build Sample Project
         uses: threeal/cmake-action@v2.1.0
