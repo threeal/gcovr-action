@@ -8,7 +8,7 @@
     "catched-error-message": "^0.0.1",
     "formdata-node": "^6.0.3",
     "gha-utils": "^0.4.1",
-    "got": "^14.6.1",
+    "got": "^14.6.6",
     "pipx-install-action": "^1.0.0"
   },
   "devDependencies": {

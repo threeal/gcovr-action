@@ -6699,7 +6699,7 @@ var isArray = Array.isArray || function (xs) {
 
 /***/ }),
 
-/***/ 7451:
+/***/ 9832:
 /***/ ((module, exports, __nccwpck_require__) => {
 
 /* eslint-env browser */
@@ -7286,7 +7286,7 @@ module.exports = setup;
  */
 
 if (typeof process === 'undefined' || process.type === 'renderer' || process.browser === true || process.__nwjs) {
-	module.exports = __nccwpck_require__(7451);
+	module.exports = __nccwpck_require__(9832);
 } else {
 	module.exports = __nccwpck_require__(6423);
 }
@@ -7560,60 +7560,6 @@ formatters.O = function (v) {
 	this.inspectOpts.colors = this.useColors;
 	return util.inspect(v, this.inspectOpts);
 };
-
-
-/***/ }),
-
-/***/ 6181:
-/***/ ((module, exports) => {
-
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-function isTLSSocket(socket) {
-    return socket.encrypted;
-}
-const deferToConnect = (socket, fn) => {
-    let listeners;
-    if (typeof fn === 'function') {
-        const connect = fn;
-        listeners = { connect };
-    }
-    else {
-        listeners = fn;
-    }
-    const hasConnectListener = typeof listeners.connect === 'function';
-    const hasSecureConnectListener = typeof listeners.secureConnect === 'function';
-    const hasCloseListener = typeof listeners.close === 'function';
-    const onConnect = () => {
-        if (hasConnectListener) {
-            listeners.connect();
-        }
-        if (isTLSSocket(socket) && hasSecureConnectListener) {
-            if (socket.authorized) {
-                listeners.secureConnect();
-            }
-            else if (!socket.authorizationError) {
-                socket.once('secureConnect', listeners.secureConnect);
-            }
-        }
-        if (hasCloseListener) {
-            socket.once('close', listeners.close);
-        }
-    };
-    if (socket.writable && !socket.connecting) {
-        onConnect();
-    }
-    else if (socket.connecting) {
-        socket.once('connect', onConnect);
-    }
-    else if (socket.destroyed && hasCloseListener) {
-        listeners.close(socket._hadError);
-    }
-};
-exports["default"] = deferToConnect;
-// For CommonJS default export support
-module.exports = deferToConnect;
-module.exports["default"] = deferToConnect;
 
 
 /***/ }),
@@ -37435,7 +37381,7 @@ function processInputs() {
 
 /***/ }),
 
-/***/ 5831:
+/***/ 7451:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -38405,12 +38351,12 @@ async function fileFromPath(path, filenameOrOptions, options) {
 var dist = __nccwpck_require__(7867);
 ;// CONCATENATED MODULE: external "node:timers/promises"
 const external_node_timers_promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:timers/promises");
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@sindresorhus+is@7.1.0/node_modules/@sindresorhus/is/distribution/utilities.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@sindresorhus+is@7.2.0/node_modules/@sindresorhus/is/distribution/utilities.js
 function keysOf(value) {
     return Object.keys(value);
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@sindresorhus+is@7.1.0/node_modules/@sindresorhus/is/distribution/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/@sindresorhus+is@7.2.0/node_modules/@sindresorhus/is/distribution/index.js
 
 const typedArrayTypeNames = [
     'Int8Array',
@@ -38679,12 +38625,46 @@ const is = Object.assign(detect, {
 function isAbsoluteModule2(remainder) {
     return (value) => isInteger(value) && Math.abs(value % 2) === remainder;
 }
+function validatePredicateArray(predicateArray, allowEmpty) {
+    if (predicateArray.length === 0) {
+        if (allowEmpty) {
+            // Next major release: throw for empty predicate arrays to avoid vacuous results.
+            // throw new TypeError('Invalid predicate array');
+        }
+        else {
+            throw new TypeError('Invalid predicate array');
+        }
+        return;
+    }
+    for (const predicate of predicateArray) {
+        if (!distribution_isFunction(predicate)) {
+            throw new TypeError(`Invalid predicate: ${JSON.stringify(predicate)}`);
+        }
+    }
+}
 function isAll(predicate, ...values) {
+    if (Array.isArray(predicate)) {
+        const predicateArray = predicate;
+        validatePredicateArray(predicateArray, values.length === 0);
+        const combinedPredicate = (value) => predicateArray.every(singlePredicate => singlePredicate(value));
+        if (values.length === 0) {
+            return combinedPredicate;
+        }
+        return predicateOnArray(Array.prototype.every, combinedPredicate, values);
+    }
     return predicateOnArray(Array.prototype.every, predicate, values);
 }
 function isAny(predicate, ...values) {
-    const predicates = isArray(predicate) ? predicate : [predicate];
-    return predicates.some(singlePredicate => predicateOnArray(Array.prototype.some, singlePredicate, values));
+    if (Array.isArray(predicate)) {
+        const predicateArray = predicate;
+        validatePredicateArray(predicateArray, values.length === 0);
+        const combinedPredicate = (value) => predicateArray.some(singlePredicate => singlePredicate(value));
+        if (values.length === 0) {
+            return combinedPredicate;
+        }
+        return predicateOnArray(Array.prototype.some, combinedPredicate, values);
+    }
+    return predicateOnArray(Array.prototype.some, predicate, values);
 }
 function isOptional(value, predicate) {
     return isUndefined(value) || predicate(value);
@@ -38744,7 +38724,7 @@ function isBuffer(value) {
     return value?.constructor?.isBuffer?.(value) ?? false;
 }
 function isClass(value) {
-    return distribution_isFunction(value) && value.toString().startsWith('class ');
+    return distribution_isFunction(value) && /^class(\s+|{)/.test(value.toString());
 }
 function isDataView(value) {
     return getObjectType(value) === 'DataView';
@@ -39247,15 +39227,22 @@ function isIsMethodName(value) {
     return isMethodNames.includes(value);
 }
 function assertAll(predicate, ...values) {
+    if (values.length === 0) {
+        throw new TypeError('Invalid number of values');
+    }
     if (!isAll(predicate, ...values)) {
-        const expectedType = isIsMethodName(predicate.name) ? methodTypeMap[predicate.name] : 'predicate returns truthy for all values';
+        const predicateFunction = predicate;
+        const expectedType = !Array.isArray(predicate) && isIsMethodName(predicateFunction.name) ? methodTypeMap[predicateFunction.name] : 'predicate returns truthy for all values';
         throw new TypeError(typeErrorMessageMultipleValues(expectedType, values));
     }
 }
 function assertAny(predicate, ...values) {
+    if (values.length === 0) {
+        throw new TypeError('Invalid number of values');
+    }
     if (!isAny(predicate, ...values)) {
-        const predicates = isArray(predicate) ? predicate : [predicate];
-        const expectedTypes = predicates.map(predicate => isIsMethodName(predicate.name) ? methodTypeMap[predicate.name] : 'predicate returns truthy for any value');
+        const predicates = Array.isArray(predicate) ? predicate : [predicate];
+        const expectedTypes = predicates.map(singlePredicate => isIsMethodName(singlePredicate.name) ? methodTypeMap[singlePredicate.name] : 'predicate returns truthy for any value');
         throw new TypeError(typeErrorMessageMultipleValues(expectedTypes, values));
     }
 }
@@ -39848,7 +39835,7 @@ class PCancelable {
 
 Object.setPrototypeOf(PCancelable.prototype, Promise.prototype);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/errors.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/errors.js
 
 // A hacky check to prevent circular references.
 function isRequest(x) {
@@ -40005,119 +39992,20 @@ var external_node_buffer_ = __nccwpck_require__(4573);
 var external_node_stream_ = __nccwpck_require__(7075);
 // EXTERNAL MODULE: external "node:http"
 var external_node_http_ = __nccwpck_require__(7067);
-// EXTERNAL MODULE: external "events"
-var external_events_ = __nccwpck_require__(4434);
-// EXTERNAL MODULE: external "util"
-var external_util_ = __nccwpck_require__(9023);
-// EXTERNAL MODULE: ./node_modules/.pnpm/defer-to-connect@2.0.1/node_modules/defer-to-connect/dist/source/index.js
-var source = __nccwpck_require__(6181);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/@szmarczak+http-timer@5.0.1/node_modules/@szmarczak/http-timer/dist/source/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/byte-counter@0.1.0/node_modules/byte-counter/utilities.js
+const textEncoder = new TextEncoder();
 
+function byteLength(data) {
+	if (typeof data === 'string') {
+		return textEncoder.encode(data).byteLength;
+	}
 
+	if (ArrayBuffer.isView(data) || data instanceof ArrayBuffer || data instanceof SharedArrayBuffer) {
+		return data.byteLength;
+	}
 
-const timer = (request) => {
-    if (request.timings) {
-        return request.timings;
-    }
-    const timings = {
-        start: Date.now(),
-        socket: undefined,
-        lookup: undefined,
-        connect: undefined,
-        secureConnect: undefined,
-        upload: undefined,
-        response: undefined,
-        end: undefined,
-        error: undefined,
-        abort: undefined,
-        phases: {
-            wait: undefined,
-            dns: undefined,
-            tcp: undefined,
-            tls: undefined,
-            request: undefined,
-            firstByte: undefined,
-            download: undefined,
-            total: undefined,
-        },
-    };
-    request.timings = timings;
-    const handleError = (origin) => {
-        origin.once(external_events_.errorMonitor, () => {
-            timings.error = Date.now();
-            timings.phases.total = timings.error - timings.start;
-        });
-    };
-    handleError(request);
-    const onAbort = () => {
-        timings.abort = Date.now();
-        timings.phases.total = timings.abort - timings.start;
-    };
-    request.prependOnceListener('abort', onAbort);
-    const onSocket = (socket) => {
-        timings.socket = Date.now();
-        timings.phases.wait = timings.socket - timings.start;
-        if (external_util_.types.isProxy(socket)) {
-            return;
-        }
-        const lookupListener = () => {
-            timings.lookup = Date.now();
-            timings.phases.dns = timings.lookup - timings.socket;
-        };
-        socket.prependOnceListener('lookup', lookupListener);
-        source(socket, {
-            connect: () => {
-                timings.connect = Date.now();
-                if (timings.lookup === undefined) {
-                    socket.removeListener('lookup', lookupListener);
-                    timings.lookup = timings.connect;
-                    timings.phases.dns = timings.lookup - timings.socket;
-                }
-                timings.phases.tcp = timings.connect - timings.lookup;
-            },
-            secureConnect: () => {
-                timings.secureConnect = Date.now();
-                timings.phases.tls = timings.secureConnect - timings.connect;
-            },
-        });
-    };
-    if (request.socket) {
-        onSocket(request.socket);
-    }
-    else {
-        request.prependOnceListener('socket', onSocket);
-    }
-    const onUpload = () => {
-        timings.upload = Date.now();
-        timings.phases.request = timings.upload - (timings.secureConnect ?? timings.connect);
-    };
-    if (request.writableFinished) {
-        onUpload();
-    }
-    else {
-        request.prependOnceListener('finish', onUpload);
-    }
-    request.prependOnceListener('response', (response) => {
-        timings.response = Date.now();
-        timings.phases.firstByte = timings.response - timings.upload;
-        response.timings = timings;
-        handleError(response);
-        response.prependOnceListener('end', () => {
-            request.off('abort', onAbort);
-            response.off('aborted', onAbort);
-            if (timings.phases.total) {
-                // Aborted or errored
-                return;
-            }
-            timings.end = Date.now();
-            timings.phases.download = timings.end - timings.response;
-            timings.phases.total = timings.end - timings.start;
-        });
-        response.prependOnceListener('aborted', onAbort);
-    });
-    return timings;
-};
-/* harmony default export */ const dist_source = (timer);
+	return 0;
+}
 
 // EXTERNAL MODULE: external "node:crypto"
 var external_node_crypto_ = __nccwpck_require__(7598);
@@ -40469,8 +40357,8 @@ async function getStreamAsArrayBuffer(stream, options) {
 
 const initArrayBuffer = () => ({contents: new ArrayBuffer(0)});
 
-const useTextEncoder = chunk => textEncoder.encode(chunk);
-const textEncoder = new TextEncoder();
+const useTextEncoder = chunk => array_buffer_textEncoder.encode(chunk);
+const array_buffer_textEncoder = new TextEncoder();
 
 const useUint8Array = chunk => new Uint8Array(chunk);
 
@@ -40627,7 +40515,7 @@ var defaultDeserialize = (data) => JSON.parse(data, (_, value) => {
 });
 
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/keyv@5.5.3/node_modules/keyv/dist/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/keyv@5.5.5/node_modules/keyv/dist/index.js
 // src/index.ts
 
 
@@ -40998,14 +40886,14 @@ var Keyv = class extends event_manager_default {
   }
   /**
    * Get the current TTL.
-   * @returns {number} The current TTL.
+   * @returns {number} The current TTL in milliseconds.
    */
   get ttl() {
     return this._ttl;
   }
   /**
    * Set the current TTL.
-   * @param {number} ttl The TTL to set.
+   * @param {number} ttl The TTL to set in milliseconds.
    */
   set ttl(ttl) {
     this.opts.ttl = ttl;
@@ -41144,11 +41032,19 @@ var Keyv = class extends event_manager_default {
     }
     const deserializedData = typeof rawData === "string" || this.opts.compression ? await this.deserializeData(rawData) : rawData;
     if (deserializedData === void 0 || deserializedData === null) {
+      this.hooks.trigger("postGet" /* POST_GET */, {
+        key: keyPrefixed,
+        value: void 0
+      });
       this.stats.miss();
       return void 0;
     }
     if (isDataExpired(deserializedData)) {
       await this.delete(key);
+      this.hooks.trigger("postGet" /* POST_GET */, {
+        key: keyPrefixed,
+        value: void 0
+      });
       this.stats.miss();
       return void 0;
     }
@@ -41228,12 +41124,20 @@ var Keyv = class extends event_manager_default {
     this.hooks.trigger("preGetRaw" /* PRE_GET_RAW */, { key: keyPrefixed });
     const rawData = await store.get(keyPrefixed);
     if (rawData === void 0 || rawData === null) {
+      this.hooks.trigger("postGetRaw" /* POST_GET_RAW */, {
+        key: keyPrefixed,
+        value: void 0
+      });
       this.stats.miss();
       return void 0;
     }
     const deserializedData = typeof rawData === "string" || this.opts.compression ? await this.deserializeData(rawData) : rawData;
     if (deserializedData !== void 0 && deserializedData.expires !== void 0 && deserializedData.expires !== null && // biome-ignore lint/style/noNonNullAssertion: need to fix
     deserializedData.expires < Date.now()) {
+      this.hooks.trigger("postGetRaw" /* POST_GET_RAW */, {
+        key: keyPrefixed,
+        value: void 0
+      });
       this.stats.miss();
       await this.delete(key);
       return void 0;
@@ -41568,6 +41472,7 @@ var Keyv = class extends event_manager_default {
 };
 var index_default = (/* unused pure expression or super */ null && (Keyv));
 
+/* v8 ignore next -- @preserve */
 
 ;// CONCATENATED MODULE: ./node_modules/.pnpm/mimic-response@4.0.0/node_modules/mimic-response/index.js
 // We define these manually to ensure they're always copied
@@ -41646,7 +41551,7 @@ function mimicResponse(fromStream, toStream) {
 	return toStream;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/normalize-url@8.1.0/node_modules/normalize-url/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/normalize-url@8.1.1/node_modules/normalize-url/index.js
 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs
 const DATA_URL_DEFAULT_MIME_TYPE = 'text/plain';
 const DATA_URL_DEFAULT_CHARSET = 'us-ascii';
@@ -41678,14 +41583,12 @@ const normalizeDataURL = (urlString, {stripHash}) => {
 		throw new Error(`Invalid URL: ${urlString}`);
 	}
 
-	let {type, data, hash} = match.groups;
+	const {type, data, hash} = match.groups;
 	const mediaType = type.split(';');
-	hash = stripHash ? '' : hash;
 
-	let isBase64 = false;
-	if (mediaType[mediaType.length - 1] === 'base64') {
+	const isBase64 = mediaType.at(-1) === 'base64';
+	if (isBase64) {
 		mediaType.pop();
-		isBase64 = true;
 	}
 
 	// Lowercase MIME type
@@ -41707,9 +41610,7 @@ const normalizeDataURL = (urlString, {stripHash}) => {
 		})
 		.filter(Boolean);
 
-	const normalizedMediaType = [
-		...attributes,
-	];
+	const normalizedMediaType = [...attributes];
 
 	if (isBase64) {
 		normalizedMediaType.push('base64');
@@ -41719,7 +41620,8 @@ const normalizeDataURL = (urlString, {stripHash}) => {
 		normalizedMediaType.unshift(mimeType);
 	}
 
-	return `data:${normalizedMediaType.join(';')},${isBase64 ? data.trim() : data}${hash ? `#${hash}` : ''}`;
+	const hashPart = stripHash || !hash ? '' : `#${hash}`;
+	return `data:${normalizedMediaType.join(';')},${isBase64 ? data.trim() : data}${hashPart}`;
 };
 
 function normalizeUrl(urlString, options) {
@@ -41842,12 +41744,12 @@ function normalizeUrl(urlString, options) {
 	}
 
 	if (Array.isArray(options.removeDirectoryIndex) && options.removeDirectoryIndex.length > 0) {
-		let pathComponents = urlObject.pathname.split('/');
-		const lastComponent = pathComponents[pathComponents.length - 1];
+		const pathComponents = urlObject.pathname.split('/').filter(Boolean);
+		const lastComponent = pathComponents.at(-1);
 
-		if (testParameter(lastComponent, options.removeDirectoryIndex)) {
-			pathComponents = pathComponents.slice(0, -1);
-			urlObject.pathname = pathComponents.slice(1).join('/') + '/';
+		if (lastComponent && testParameter(lastComponent, options.removeDirectoryIndex)) {
+			pathComponents.pop();
+			urlObject.pathname = pathComponents.length > 0 ? `/${pathComponents.join('/')}/` : '/';
 		}
 	}
 
@@ -41961,7 +41863,7 @@ function lowercaseKeys(object) {
 	return Object.fromEntries(Object.entries(object).map(([key, value]) => [key.toLowerCase(), value]));
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/responselike@3.0.0/node_modules/responselike/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/responselike@4.0.2/node_modules/responselike/index.js
 
 
 
@@ -41970,6 +41872,7 @@ class Response extends external_node_stream_.Readable {
 	headers;
 	body;
 	url;
+	complete;
 
 	constructor({statusCode, headers, body, url}) {
 		if (typeof statusCode !== 'number') {
@@ -41988,9 +41891,17 @@ class Response extends external_node_stream_.Readable {
 			throw new TypeError('Argument `url` should be a string');
 		}
 
+		let bodyPushed = false;
 		super({
 			read() {
-				this.push(body);
+				// Push body on first read, end stream on second read.
+				// This allows listeners to attach before data flows through pipes.
+				if (!bodyPushed) {
+					bodyPushed = true;
+					this.push(body);
+					return;
+				}
+
 				this.push(null);
 			},
 		});
@@ -41999,10 +41910,11 @@ class Response extends external_node_stream_.Readable {
 		this.headers = lowercaseKeys(headers);
 		this.body = body;
 		this.url = url;
+		this.complete = true;
 	}
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@13.0.12/node_modules/cacheable-request/dist/types.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@13.0.17/node_modules/cacheable-request/dist/types.js
 // Type definitions for cacheable-request 6.0
 // Project: https://github.com/lukechilds/cacheable-request#readme
 // Definitions by: BendingBender <https://github.com/BendingBender>
@@ -42022,7 +41934,7 @@ class types_CacheError extends Error {
     }
 }
 //# sourceMappingURL=types.js.map
-;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@13.0.12/node_modules/cacheable-request/dist/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/cacheable-request@13.0.17/node_modules/cacheable-request/dist/index.js
 // biome-ignore-all lint/suspicious/noImplicitAnyLet: legacy format
 // biome-ignore-all lint/suspicious/noExplicitAny: legacy format
 
@@ -42111,14 +42023,37 @@ class CacheableRequest {
                 const handler = async (response) => {
                     if (revalidate) {
                         response.status = response.statusCode;
-                        const revalidatedPolicy = http_cache_semantics.fromObject(revalidate.cachePolicy).revalidatedPolicy(options_, response);
+                        const originalPolicy = http_cache_semantics.fromObject(revalidate.cachePolicy);
+                        const revalidatedPolicy = originalPolicy.revalidatedPolicy(options_, response);
                         if (!revalidatedPolicy.modified) {
                             response.resume();
                             await new Promise((resolve) => {
                                 // Skipping 'error' handler cause 'error' event should't be emitted for 304 response
                                 response.once("end", resolve);
                             });
+                            // Get headers from revalidated policy
                             const headers = convertHeaders(revalidatedPolicy.policy.responseHeaders());
+                            // Preserve headers from the original cached response that may have been
+                            // lost during revalidation (e.g., content-encoding, content-type, etc.)
+                            // This works around a limitation in http-cache-semantics where some headers
+                            // are not preserved when a 304 response has minimal headers
+                            const originalHeaders = convertHeaders(originalPolicy.responseHeaders());
+                            // Headers that should be preserved from the cached response
+                            // according to RFC 7232 section 4.1
+                            const preserveHeaders = [
+                                "content-encoding",
+                                "content-type",
+                                "content-length",
+                                "content-language",
+                                "content-location",
+                                "etag",
+                            ];
+                            for (const headerName of preserveHeaders) {
+                                if (originalHeaders[headerName] !== undefined &&
+                                    headers[headerName] === undefined) {
+                                    headers[headerName] = originalHeaders[headerName];
+                                }
+                            }
                             response = new Response({
                                 statusCode: revalidate.statusCode,
                                 headers,
@@ -42165,10 +42100,12 @@ class CacheableRequest {
                                     }
                                 }
                                 await this.cache.set(key, value, ttl);
+                                /* c8 ignore next -- @preserve */
                             }
                             catch (error) {
-                                /* c8 ignore next 2 */
+                                /* c8 ignore next -- @preserve */
                                 ee.emit("error", new types_CacheError(error));
+                                /* c8 ignore next -- @preserve */
                             }
                         })();
                     }
@@ -42176,10 +42113,12 @@ class CacheableRequest {
                         (async () => {
                             try {
                                 await this.cache.delete(key);
+                                /* c8 ignore next -- @preserve */
                             }
                             catch (error) {
-                                /* c8 ignore next 2 */
+                                /* c8 ignore next -- @preserve */
                                 ee.emit("error", new types_CacheError(error));
+                                /* c8 ignore next -- @preserve */
                             }
                         })();
                     }
@@ -42256,7 +42195,7 @@ class CacheableRequest {
                     await get(options);
                 }
                 catch (error) {
-                    /* c8 ignore next 3 */
+                    /* v8 ignore next -- @preserve */
                     if (options.automaticFailover && !madeRequest) {
                         makeRequest(options);
                     }
@@ -42788,13 +42727,223 @@ getContentLength_fn = function() {
 
 // EXTERNAL MODULE: external "node:util"
 var external_node_util_ = __nccwpck_require__(7975);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/is-form-data.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/defer-to-connect.js
+function isTlsSocket(socket) {
+    return 'encrypted' in socket;
+}
+const deferToConnect = (socket, fn) => {
+    let listeners;
+    if (typeof fn === 'function') {
+        const connect = fn;
+        listeners = { connect };
+    }
+    else {
+        listeners = fn;
+    }
+    const hasConnectListener = typeof listeners.connect === 'function';
+    const hasSecureConnectListener = typeof listeners.secureConnect === 'function';
+    const hasCloseListener = typeof listeners.close === 'function';
+    const onConnect = () => {
+        if (hasConnectListener) {
+            listeners.connect();
+        }
+        if (isTlsSocket(socket) && hasSecureConnectListener) {
+            if (socket.authorized) {
+                listeners.secureConnect();
+            }
+            else {
+                // Wait for secureConnect event (even if authorization fails, we need the timing)
+                socket.once('secureConnect', listeners.secureConnect);
+            }
+        }
+        if (hasCloseListener) {
+            socket.once('close', listeners.close);
+        }
+    };
+    if (socket.writable && !socket.connecting) {
+        onConnect();
+    }
+    else if (socket.connecting) {
+        socket.once('connect', onConnect);
+    }
+    else if (socket.destroyed && hasCloseListener) {
+        const hadError = '_hadError' in socket ? Boolean(socket._hadError) : false;
+        listeners.close(hadError);
+    }
+};
+/* harmony default export */ const defer_to_connect = (deferToConnect);
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/timer.js
+
+
+
+const timer = (request) => {
+    if (request.timings) {
+        return request.timings;
+    }
+    const timings = {
+        start: Date.now(),
+        socket: undefined,
+        lookup: undefined,
+        connect: undefined,
+        secureConnect: undefined,
+        upload: undefined,
+        response: undefined,
+        end: undefined,
+        error: undefined,
+        abort: undefined,
+        phases: {
+            wait: undefined,
+            dns: undefined,
+            tcp: undefined,
+            tls: undefined,
+            request: undefined,
+            firstByte: undefined,
+            download: undefined,
+            total: undefined,
+        },
+    };
+    request.timings = timings;
+    const handleError = (origin) => {
+        origin.once(external_node_events_.errorMonitor, () => {
+            timings.error = Date.now();
+            timings.phases.total = timings.error - timings.start;
+        });
+    };
+    handleError(request);
+    const onAbort = () => {
+        timings.abort = Date.now();
+        timings.phases.total = timings.abort - timings.start;
+    };
+    request.prependOnceListener('abort', onAbort);
+    const onSocket = (socket) => {
+        timings.socket = Date.now();
+        timings.phases.wait = timings.socket - timings.start;
+        if (external_node_util_.types.isProxy(socket)) {
+            // HTTP/2: The socket is a proxy, so connection events won't fire.
+            // We can't measure connection timings, so leave them undefined.
+            // This prevents NaN in phases.request calculation.
+            return;
+        }
+        // Check if socket is already connected (reused from connection pool)
+        const socketAlreadyConnected = socket.writable && !socket.connecting;
+        if (socketAlreadyConnected) {
+            // Socket reuse detected: the socket was already connected from a previous request.
+            // For reused sockets, set all connection timestamps to socket time since no new
+            // connection was made for THIS request. But preserve phase durations from the
+            // original connection so they're not lost.
+            timings.lookup = timings.socket;
+            timings.connect = timings.socket;
+            if (socket.__initial_connection_timings__) {
+                // Restore the phase timings from the initial connection
+                timings.phases.dns = socket.__initial_connection_timings__.dnsPhase;
+                timings.phases.tcp = socket.__initial_connection_timings__.tcpPhase;
+                timings.phases.tls = socket.__initial_connection_timings__.tlsPhase;
+                // Set secureConnect timestamp if there was TLS
+                if (timings.phases.tls !== undefined) {
+                    timings.secureConnect = timings.socket;
+                }
+            }
+            else {
+                // Socket reused but no initial timings stored (e.g., from external code)
+                // Set phases to 0
+                timings.phases.dns = 0;
+                timings.phases.tcp = 0;
+            }
+            return;
+        }
+        const lookupListener = () => {
+            timings.lookup = Date.now();
+            timings.phases.dns = timings.lookup - timings.socket;
+        };
+        socket.prependOnceListener('lookup', lookupListener);
+        defer_to_connect(socket, {
+            connect() {
+                timings.connect = Date.now();
+                if (timings.lookup === undefined) {
+                    // No DNS lookup occurred (e.g., connecting to an IP address directly)
+                    // Set lookup to socket time (no time elapsed for DNS)
+                    socket.removeListener('lookup', lookupListener);
+                    timings.lookup = timings.socket;
+                    timings.phases.dns = 0;
+                }
+                timings.phases.tcp = timings.connect - timings.lookup;
+                // If lookup and connect happen at the EXACT same time (tcp = 0),
+                // DNS was served from cache and the dns value is just event loop overhead.
+                // Set dns to 0 to indicate no actual DNS resolution occurred.
+                // Fixes https://github.com/szmarczak/http-timer/issues/35
+                if (timings.phases.tcp === 0 && timings.phases.dns && timings.phases.dns > 0) {
+                    timings.phases.dns = 0;
+                }
+                // Store connection phase timings on socket for potential reuse
+                if (!socket.__initial_connection_timings__) {
+                    socket.__initial_connection_timings__ = {
+                        dnsPhase: timings.phases.dns,
+                        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- TypeScript can't prove this is defined due to callback structure
+                        tcpPhase: timings.phases.tcp,
+                    };
+                }
+            },
+            secureConnect() {
+                timings.secureConnect = Date.now();
+                timings.phases.tls = timings.secureConnect - timings.connect;
+                // Update stored timings with TLS phase timing
+                if (socket.__initial_connection_timings__) {
+                    socket.__initial_connection_timings__.tlsPhase = timings.phases.tls;
+                }
+            },
+        });
+    };
+    if (request.socket) {
+        onSocket(request.socket);
+    }
+    else {
+        request.prependOnceListener('socket', onSocket);
+    }
+    const onUpload = () => {
+        timings.upload = Date.now();
+        // Calculate request phase if we have connection timings
+        const secureOrConnect = timings.secureConnect ?? timings.connect;
+        if (secureOrConnect !== undefined) {
+            timings.phases.request = timings.upload - secureOrConnect;
+        }
+        // If both are undefined (HTTP/2), phases.request stays undefined (not NaN)
+    };
+    if (request.writableFinished) {
+        onUpload();
+    }
+    else {
+        request.prependOnceListener('finish', onUpload);
+    }
+    request.prependOnceListener('response', (response) => {
+        timings.response = Date.now();
+        timings.phases.firstByte = timings.response - timings.upload;
+        response.timings = timings;
+        handleError(response);
+        response.prependOnceListener('end', () => {
+            request.off('abort', onAbort);
+            response.off('aborted', onAbort);
+            if (timings.phases.total !== undefined) {
+                // Aborted or errored
+                return;
+            }
+            timings.end = Date.now();
+            timings.phases.download = timings.end - timings.response;
+            timings.phases.total = timings.end - timings.start;
+        });
+        response.prependOnceListener('aborted', onAbort);
+    });
+    return timings;
+};
+/* harmony default export */ const utils_timer = (timer);
+
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/is-form-data.js
 
 function is_form_data_isFormData(body) {
     return distribution.nodeStream(body) && distribution.function(body.getBoundary);
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/get-body-size.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/get-body-size.js
 
 
 
@@ -42833,7 +42982,7 @@ async function getBodySize(body, headers) {
     return undefined;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/proxy-events.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/proxy-events.js
 function proxyEvents(from, to, events) {
     const eventFunctions = {};
     for (const event of events) {
@@ -42852,7 +43001,7 @@ function proxyEvents(from, to, events) {
 
 ;// CONCATENATED MODULE: external "node:net"
 const external_node_net_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:net");
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/unhandle.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/unhandle.js
 // When attaching listeners, it's very easy to forget about them.
 // Especially if you do error handling and set timeouts.
 // So instead of checking if it's proper to throw an error on every timeout ever,
@@ -42874,7 +43023,7 @@ function unhandle() {
     };
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/timed-out.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/timed-out.js
 
 
 const reentry = Symbol('reentry');
@@ -43012,7 +43161,7 @@ function timedOut(request, delays, options) {
     return cancelTimeouts;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/url-to-options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/url-to-options.js
 
 function urlToOptions(url) {
     // Cast to URL
@@ -43036,7 +43185,7 @@ function urlToOptions(url) {
     return options;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/weakable-map.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/weakable-map.js
 class WeakableMap {
     weakMap = new WeakMap();
     map = new Map();
@@ -43062,7 +43211,7 @@ class WeakableMap {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/calculate-retry-delay.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/calculate-retry-delay.js
 const calculateRetryDelay = ({ attemptCount, retryOptions, error, retryAfter, computedValue, }) => {
     if (error.name === 'RetryError') {
         return 1;
@@ -43550,8 +43699,8 @@ class CacheableLookup {
 }
 
 // EXTERNAL MODULE: ./node_modules/.pnpm/http2-wrapper@2.2.1/node_modules/http2-wrapper/source/index.js
-var http2_wrapper_source = __nccwpck_require__(882);
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/parse-link-header.js
+var source = __nccwpck_require__(882);
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/parse-link-header.js
 function parseLinkHeader(link) {
     const parsed = [];
     const items = link.split(',');
@@ -43586,7 +43735,7 @@ function parseLinkHeader(link) {
     return parsed;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/options.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/options.js
 
 
 
@@ -44370,7 +44519,7 @@ class Options {
         }
         // Detect if URL is already absolute (has a protocol/scheme)
         const valueString = value.toString();
-        const isAbsolute = distribution.urlInstance(value) || /^[a-z][a-z\d+.-]*:/i.test(valueString);
+        const isAbsolute = distribution.urlInstance(value) || /^[a-z][a-z\d+.-]*:\/\//i.test(valueString);
         // Only concatenate prefixUrl if the URL is relative
         const urlString = isAbsolute ? valueString : `${this.prefixUrl}${valueString}`;
         const url = new URL(urlString);
@@ -45321,7 +45470,7 @@ class Options {
                 // If no custom agent.http2 is provided, use the global agent for connection pooling
                 agent = {
                     ...internals.agent,
-                    http2: internals.agent.http2 ?? http2_wrapper_source.globalAgent,
+                    http2: internals.agent.http2 ?? source.globalAgent,
                 };
             }
             else {
@@ -45398,7 +45547,7 @@ class Options {
                     error.code = 'EUNSUPPORTED';
                     throw error;
                 }
-                return http2_wrapper_source.auto;
+                return source.auto;
             }
             return external_node_https_.request;
         }
@@ -45426,7 +45575,7 @@ class Options {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/response.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/response.js
 
 const isResponseOk = (response) => {
     const { statusCode } = response;
@@ -45469,13 +45618,13 @@ const parseBody = (response, responseType, parseJson, encoding) => {
     }, response);
 };
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/is-client-request.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/is-client-request.js
 function isClientRequest(clientRequest) {
     return clientRequest.writable && !clientRequest.writableEnded;
 }
 /* harmony default export */ const is_client_request = (isClientRequest);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/utils/is-unix-socket-url.js
 // eslint-disable-next-line @typescript-eslint/naming-convention
 function isUnixSocketURL(url) {
     return url.protocol === 'unix:' || url.hostname === 'unix';
@@ -45504,7 +45653,7 @@ function getUnixSocketPath(url) {
 
 ;// CONCATENATED MODULE: external "node:diagnostics_channel"
 const external_node_diagnostics_channel_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:diagnostics_channel");
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/diagnostics-channel.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/diagnostics-channel.js
 
 
 const channels = {
@@ -45555,7 +45704,8 @@ function publishRedirect(message) {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/core/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/core/index.js
+
 
 
 
@@ -45581,8 +45731,6 @@ function publishRedirect(message) {
 const supportsBrotli = distribution.string(external_node_process_.versions.brotli);
 const core_supportsZstd = distribution.string(external_node_process_.versions.zstd);
 const methodsWithoutBody = new Set(['GET', 'HEAD']);
-// Methods that should auto-end streams when no body is provided
-const methodsWithoutBodyStream = new Set(['OPTIONS', 'DELETE', 'PATCH']);
 const cacheableStore = new WeakableMap();
 const redirectCodes = new Set([300, 301, 302, 303, 304, 307, 308]);
 // Track errors that have been processed by beforeError hooks to preserve custom error types
@@ -45595,17 +45743,6 @@ const proxiedRequestEvents = [
     'upgrade',
 ];
 const core_noop = () => { };
-/**
-Stream transform that counts bytes passing through.
-Used to track compressed bytes before decompression for content-length validation.
-*/
-class ByteCounter extends external_node_stream_.Transform {
-    count = 0;
-    _transform(chunk, _encoding, callback) {
-        this.count += chunk.length;
-        callback(null, chunk);
-    }
-}
 class Request extends external_node_stream_.Duplex {
     // @ts-expect-error - Ignoring for now.
     ['constructor'];
@@ -45634,7 +45771,7 @@ class Request extends external_node_stream_.Duplex {
     _flushed = false;
     _aborted = false;
     _expectedContentLength;
-    _byteCounter;
+    _compressedBytesCount;
     _requestId = generateRequestId();
     // We need this because `this._request` if `undefined` when using cache
     _requestInitialized = false;
@@ -46031,9 +46168,9 @@ class Request extends external_node_stream_.Duplex {
     }
     _checkContentLengthMismatch() {
         if (this.options.strictContentLength && this._expectedContentLength !== undefined) {
-            // Use ByteCounter's count when available (for compressed responses),
+            // Use compressed bytes count when available (for compressed responses),
             // otherwise use _downloadedSize (for uncompressed responses)
-            const actualSize = this._byteCounter?.count ?? this._downloadedSize;
+            const actualSize = this._compressedBytesCount ?? this._downloadedSize;
             if (actualSize !== this._expectedContentLength) {
                 this._beforeError(new ReadError({
                     message: `Content-Length mismatch: expected ${this._expectedContentLength} bytes, received ${actualSize} bytes`,
@@ -46136,9 +46273,9 @@ class Request extends external_node_stream_.Duplex {
             // When strictContentLength is enabled, track compressed bytes by listening to
             // the native response's data events before decompression
             if (options.strictContentLength) {
-                this._byteCounter = new ByteCounter();
+                this._compressedBytesCount = 0;
                 this._nativeResponse.on('data', (chunk) => {
-                    this._byteCounter.count += chunk.length;
+                    this._compressedBytesCount += byteLength(chunk);
                 });
             }
             response = decompressResponse(response);
@@ -46164,27 +46301,6 @@ class Request extends external_node_stream_.Duplex {
             headers: response.headers,
             isFromCache: typedResponse.isFromCache,
         });
-        // Workaround for http-timer bug: when connecting to an IP address (no DNS lookup),
-        // http-timer sets lookup = connect instead of lookup = socket, resulting in
-        // dns = lookup - socket being a small positive number instead of 0.
-        // See https://github.com/sindresorhus/got/issues/2279
-        const { timings } = response;
-        if (timings?.lookup !== undefined && timings.socket !== undefined && timings.connect !== undefined && timings.lookup === timings.connect && timings.phases.dns !== 0) {
-            // Fix the DNS phase to be 0 and set lookup to socket time
-            timings.phases.dns = 0;
-            timings.lookup = timings.socket;
-            // Recalculate TCP time to be the full time from socket to connect
-            timings.phases.tcp = timings.connect - timings.socket;
-        }
-        // Workaround for http-timer limitation with HTTP/2:
-        // When using HTTP/2, the socket is a proxy that http-timer discards,
-        // so lookup, connect, and secureConnect events are never captured.
-        // This results in phases.request being NaN (undefined - undefined).
-        // Set it to undefined to be consistent with other unavailable timings.
-        // See https://github.com/sindresorhus/got/issues/1958
-        if (timings && Number.isNaN(timings.phases.request)) {
-            timings.phases.request = undefined;
-        }
         response.once('error', (error) => {
             this._aborted = true;
             // Force clean-up, because some packages don't do this.
@@ -46434,7 +46550,7 @@ class Request extends external_node_stream_.Duplex {
             method: options.method,
             headers: options.headers,
         });
-        dist_source(request);
+        utils_timer(request);
         this._cancelTimeouts = timedOut(request, timeout, url);
         if (this.options.http2) {
             // Unset stream timeout, as the `timeout` option was used only for connection timeout.
@@ -46512,8 +46628,7 @@ class Request extends external_node_stream_.Duplex {
         else if (distribution.undefined(body)) {
             // No body to send, end the request
             const cannotHaveBody = methodsWithoutBody.has(this.options.method) && !(this.options.method === 'GET' && this.options.allowGetBody);
-            const shouldAutoEndStream = methodsWithoutBodyStream.has(this.options.method);
-            if ((this._noPipe ?? false) || cannotHaveBody || currentRequest !== this || shouldAutoEndStream) {
+            if ((this._noPipe ?? false) || cannotHaveBody || currentRequest !== this) {
                 currentRequest.end();
             }
         }
@@ -46817,7 +46932,9 @@ class Request extends external_node_stream_.Duplex {
         this._request.write(chunk, encoding, (error) => {
             // The `!destroyed` check is required to prevent `uploadProgress` being emitted after the stream was destroyed
             if (!error && !this._request.destroyed) {
-                this._uploadedSize += external_node_buffer_.Buffer.byteLength(chunk, encoding);
+                // For strings, encode them first to measure the actual bytes that will be sent
+                const bytes = typeof chunk === 'string' ? external_node_buffer_.Buffer.from(chunk, encoding) : chunk;
+                this._uploadedSize += byteLength(bytes);
                 const progress = this.uploadProgress;
                 if (progress.percent < 1) {
                     this.emit('uploadProgress', progress);
@@ -46928,7 +47045,7 @@ class Request extends external_node_stream_.Duplex {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/as-promise/types.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/as-promise/types.js
 
 /**
 An error to be thrown when the request is aborted with `.cancel()`.
@@ -46947,7 +47064,7 @@ class types_CancelError extends RequestError {
     }
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/as-promise/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/as-promise/index.js
 
 
 
@@ -47153,7 +47270,7 @@ function asPromise(firstRequest) {
     return promise;
 }
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/create.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/create.js
 
 
 
@@ -47343,7 +47460,7 @@ const create = (defaults) => {
 };
 /* harmony default export */ const source_create = (create);
 
-;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.1/node_modules/got/dist/source/index.js
+;// CONCATENATED MODULE: ./node_modules/.pnpm/got@14.6.6/node_modules/got/dist/source/index.js
 
 
 const defaults = {
@@ -47352,7 +47469,7 @@ const defaults = {
     mutableDefaults: false,
 };
 const got = source_create(defaults);
-/* harmony default export */ const got_dist_source = (got);
+/* harmony default export */ const dist_source = (got);
 // TODO: Remove this in the next major version.
 
 
@@ -47383,7 +47500,7 @@ async function send(coverallsOut) {
     try {
         const form = new FormData();
         form.set("json_file", fileFromPathSync(coverallsOut));
-        const res = await got_dist_source.post("https://coveralls.io/api/v1/jobs", {
+        const res = await dist_source.post("https://coveralls.io/api/v1/jobs", {
             body: form,
         });
         (0,dist/* logInfo */.fH)(`HTTP status code ${res.statusCode.toString()}: ${res.body}`);
@@ -47595,8 +47712,8 @@ var index_esm = __nccwpck_require__(5313);
 var dist = __nccwpck_require__(7867);
 ;// CONCATENATED MODULE: external "process"
 const external_process_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("process");
-// EXTERNAL MODULE: ./src/coveralls.ts + 52 modules
-var coveralls = __nccwpck_require__(5831);
+// EXTERNAL MODULE: ./src/coveralls.ts + 54 modules
+var coveralls = __nccwpck_require__(7451);
 ;// CONCATENATED MODULE: ./src/gcovr.ts
 
 
@@ -47746,7 +47863,7 @@ async function run(inputs) {
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
 /* harmony import */ var gha_utils__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7867);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(9334);
-/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(5831);
+/* harmony import */ var _coveralls_js__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(7451);
 /* harmony import */ var _deps_index_js__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(2386);
 /* harmony import */ var _gcovr_js__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(386);
 
