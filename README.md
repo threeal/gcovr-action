@@ -153,4 +153,4 @@ By default, gcovr works well with projects compiled using GCC. However, for proj
 
 This project is licensed under the terms of the [MIT License](./LICENSE).
 
-Copyright © 2022-2025 [Alfi Maulana](https://github.com/threeal/)
+Copyright © 2022-2026 [Alfi Maulana](https://github.com/threeal/)
