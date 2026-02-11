@@ -12,8 +12,8 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5
       '@actions/exec':
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^3.0.0
+        version: 3.0.0
       '@actions/io':
         specifier: ^1.1.3
         version: 1.1.3
@@ -88,6 +88,9 @@ packages:
   '@actions/exec@2.0.0':
     resolution: {integrity: sha512-k8ngrX2voJ/RIN6r9xB82NVqKpnMRtxDoiO+g3olkIUpQNqjArXrCQceduQZCQj3P3xm32pChRLqRrtXTlqhIw==}
 
+  '@actions/exec@3.0.0':
+    resolution: {integrity: sha512-6xH/puSoNBXb72VPlZVm7vQ+svQpFyA96qdDBvhB8eNZOE8LtPf9L4oAsfzK/crCL8YZ+19fKYVnM63Sl+Xzlw==}
+
   '@actions/glob@0.1.2':
     resolution: {integrity: sha512-SclLR7Ia5sEqjkJTPs7Sd86maMDw43p769YxBOxvPvEWuPEhpAnBsQfENOpXjFYMmhCqd127bmf+YdvJqVqR4A==}
 
@@ -105,6 +108,9 @@ packages:
 
   '@actions/io@2.0.0':
     resolution: {integrity: sha512-Jv33IN09XLO+0HS79aaODsvIRyduiF7NY/F6LYeK5oeUmrsz7aFdRphQjFoESF4jS7lMauDOttKALcpapVDIAg==}
+
+  '@actions/io@3.0.2':
+    resolution: {integrity: sha512-nRBchcMM+QK1pdjO7/idu86rbJI5YHUKCvKs0KxnSYbVe3F51UfGxuZX4Qy/fWlp6l7gWFwIkrOzN+oUK03kfw==}
 
   '@azure/abort-controller@1.1.0':
     resolution: {integrity: sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==}
@@ -1032,6 +1038,10 @@ snapshots:
     dependencies:
       '@actions/io': 2.0.0
 
+  '@actions/exec@3.0.0':
+    dependencies:
+      '@actions/io': 3.0.2
+
   '@actions/glob@0.1.2':
     dependencies:
       '@actions/core': 1.11.1
@@ -1055,6 +1065,8 @@ snapshots:
   '@actions/io@1.1.3': {}
 
   '@actions/io@2.0.0': {}
+
+  '@actions/io@3.0.2': {}
 
   '@azure/abort-controller@1.1.0':
     dependencies:
