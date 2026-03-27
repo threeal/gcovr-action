@@ -16,7 +16,7 @@
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "^25.3.0",
     "@vercel/ncc": "^0.38.4",
-    "eslint": "^9.39.2",
+    "eslint": "^10.1.0",
     "jiti": "^2.6.1",
     "lefthook": "^2.1.1",
     "prettier": "^3.7.4",
