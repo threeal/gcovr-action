@@ -1,5 +1,4 @@
 packages:
   - .
-
-onlyBuiltDependencies:
-  - lefthook
+allowBuilds:
+  lefthook: true
