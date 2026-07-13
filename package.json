@@ -17,7 +17,7 @@
     "@types/node": "^26.1.0",
     "@vercel/ncc": "^0.44.1",
     "eslint": "^10.6.0",
-    "jiti": "^2.6.1",
+    "jiti": "^2.7.0",
     "lefthook": "^2.1.9",
     "prettier": "^3.9.4",
     "prettier-plugin-organize-imports": "^4.3.0",
