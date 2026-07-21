@@ -12,7 +12,7 @@
     "pipx-install-action": "^1.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.4",
+    "@eslint/js": "^10.0.1",
     "@tsconfig/node24": "^24.0.4",
     "@types/node": "^26.1.1",
     "@vercel/ncc": "^0.44.1",
